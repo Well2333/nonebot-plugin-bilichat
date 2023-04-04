@@ -13,8 +13,11 @@ dependencies = [
     "bilireq>=0.2.4",
     "qrcode>=7.4.2",
     "pillow>=9.5.0",
+    "wordcloud>=1.8.2.2",
+    "lxml>=4.9.2",
+    "jieba>=0.42.1",
     "nonebot-plugin-htmlrender>=0.2.0.3",
-    "nonebot-plugin-localstore>=0.4.1"
+    "nonebot-plugin-localstore>=0.4.1",
 ]
 requires-python = ">=3.8,<4.0"
 readme = "README.md"
