@@ -1,15 +1,14 @@
-import qrcode
-
 from io import BytesIO
-from qrcode.image.pil import PilImage
-from PIL import Image, ImageFont, ImageDraw
+
+import qrcode
 from bilireq.exceptions import ResponseCodeError
 from bilireq.grpc.protos.bilibili.app.view.v1.view_pb2 import ViewReply
+from PIL import Image, ImageDraw, ImageFont
+from qrcode.image.pil import PilImage
 
+from .bilibili_request import get_user_space_info, hc
 from .fonts_provider import get_font_sync
 from .strings import get_cut_str, num_fmt
-from .bilibili_request import hc, get_user_space_info
-
 
 font_semibold = str(get_font_sync("sarasa-mono-sc-semibold.ttf"))
 font_bold = str(get_font_sync("sarasa-mono-sc-bold.ttf"))
@@ -17,7 +16,6 @@ font_vanfont = str(get_font_sync("vanfont.ttf"))
 
 
 async def binfo_image_create(video_view: ViewReply, b23_url: str):
-
     video_info = (
         video_view.activity_season if video_view.activity_season.arc.aid else video_view
     )
@@ -187,7 +185,9 @@ async def binfo_image_create(video_view: ViewReply, b23_url: str):
             up_data["card"]["name"] if up_data else f"账号已注销（{uid} "
         )
         # 等级
-        draw.text((160 + name_size_x + 10, 16 + (i * 120)), up_level, level_color, icon_font)
+        draw.text(
+            (160 + name_size_x + 10, 16 + (i * 120)), up_level, level_color, icon_font
+        )
         # 身份
         up_title_size_x, up_title_size_y = up_title_font.getsize(up_title)
         draw.rectangle(
@@ -234,7 +234,8 @@ async def binfo_image_create(video_view: ViewReply, b23_url: str):
     video.paste(info_bg, (20, 390 + title_bg_y + 20 + dynamic_bg_y + 20))
     video.paste(up_bg, (20, 390 + title_bg_y + 20 + dynamic_bg_y + 10 + info_bg_y))
     video.paste(
-        banner_bg, (0, 390 + title_bg_y + 20 + dynamic_bg_y + 10 + info_bg_y + up_bg_y - 18)
+        banner_bg,
+        (0, 390 + title_bg_y + 20 + dynamic_bg_y + 10 + info_bg_y + up_bg_y - 18),
     )
 
     image = BytesIO()

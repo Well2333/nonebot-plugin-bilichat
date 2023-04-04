@@ -1,11 +1,12 @@
 import re
+from typing import List
 
 from loguru import logger
 
-from .openai import openai_req, get_small_size_transcripts, get_user_prompt
+from .openai import get_small_size_transcripts, get_user_prompt, openai_req
 
 
-async def subtitle_summarise(sub: list[str], title: str):
+async def subtitle_summarise(sub: List[str], title: str):
     """请求字幕总结"""
     small_size_transcripts = get_small_size_transcripts(sub)
     prompt = get_user_prompt(title, small_size_transcripts)

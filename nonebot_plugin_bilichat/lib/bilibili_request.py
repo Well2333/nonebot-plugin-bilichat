@@ -1,22 +1,28 @@
-import httpx
-
 from typing import Union
-from loguru import logger
-from bilireq.utils import post, get
-from bilireq.grpc.utils import grpc_request
+
+import httpx
 from bilireq.grpc.dynamic import grpc_get_followed_dynamics
-from bilireq.grpc.protos.bilibili.app.view.v1.view_pb2_grpc import ViewStub
-from bilireq.grpc.protos.bilibili.app.view.v1.view_pb2 import ViewReq, ViewReply
-from bilireq.grpc.protos.bilibili.community.service.dm.v1.dm_pb2_grpc import DMStub
-from bilireq.grpc.protos.bilibili.app.dynamic.v2.dynamic_pb2_grpc import DynamicStub
-from bilireq.grpc.protos.bilibili.app.playurl.v1.playurl_pb2_grpc import PlayURLStub
-from bilireq.grpc.protos.bilibili.app.playurl.v1.playurl_pb2 import PlayViewReq, PlayViewReply
-from bilireq.grpc.protos.bilibili.community.service.dm.v1.dm_pb2 import DmViewReq, DmViewReply
 from bilireq.grpc.protos.bilibili.app.dynamic.v2.dynamic_pb2 import (
     DynamicType,
-    DynDetailsReq,
     DynDetailsReply,
+    DynDetailsReq,
 )
+from bilireq.grpc.protos.bilibili.app.dynamic.v2.dynamic_pb2_grpc import DynamicStub
+from bilireq.grpc.protos.bilibili.app.playurl.v1.playurl_pb2 import (
+    PlayViewReply,
+    PlayViewReq,
+)
+from bilireq.grpc.protos.bilibili.app.playurl.v1.playurl_pb2_grpc import PlayURLStub
+from bilireq.grpc.protos.bilibili.app.view.v1.view_pb2 import ViewReply, ViewReq
+from bilireq.grpc.protos.bilibili.app.view.v1.view_pb2_grpc import ViewStub
+from bilireq.grpc.protos.bilibili.community.service.dm.v1.dm_pb2 import (
+    DmViewReply,
+    DmViewReq,
+)
+from bilireq.grpc.protos.bilibili.community.service.dm.v1.dm_pb2_grpc import DMStub
+from bilireq.grpc.utils import grpc_request
+from bilireq.utils import get, post
+from loguru import logger
 
 from ..core import Bili_Auth
 
@@ -125,7 +131,9 @@ async def grpc_get_followed_dynamics_noads():
         DynamicType.live_rcmd,
         DynamicType.banner,
     ]
-    dynamic_list = [dyn for dyn in resp.dynamic_list.list if dyn.card_type not in exclude_list]
+    dynamic_list = [
+        dyn for dyn in resp.dynamic_list.list if dyn.card_type not in exclude_list
+    ]
     dynamic_list.reverse()
     return dynamic_list
 

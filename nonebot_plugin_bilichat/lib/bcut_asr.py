@@ -1,26 +1,28 @@
 import time
-import httpx
-
 from os import PathLike
 from pathlib import Path
+from typing import List, Literal, Optional, Union
+
+import httpx
 from loguru import logger
-from typing import Literal, Optional
 
 from ..model.bcut_asr import (
+    ResourceCompleteRspSchema,
+    ResourceCreateRspSchema,
     ResultRspSchema,
     TaskCreateRspSchema,
-    ResourceCreateRspSchema,
-    ResourceCompleteRspSchema,
 )
 
 __version__ = "0.0.2"
 
-API_REQ_UPLOAD = "https://member.bilibili.com/x/bcut/rubick-interface/resource/create"  # 申请上传
-API_COMMIT_UPLOAD = (
-    "https://member.bilibili.com/x/bcut/rubick-interface/resource/create/complete"  # 提交上传
+API_REQ_UPLOAD = (
+    "https://member.bilibili.com/x/bcut/rubick-interface/resource/create"  # 申请上传
 )
+API_COMMIT_UPLOAD = "https://member.bilibili.com/x/bcut/rubick-interface/resource/create/complete"  # 提交上传
 API_CREATE_TASK = "https://member.bilibili.com/x/bcut/rubick-interface/task"  # 创建任务
-API_QUERY_RESULT = "https://member.bilibili.com/x/bcut/rubick-interface/task/result"  # 查询结果
+API_QUERY_RESULT = (
+    "https://member.bilibili.com/x/bcut/rubick-interface/task/result"  # 查询结果
+)
 
 SUPPORT_SOUND_FORMAT = Literal["flac", "aac", "m4a", "mp3", "wav"]
 
@@ -46,14 +48,14 @@ class BcutASR:
     __in_boss_key: str
     __resource_id: str
     __upload_id: str
-    __upload_urls: list[str]
+    __upload_urls: List[str]
     __per_size: int
     __clips: int
-    __etags: list[str]
+    __etags: List[str]
     __download_url: str
     task_id: str
 
-    def __init__(self, file: Optional[str | PathLike] = None) -> None:
+    def __init__(self, file: Optional[Union[str, PathLike]] = None) -> None:
         self.session = httpx.AsyncClient()
         self.task_id = ""
         self.__etags = []
@@ -62,19 +64,19 @@ class BcutASR:
 
     def set_data(
         self,
-        file: Optional[str | PathLike] = None,
+        _file: Optional[Union[str, PathLike]] = None,
         raw_data: Optional[bytes] = None,
         data_fmt: Optional[SUPPORT_SOUND_FORMAT] = None,
     ) -> None:
         "设置欲识别的数据"
-        if file:
-            if not isinstance(file, (str, PathLike)):
+        if _file:
+            if not isinstance(_file, (str, PathLike)):
                 raise TypeError("unknow file ptr")
             # 文件类
-            file = Path(file)
-            self.sound_bin = open(file, "rb").read()
-            suffix = data_fmt or file.suffix[1:]
-            self.sound_name = file.name
+            _file = Path(_file)
+            self.sound_bin = open(_file, "rb").read()
+            suffix = data_fmt or _file.suffix[1:]
+            self.sound_name = _file.name
         elif raw_data:
             # bytes类
             self.sound_bin = raw_data
@@ -82,9 +84,9 @@ class BcutASR:
             self.sound_name = f"{int(time.time())}.{suffix}"
         else:
             raise ValueError("none set data")
-        if suffix not in SUPPORT_SOUND_FORMAT.__args__:
+        if not isinstance(suffix, SUPPORT_SOUND_FORMAT):  # type: ignore
             raise TypeError("format is not support")
-        self.sound_fmt = suffix
+        self.sound_fmt = suffix  # type: ignore
         logger.info(f"加载文件成功: {self.sound_name}")
 
     async def upload(self) -> None:
@@ -127,7 +129,7 @@ class BcutASR:
             logger.info(f"开始上传分片{clip}: {start_range}-{end_range}")
             resp = await self.session.put(
                 self.__upload_urls[clip],
-                data=self.sound_bin[start_range:end_range],
+                data=self.sound_bin[start_range:end_range],  # type: ignore
             )
             resp.raise_for_status()
             etag = resp.headers.get("Etag")

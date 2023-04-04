@@ -1,14 +1,15 @@
+from typing import Tuple
+
 from lxml import etree
 from lxml.etree import _Element, _ElementUnicodeResult
 
 from ..model.exception import AbortError
-
 from .bilibili_request import hc
 
 XPATH = "//p//text() | //h1/text() | //h2/text() | //h3/text() | //h4/text() | //h5/text() | //h6/text()"
 
 
-async def get_cv(cvid: str) -> tuple[str, str]:
+async def get_cv(cvid: str) -> Tuple[str, str]:
     cv = await hc.get(f"https://www.bilibili.com/read/cv{cvid}")
     if cv.status_code != 200:
         raise AbortError("专栏获取失败")

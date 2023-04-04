@@ -1,28 +1,24 @@
-import httpx
-import random
 import asyncio
-import tiktoken_async
-
-from loguru import logger
-from typing import Optional
+import random
 from collections import OrderedDict
+from typing import Dict, List, Optional
 
+import httpx
+import tiktoken_async
+from loguru import logger
+
+from ..config import plugin_config
 from ..model.openai import AISummary
-from ..core.bot_config import BotConfig
 
-LIMIT_COUNT = {"gpt-3.5-turbo-0301": 3500, "gpt-4-0314": 7600, "gpt-4-32k-0314": 32200}.get(
-    BotConfig.Bilibili.openai_model or "gpt-3.5-turbo-0301", 3500
-)
-
-if BotConfig.Bilibili.openai_summarization:
+if plugin_config.bili_openai_token:
     logger.info("正在加载 OpenAI Token 计算模型")
     tiktoken_enc = asyncio.run(
-        tiktoken_async.encoding_for_model(BotConfig.Bilibili.openai_model)
+        tiktoken_async.encoding_for_model(plugin_config.bili_openai_model)
     )
     logger.info(f"{tiktoken_enc.name} 加载成功")
 
 
-def get_user_prompt(title: str, transcript: str) -> list[dict[str, str]]:
+def get_user_prompt(title: str, transcript: str) -> List[Dict[str, str]]:
     title = title.replace("\n", " ").strip() if title else ""
     transcript = transcript.replace("\n", " ").strip() if transcript else ""
     language = "Chinese"
@@ -42,17 +38,17 @@ def get_user_prompt(title: str, transcript: str) -> list[dict[str, str]]:
     )
 
 
-def count_tokens(prompts: list[dict[str, str]]):
+def count_tokens(prompts: List[Dict[str, str]]):
     """根据内容计算 token 数"""
 
-    if BotConfig.Bilibili.openai_model == "gpt-3.5-turbo-0301":
+    if plugin_config.bili_openai_model == "gpt-3.5-turbo-0301":
         tokens_per_message = 4
         tokens_per_name = -1
-    elif BotConfig.Bilibili.openai_model == "gpt-4":
+    elif plugin_config.bili_openai_model == "gpt-4":
         tokens_per_message = 3
         tokens_per_name = 1
     else:
-        raise ValueError(f"Unknown model name {BotConfig.Bilibili.openai_model}")
+        raise ValueError(f"Unknown model name {plugin_config.bili_openai_model}")
 
     num_tokens = 0
     for message in prompts:
@@ -65,15 +61,19 @@ def count_tokens(prompts: list[dict[str, str]]):
     return num_tokens
 
 
-def get_small_size_transcripts(text_data: list[str], token_limit: int = LIMIT_COUNT):
+def get_small_size_transcripts(
+    text_data: List[str], token_limit: int = plugin_config.bili_openai_token_limit
+):
     unique_texts = list(OrderedDict.fromkeys(text_data))
     while count_tokens(get_user_prompt("", " ".join(unique_texts))) > token_limit:
         unique_texts.pop(random.randint(0, len(unique_texts) - 1))
     return " ".join(unique_texts)
 
 
-def get_full_prompt(prompt: str, system: Optional[str] = None, language: Optional[str] = None):
-    plist: list[dict[str, str]] = []
+def get_full_prompt(
+    prompt: str, system: Optional[str] = None, language: Optional[str] = None
+):
+    plist: List[Dict[str, str]] = []
     if system:
         plist.append({"role": "system", "content": system})
     plist.append({"role": "user", "content": prompt})
@@ -91,14 +91,12 @@ def get_full_prompt(prompt: str, system: Optional[str] = None, language: Optiona
 
 
 async def openai_req(
-    prompt_message: list[dict[str, str]],
-    token: Optional[str] = BotConfig.Bilibili.openai_api_token,
-    model: str = BotConfig.Bilibili.openai_model,
+    prompt_message: List[Dict[str, str]],
+    token: Optional[str] = plugin_config.bili_openai_token,
+    model: str = plugin_config.bili_openai_model,
 ) -> AISummary:
-    if not token:
-        return AISummary(error=True, message="未配置 OpenAI API Token")
     async with httpx.AsyncClient(
-        proxies=BotConfig.Bilibili.openai_proxy,
+        proxies=plugin_config.bili_openai_proxy,  # type: ignore
         headers={
             "Authorization": f"Bearer {token}",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"
@@ -115,6 +113,10 @@ async def openai_req(
         )
         if req.status_code != 200:
             return AISummary(error=True, message=req.text, raw=req.json())
-        logger.info(f"[OpenAI] Response:\n{req.json()['choices'][0]['message']['content']}")
+        logger.info(
+            f"[OpenAI] Response:\n{req.json()['choices'][0]['message']['content']}"
+        )
         logger.info(f"[OpenAI] Response token 实际: {req.json()['usage']}")
-        return AISummary(summary=req.json()["choices"][0]["message"]["content"], raw=req.json())
+        return AISummary(
+            summary=req.json()["choices"][0]["message"]["content"], raw=req.json()
+        )

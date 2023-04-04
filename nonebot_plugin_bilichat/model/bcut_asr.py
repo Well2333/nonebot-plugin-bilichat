@@ -1,4 +1,6 @@
 from enum import Enum
+from typing import List, Tuple
+
 from pydantic import BaseModel
 
 
@@ -15,13 +17,13 @@ class ASRDataSeg(BaseModel):
     start_time: int
     end_time: int
     transcript: str
-    words: list[ASRDataWords]
+    words: List[ASRDataWords]
     confidence: int
 
     def to_srt_ts(self) -> str:
         "转换为srt时间戳"
 
-        def _conv(ms: int) -> tuple[int, int, int, int]:
+        def _conv(ms: int) -> Tuple[int, int, int, int]:
             return ms // 3600000, ms // 60000 % 60, ms // 1000 % 60, ms % 1000
 
         s_h, s_m, s_s, s_ms = _conv(self.start_time)
@@ -31,7 +33,7 @@ class ASRDataSeg(BaseModel):
     def to_lrc_ts(self) -> str:
         "转换为lrc时间戳"
 
-        def _conv(ms: int) -> tuple[int, int, int]:
+        def _conv(ms: int) -> Tuple[int, int, int]:
             return ms // 60000, ms // 1000 % 60, ms % 1000 // 10
 
         s_m, s_s, s_ms = _conv(self.start_time)
@@ -40,7 +42,7 @@ class ASRDataSeg(BaseModel):
 
 class ASRData(BaseModel):
     "语音识别结果"
-    utterances: list[ASRDataSeg]
+    utterances: List[ASRDataSeg]
     version: str
 
     def __iter__(self):
@@ -64,7 +66,9 @@ class ASRData(BaseModel):
 
     def to_lrc(self) -> str:
         "转成lrc格式字幕"
-        return "\n".join(f"{seg.to_lrc_ts()}{seg.transcript}" for seg in self.utterances)
+        return "\n".join(
+            f"{seg.to_lrc_ts()}{seg.transcript}" for seg in self.utterances
+        )
 
     def to_ass(self) -> str:
         ...
@@ -77,7 +81,7 @@ class ResourceCreateRspSchema(BaseModel):
     type: int
     in_boss_key: str
     size: int
-    upload_urls: list[str]
+    upload_urls: List[str]
     upload_id: str
     per_size: int
 
