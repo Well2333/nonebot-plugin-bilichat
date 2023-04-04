@@ -1,22 +1,26 @@
-import httpx
 import asyncio
+from typing import Dict, List, Optional
 
+import httpx
 from loguru import logger
-from typing import Optional
-from sentry_sdk import capture_exception
 
-from ..core.bot_config import BotConfig
-from ..model.exception import AbortError
+from ..config import plugin_config
 from ..model.bcut_asr import ResultStateEnum
-
+from ..model.exception import AbortError
 from .bcut_asr import BcutASR
-from .bilibili_request import get_player, hc
-from .bilibili_request import grpc_get_playview
+from .bilibili_request import get_player, grpc_get_playview, hc
+
+try:
+    from sentry_sdk import capture_exception
+
+    cap_excp = True
+except ImportError:
+    cap_excp = False
 
 
 async def get_subtitle_url(aid: int, cid: int) -> Optional[str]:
     video_player = await get_player(aid, cid)
-    subtitles_raw: list[dict] = video_player["subtitle"]["subtitles"]
+    subtitles_raw: List[Dict] = video_player["subtitle"]["subtitles"]
     logger.debug(subtitles_raw)
 
     if not subtitles_raw:
@@ -43,16 +47,18 @@ async def get_subtitle_url(aid: int, cid: int) -> Optional[str]:
     return next(iter(manual_subtitles.values()))
 
 
-async def get_subtitle(aid: int, cid: int) -> list[str]:
+async def get_subtitle(aid: int, cid: int) -> List[str]:
     subtitle_url = await get_subtitle_url(aid, cid)
     if subtitle_url:
         logger.debug(subtitle_url)
         subtitle = await hc.get(f"https:{subtitle_url}")
         if subtitle.status_code != 200:
-            logger.warning(f"字幕获取失败：{aid} {cid}，状态码：{subtitle.status_code}，内容：{subtitle.text}")
+            logger.warning(
+                f"字幕获取失败：{aid} {cid}，状态码：{subtitle.status_code}，内容：{subtitle.text}"
+            )
             raise AbortError("字幕下载失败")
         logger.info(f"字幕获取成功：{aid} {cid}")
-    elif BotConfig.Bilibili.use_bcut_asr:
+    elif plugin_config.bili_use_bcut_asr:
         logger.info(f"字幕获取失败，尝试使用 BCut-ASR：{aid} {cid}")
         playview = await grpc_get_playview(aid, cid)
         if not playview.video_info.dash_audio:
@@ -73,7 +79,8 @@ async def get_subtitle(aid: int, cid: int) -> list[str]:
             asr = await get_bcut_asr(audio)
         except Exception as e:
             logger.exception("BCut-ASR 识别失败")
-            capture_exception()
+            if cap_excp:
+                capture_exception()
             raise AbortError("BCut-ASR 识别失败") from e
         return [x.transcript for x in asr]
     else:

@@ -1,5 +1,5 @@
-import re
 import contextlib
+import re
 
 from loguru import logger
 
