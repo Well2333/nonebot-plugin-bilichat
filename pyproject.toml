@@ -1,7 +1,7 @@
 [tool.pdm]
 
 [project]
-name = "nonebot_plugin_bilichat"
+name = "nonebot-plugin-bilichat"
 version = "0.1.0"
 description = "一个通过 OpenAI 来对b站视频进行总结插件"
 authors = [
