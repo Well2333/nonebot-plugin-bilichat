@@ -1,0 +1,37 @@
+[tool.pdm]
+
+[project]
+name = "nonebot_plugin_bilichat"
+version = "0.1.0"
+description = "一个通过 OpenAI 来对b站视频进行总结插件"
+authors = [
+    {name = "djkcyl", email = "cyl@cyllive.cn"},
+]
+dependencies = [
+    "tiktoken-async>=0.3.2",
+    "httpx>=0.23.3",
+    "bilireq>=0.2.4",
+    "qrcode>=7.4.2",
+    "pillow>=9.5.0",
+    "nonebot-plugin-htmlrender>=0.2.0.3",
+    "nonebot-plugin-localstore>=0.4.1"
+]
+requires-python = ">=3.8,<4.0"
+readme = "README.md"
+license = {text = "AGPL3.0"}
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "black>=23.3.0",
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py38", "py39", "py310", "py311"]
+include = '\.pyi?$'
+extend-exclude = '''
+'''
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"

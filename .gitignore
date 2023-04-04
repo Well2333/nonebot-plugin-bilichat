@@ -1,0 +1,10 @@
+__pycache__/
+__pypackages__/
+.vscode/
+.idea/
+data/
+build
+venv
+.venv
+.pdm-python
+.pdm-python
