@@ -10,10 +10,10 @@ from loguru import logger
 from ..config import plugin_config
 from ..model.openai import AISummary
 
-if plugin_config.bili_openai_token:
+if plugin_config.bilichat_openai_token:
     logger.info("正在加载 OpenAI Token 计算模型")
     tiktoken_enc = asyncio.run(
-        tiktoken_async.encoding_for_model(plugin_config.bili_openai_model)
+        tiktoken_async.encoding_for_model(plugin_config.bilichat_openai_model)
     )
     logger.info(f"{tiktoken_enc.name} 加载成功")
 
@@ -41,14 +41,14 @@ def get_user_prompt(title: str, transcript: str) -> List[Dict[str, str]]:
 def count_tokens(prompts: List[Dict[str, str]]):
     """根据内容计算 token 数"""
 
-    if plugin_config.bili_openai_model == "gpt-3.5-turbo-0301":
+    if plugin_config.bilichat_openai_model == "gpt-3.5-turbo-0301":
         tokens_per_message = 4
         tokens_per_name = -1
-    elif plugin_config.bili_openai_model == "gpt-4":
+    elif plugin_config.bilichat_openai_model == "gpt-4":
         tokens_per_message = 3
         tokens_per_name = 1
     else:
-        raise ValueError(f"Unknown model name {plugin_config.bili_openai_model}")
+        raise ValueError(f"Unknown model name {plugin_config.bilichat_openai_model}")
 
     num_tokens = 0
     for message in prompts:
@@ -62,7 +62,7 @@ def count_tokens(prompts: List[Dict[str, str]]):
 
 
 def get_small_size_transcripts(
-    text_data: List[str], token_limit: int = plugin_config.bili_openai_token_limit
+    text_data: List[str], token_limit: int = plugin_config.bilichat_openai_token_limit
 ):
     unique_texts = list(OrderedDict.fromkeys(text_data))
     while count_tokens(get_user_prompt("", " ".join(unique_texts))) > token_limit:
@@ -92,11 +92,11 @@ def get_full_prompt(
 
 async def openai_req(
     prompt_message: List[Dict[str, str]],
-    token: Optional[str] = plugin_config.bili_openai_token,
-    model: str = plugin_config.bili_openai_model,
+    token: Optional[str] = plugin_config.bilichat_openai_token,
+    model: str = plugin_config.bilichat_openai_model,
 ) -> AISummary:
     async with httpx.AsyncClient(
-        proxies=plugin_config.bili_openai_proxy,  # type: ignore
+        proxies=plugin_config.bilichat_openai_proxy,  # type: ignore
         headers={
             "Authorization": f"Bearer {token}",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"

@@ -9,3 +9,6 @@ venv
 .pdm-python
 .pdm-python
 .pdm.toml
+
+.env
+log
