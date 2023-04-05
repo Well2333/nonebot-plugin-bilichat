@@ -24,9 +24,10 @@ from bilireq.grpc.utils import grpc_request
 from bilireq.utils import get, post
 from loguru import logger
 
-from ..core import Bili_Auth
+from bilireq.auth import Auth
 
 hc = httpx.AsyncClient()
+Bili_Auth = Auth()
 
 
 async def relation_modify(uid: Union[str, int], act: int):

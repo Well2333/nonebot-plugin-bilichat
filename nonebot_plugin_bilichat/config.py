@@ -1,28 +1,48 @@
 from pydantic import BaseModel, validator
 from nonebot import get_driver
-from typing import Sequence, Literal, Optional
+from typing import Sequence, Literal, Optional, Union
 from nonebot.log import logger
-from yarl import URL
+import sys
+
+# get package version
+if sys.version_info < (3, 10):
+    from importlib_metadata import version
+else:
+    from importlib.metadata import version
+
+try:
+    __version__ = version("nonebot_plugin_bilichat")
+except Exception:
+    __version__ = None
 
 
 class Config(BaseModel):
     # general
-    bili_block: bool = False
-    bili_whitelist: Sequence[int] = []
+    bilichat_block: bool = False
+    bilichat_enable_private: bool = True
+    bilichat_enable_v12_channel: bool = True
+    bilichat_enable_unkown_src: bool = False
+    bilichat_whitelist: Sequence[str] = []
+    bilichat_blacklist: Sequence[str] = []
+    bilichat_dynamic_font: Optional[str]
+
+    # both WC and AI
+    bilichat_use_bcut_asr: bool = True
     
-    bili_use_bcut_asr: bool = True
+    # Word Cloud
+    bilichat_word_cloud = bool = True
 
     # AI Summary
-    bili_openai_token: Optional[str]
-    bili_openai_proxy: Optional[URL]
-    bili_openai_model: Literal[
+    bilichat_openai_token: Optional[str]
+    bilichat_openai_proxy: Optional[str]
+    bilichat_openai_model: Literal[
         "gpt-3.5-turbo-0301", "gpt-4-0314", "gpt-4-32k-0314"
     ] = "gpt-3.5-turbo-0301"
-    bili_openai_token_limit: int = 3500
+    bilichat_openai_token_limit: int = 3500
 
-    @validator("bili_openai_proxy")
+    @validator("bilichat_openai_proxy")
     def check_openai_proxy(cls, v, values):
-        if values["bili_openai_token"] is None:
+        if values["bilichat_openai_token"] is None:
             return v
         if v is None:
             logger.warning(
@@ -30,13 +50,13 @@ class Config(BaseModel):
             )
         return v
 
-    @validator("bili_openai_token_limit")
+    @validator("bilichat_openai_token_limit")
     def check_token_limit(cls, v, values):
-        if values["bili_openai_token"] is None:
+        if values["bilichat_openai_token"] is None:
             return v
         if not isinstance(v, int):
             v = int(v)
-        model = values["bili_openai_model"]
+        model = values["bilichat_openai_model"]
         max_limit = {
             "gpt-3.5-turbo-0301": 3500,
             "gpt-4-0314": 7600,
@@ -48,6 +68,14 @@ class Config(BaseModel):
             )
             v = max_limit
         return v
+    
+    def verify_permission(self,uid:Union[str,int]):
+        if self.bilichat_whitelist:
+            return str(uid) in self.bilichat_whitelist
+        elif self.bilichat_blacklist:
+            return str(uid) not in self.bilichat_blacklist
+        else:
+            return True
 
 
 plugin_config = Config.parse_obj(get_driver().config)

@@ -9,13 +9,7 @@ from ..model.bcut_asr import ResultStateEnum
 from ..model.exception import AbortError
 from .bcut_asr import BcutASR
 from .bilibili_request import get_player, grpc_get_playview, hc
-
-try:
-    from sentry_sdk import capture_exception
-
-    cap_excp = True
-except ImportError:
-    cap_excp = False
+from ..optional import capture_exception # type: ignore
 
 
 async def get_subtitle_url(aid: int, cid: int) -> Optional[str]:
@@ -58,7 +52,7 @@ async def get_subtitle(aid: int, cid: int) -> List[str]:
             )
             raise AbortError("字幕下载失败")
         logger.info(f"字幕获取成功：{aid} {cid}")
-    elif plugin_config.bili_use_bcut_asr:
+    elif plugin_config.bilichat_use_bcut_asr:
         logger.info(f"字幕获取失败，尝试使用 BCut-ASR：{aid} {cid}")
         playview = await grpc_get_playview(aid, cid)
         if not playview.video_info.dash_audio:
@@ -79,8 +73,7 @@ async def get_subtitle(aid: int, cid: int) -> List[str]:
             asr = await get_bcut_asr(audio)
         except Exception as e:
             logger.exception("BCut-ASR 识别失败")
-            if cap_excp:
-                capture_exception()
+            capture_exception()
             raise AbortError("BCut-ASR 识别失败") from e
         return [x.transcript for x in asr]
     else:
