@@ -27,23 +27,23 @@ font_path.mkdir(parents=True, exist_ok=True)
 
 
 async def get_font(font: str = DEFUALT_DYNAMIC_FONT):
-    logger.debug(f"font: {font}")
+    logger.debug(f"Loading font: {font}")
     url = URL(font)
     if url.is_absolute():
         if font_path.joinpath(url.name).exists():
             logger.debug(f"Font {url.name} found in local")
             return font_path.joinpath(url.name)
         else:
-            logger.warning(f"字体 {font} 不存在，尝试从网络获取")
+            logger.warning(f"font {font} does not exist, this will take several seconds to minutes to download fonts depend on your network.")
             async with httpx.AsyncClient() as client:
                 resp = await client.get(font)
                 if resp.status_code != 200:
-                    raise ConnectionError(f"字体 {font} 获取失败")
+                    raise ConnectionError(f"Font {font} failed to download")
                 font_path.joinpath(url.name).write_bytes(resp.content)
                 return font_path.joinpath(url.name)
     else:
         if not font_path.joinpath(font).exists():
-            raise FileNotFoundError(f"字体 {font} 不存在")
+            raise FileNotFoundError(f"Font {font} does not exist")
         logger.debug(f"Font {font} found in local")
         return font_path.joinpath(font)
 
@@ -81,7 +81,7 @@ def font_init():
                 file_name = Path(font.filename).name
                 local_file = font_path.joinpath(file_name)
                 if not local_file.exists():
-                    logger.info(local_file)
+                    logger.debug(local_file)
                     local_file.write_bytes(z.read(font))
 
         lock_file.write_text(font_url)
@@ -94,7 +94,7 @@ def font_init():
                     f"The custom font {plugin_config.bilichat_dynamic_font} is not a valid URL!"
                 )
             if custom_font.name != URL(DEFUALT_DYNAMIC_FONT).name:
-                logger.info(get_font_sync(plugin_config.bilichat_dynamic_font))
+                logger.debug(get_font_sync(plugin_config.bilichat_dynamic_font))
         else:
             custom_font = font_path.joinpath(plugin_config.bilichat_dynamic_font)
             if not custom_font.exists():

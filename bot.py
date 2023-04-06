@@ -11,7 +11,7 @@ driver.register_adapter(ONEBOT_V12Adapter)
 #driver.register_adapter(Walleq_Adapter)
 
 #nonebot.load_plugin("nonebot_plugin_sentry")
-nonebot.load_plugin("nonebot_plugin_all4one")
+#nonebot.load_plugin("nonebot_plugin_all4one")
 nonebot.load_plugin("nonebot_plugin_bilichat")
 
 if __name__ == "__main__":

@@ -11,11 +11,11 @@ from ..config import plugin_config
 from ..model.openai import AISummary
 
 if plugin_config.bilichat_openai_token:
-    logger.info("正在加载 OpenAI Token 计算模型")
+    logger.info("Loading OpenAI Token enc model")
     tiktoken_enc = asyncio.run(
         tiktoken_async.encoding_for_model(plugin_config.bilichat_openai_model)
     )
-    logger.info(f"{tiktoken_enc.name} 加载成功")
+    logger.success(f"Enc model {tiktoken_enc.name} load successfully")
 
 
 def get_user_prompt(title: str, transcript: str) -> List[Dict[str, str]]:
@@ -116,7 +116,7 @@ async def openai_req(
         logger.info(
             f"[OpenAI] Response:\n{req.json()['choices'][0]['message']['content']}"
         )
-        logger.info(f"[OpenAI] Response token 实际: {req.json()['usage']}")
+        logger.info(f"[OpenAI] Response token usage: {req.json()['usage']}")
         return AISummary(
             summary=req.json()["choices"][0]["message"]["content"], raw=req.json()
         )
