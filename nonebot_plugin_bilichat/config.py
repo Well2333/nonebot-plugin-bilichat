@@ -1,8 +1,9 @@
-from pydantic import BaseModel, validator
-from nonebot import get_driver
-from typing import Sequence, Literal, Optional, Union
-from nonebot.log import logger
 import sys
+from typing import Literal, Optional, Sequence, Union
+
+from nonebot import get_driver
+from nonebot.log import logger
+from pydantic import BaseModel, validator
 
 # get package version
 if sys.version_info < (3, 10):
@@ -25,12 +26,13 @@ class Config(BaseModel):
     bilichat_whitelist: Sequence[str] = []
     bilichat_blacklist: Sequence[str] = []
     bilichat_dynamic_font: Optional[str]
+    bilichat_cd_time: int = 120
 
     # both WC and AI
     bilichat_use_bcut_asr: bool = True
     
     # Word Cloud
-    bilichat_word_cloud = bool = True
+    bilichat_word_cloud : bool = True
 
     # AI Summary
     bilichat_openai_token: Optional[str]

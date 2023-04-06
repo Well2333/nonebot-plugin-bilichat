@@ -16,7 +16,8 @@ tfidf = TFIDF()
 
 async def wordcloud(cache: Cache, cid: str = "0"):
     try:
-        if not cache or not cache.episodes[cid] or not cache.episodes[cid].content:
+        logger.info(f"Generation wordcloud of Video(Column) {cache.id}")
+        if not cache.episodes[cid] or not cache.episodes[cid].content:
             return None
         elif not cache.episodes[cid].jieba:
             loop = asyncio.get_running_loop()
@@ -26,10 +27,11 @@ async def wordcloud(cache: Cache, cid: str = "0"):
             cache.save()
         return await get_worldcloud_image(cache.episodes[cid].jieba)
     except AbortError as e:
-        logger.exception(f"Video(Column) {cache.id} wordcloud generation failed: {e}")
+        logger.exception(f"Video(Column) {cache.id} wordcloud generation aborted: {e}")
         return None
-    except Exception:
+    except Exception as e:
         capture_exception()
+        logger.exception(f"Video(Column) {cache.id} wordcloud generation failed: {e}")
         return None
 
 

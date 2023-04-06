@@ -26,7 +26,8 @@ async def column_summarise(cv_title: str, cv_text: str):
 
 async def openai_summarization(cache: Cache, cid: str = "0"):
     try:
-        if not cache or not cache.episodes[cid] or not cache.episodes[cid].content:
+        logger.info(f"Generation summary of Video(Column) {cache.id}")
+        if not cache.episodes[cid] or not cache.episodes[cid].content:
             return None
         elif not cache.episodes[cid].openai:
             if cache.id[:2].lower() in ["bv", "av"]:
@@ -50,7 +51,7 @@ async def openai_summarization(cache: Cache, cid: str = "0"):
                 return None
         return cache.episodes[cid].openai  # TODO: add image type output
     except AbortError as e:
-        logger.exception(f"Video(Column) {cache.id} summary failed: {e}")
+        logger.exception(f"Video(Column) {cache.id} summary aborted: {e}")
         return None
     except Exception as e:
         capture_exception()

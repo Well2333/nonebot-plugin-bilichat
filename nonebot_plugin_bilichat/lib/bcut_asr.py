@@ -1,7 +1,7 @@
 import time
 from os import PathLike
 from pathlib import Path
-from typing import List, Literal, Optional, Union
+from typing import List, Literal, Optional, Union, Tuple
 
 import httpx
 from loguru import logger
@@ -84,10 +84,10 @@ class BcutASR:
             self.sound_name = f"{int(time.time())}.{suffix}"
         else:
             raise ValueError("none set data")
-        if not isinstance(suffix, SUPPORT_SOUND_FORMAT):  # type: ignore
+        if suffix not in ("flac", "aac", "m4a", "mp3", "wav"):
             raise TypeError("format is not support")
         self.sound_fmt = suffix  # type: ignore
-        logger.info(f"加载文件成功: {self.sound_name}")
+        logger.debug(f"file loading complete: {self.sound_name}")
 
     async def upload(self) -> None:
         "申请上传"
@@ -115,8 +115,8 @@ class BcutASR:
         self.__per_size = resp_data.per_size
         self.__clips = len(resp_data.upload_urls)
         logger.info(
-            f"申请上传成功, 总计大小{resp_data.size // 1024}KB, "
-            f"{self.__clips}分片, 分片大小{resp_data.per_size // 1024}KB: {self.__in_boss_key}"
+            f"Upload success, total size {resp_data.size // 1024}KB, "
+            f"Total {self.__clips} clip(s), clip(s) size {resp_data.per_size // 1024}KB: {self.__in_boss_key}"
         )
         await self.__upload_part()
         await self.__commit_upload()
@@ -126,7 +126,7 @@ class BcutASR:
         for clip in range(self.__clips):
             start_range = clip * self.__per_size
             end_range = (clip + 1) * self.__per_size
-            logger.info(f"开始上传分片{clip}: {start_range}-{end_range}")
+            logger.debug(f"Uploading clip {clip}: {start_range}-{end_range}")
             resp = await self.session.put(
                 self.__upload_urls[clip],
                 data=self.sound_bin[start_range:end_range],  # type: ignore
@@ -134,7 +134,7 @@ class BcutASR:
             resp.raise_for_status()
             etag = resp.headers.get("Etag")
             self.__etags.append(etag)
-            logger.info(f"分片{clip}上传成功: {etag}")
+            logger.debug(f"Clip {clip} uploaded: {etag}")
 
     async def __commit_upload(self) -> None:
         "提交上传数据"
@@ -154,7 +154,7 @@ class BcutASR:
             raise APIError(code, resp["message"])
         resp_data = ResourceCompleteRspSchema.parse_obj(resp["data"])
         self.__download_url = resp_data.download_url
-        logger.info("提交成功")
+        logger.debug("commit complete")
 
     async def create_task(self) -> str:
         "开始创建转换任务"
@@ -167,7 +167,7 @@ class BcutASR:
             raise APIError(code, resp["message"])
         resp_data = TaskCreateRspSchema.parse_obj(resp["data"])
         self.task_id = resp_data.task_id
-        logger.info(f"任务已创建: {self.task_id}")
+        logger.info(f"Conversion task created: {self.task_id}")
         return self.task_id
 
     async def result(self, task_id: Optional[str] = None) -> ResultRspSchema:

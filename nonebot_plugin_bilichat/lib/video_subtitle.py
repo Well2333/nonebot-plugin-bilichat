@@ -48,15 +48,15 @@ async def get_subtitle(aid: int, cid: int) -> List[str]:
         subtitle = await hc.get(f"https:{subtitle_url}")
         if subtitle.status_code != 200:
             logger.warning(
-                f"字幕获取失败：{aid} {cid}，状态码：{subtitle.status_code}，内容：{subtitle.text}"
+                f"Subtitle fetch failed: {aid} {cid}, status code: {subtitle.status_code}, content: {subtitle.text}"
             )
-            raise AbortError("字幕下载失败")
-        logger.info(f"字幕获取成功：{aid} {cid}")
+            raise AbortError("Subtitle fetch failed")
+        logger.debug(f"Subtitle fetched: {aid} {cid}")
     elif plugin_config.bilichat_use_bcut_asr:
-        logger.info(f"字幕获取失败，尝试使用 BCut-ASR：{aid} {cid}")
+        logger.info(f"Subtitle not found, try using BCut-ASR: {aid} {cid}")
         playview = await grpc_get_playview(aid, cid)
         if not playview.video_info.dash_audio:
-            raise AbortError("视频无音频流")
+            raise AbortError("Video has no audio streaming")
         async with httpx.AsyncClient(
             headers={
                 "user-agent": "Bilibili Freedoooooom/MarkII",
@@ -72,12 +72,12 @@ async def get_subtitle(aid: int, cid: int) -> List[str]:
         try:
             asr = await get_bcut_asr(audio)
         except Exception as e:
-            logger.exception("BCut-ASR 识别失败")
+            logger.exception(f"BCut-ASR conversion failed: {e}")
             capture_exception()
-            raise AbortError("BCut-ASR 识别失败") from e
+            raise AbortError("BCut-ASR conversion failed") from e
         return [x.transcript for x in asr]
     else:
-        raise AbortError("未找到字幕且未开启 AI 语音识别")
+        raise AbortError("Subtitles not found and BCut-ASR is disabled in env")
     return [x["content"] for x in subtitle.json()["body"]]
 
 
@@ -91,8 +91,8 @@ async def get_bcut_asr(file_bytes: bytes):
         if result.state == ResultStateEnum.COMPLETE:
             return result.parse()
         elif result.state in [ResultStateEnum.RUNING, ResultStateEnum.STOP]:
-            logger.info(f"[BCut-ASR] 任务 {result.task_id} 正在进行中 - {result.state}...")
+            logger.info(f"[BCut-ASR] task {result.task_id} in progress - {result.state}...")
             await asyncio.sleep(2)
         elif result.state == ResultStateEnum.ERROR:
-            logger.error(f"[BCut-ASR] 任务 {result.task_id} 发生错误！")
-            raise AbortError("语音识别出错")
+            logger.error(f"[BCut-ASR] task {result.task_id} has an error occurred!")
+            raise AbortError("BCut-ASR task failed")
