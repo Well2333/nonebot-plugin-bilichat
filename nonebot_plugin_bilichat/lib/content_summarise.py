@@ -28,7 +28,7 @@ async def openai_summarization(cache: Cache, cid: str = "0"):
     try:
         logger.info(f"Generation summary of Video(Column) {cache.id}")
         if not cache.episodes[cid] or not cache.episodes[cid].content:
-            return None
+            return "视频无有效字幕"
         elif not cache.episodes[cid].openai:
             if cache.id[:2].lower() in ["bv", "av"]:
                 ai_summary = await subtitle_summarise(
@@ -49,11 +49,11 @@ async def openai_summarization(cache: Cache, cid: str = "0"):
                     f"Video(Column) {cache.id} summary failure: {ai_summary.raw}"
                 )
                 return None
-        return cache.episodes[cid].openai  # TODO: add image type output
+        return cache.episodes[cid].openai or "视频无法总结"  # TODO: add image type output
     except AbortError as e:
         logger.exception(f"Video(Column) {cache.id} summary aborted: {e}")
-        return None
+        return f"视频(专栏) {cache.id} 总结中止: {e}"
     except Exception as e:
         capture_exception()
         logger.exception(f"Video(Column) {cache.id} summary failed: {e}")
-        return None
+        return f"视频(专栏) {cache.id} 总结失败: {e}"

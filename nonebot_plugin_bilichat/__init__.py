@@ -105,9 +105,10 @@ async def video_info_v11(event: V11_ME, state: T_State, matcher: Matcher):
             logger.exception(e)
             await matcher.finish(reply + "未知错误: " + str(e))  # type: ignore
         if plugin_config.bilichat_word_cloud:
-            await matcher.send(
-                reply + V11_MS.image(await wordcloud(cache=cache, cid=str(info["cid"])))  # type: ignore
-            )
+            if image := await wordcloud(cache=cache, cid=str(info["cid"])):
+                await matcher.send(reply + V11_MS.image(image))  # type: ignore
+            else:
+                await matcher.finish(reply + "视频无有效字幕")
         if plugin_config.bilichat_openai_token:
             await matcher.send(reply + await openai_summarization(cache=cache, cid=str(info["cid"])))  # type: ignore
 
@@ -119,7 +120,7 @@ async def video_info_v12(bot: V12_Bot, event: V12_ME, state: T_State, matcher: M
     msg, img, info = await get_video_basic(state["bili_number"], state["_uid_"])
     if not msg:
         await matcher.finish()
-    reply = V12_MS.reply(event.message_id)
+    reply = V12_MS.reply(message_id=event.message_id, user_id=event.get_user_id())
     if not img:
         await matcher.finish(reply + msg)
     fileid = await bot.upload_file(
@@ -129,7 +130,7 @@ async def video_info_v12(bot: V12_Bot, event: V12_ME, state: T_State, matcher: M
     msgid = (await matcher.send(reply + image + msg))["message_id"]
     # furtuer fuctions
     if plugin_config.bilichat_openai_token or plugin_config.bilichat_word_cloud:
-        reply = V12_MS.reply(msgid)
+        reply = V12_MS.reply(message_id=msgid, user_id=bot.self_id)
         try:
             cache = await get_video_cache(info)  # type: ignore
         except AbortError as e:
@@ -140,9 +141,13 @@ async def video_info_v12(bot: V12_Bot, event: V12_ME, state: T_State, matcher: M
             logger.exception(e)
             await matcher.finish(reply + "未知错误: " + str(e))  # type: ignore
         if plugin_config.bilichat_word_cloud:
-            fileid = await bot.upload_file(
-                type="data", name=f"{state['bili_number']}_wc.jpg", data=await wordcloud(cache=cache, cid=str(info["cid"]))  # type: ignore
-            )
-            await matcher.send(reply + V12_MS.image(file_id=fileid["file_id"]))
+            if image := await wordcloud(cache=cache, cid=str(info["cid"])):  # type: ignore
+                fileid = await bot.upload_file(
+                    type="data", name=f"{state['bili_number']}_wc.jpg", data=image
+                )  # type: ignore
+                await matcher.send(reply + V12_MS.image(file_id=fileid["file_id"]))
+            else:
+                await matcher.finish(reply + "视频无有效字幕")
+
         if plugin_config.bilichat_openai_token:
             await matcher.send(reply + await openai_summarization(cache=cache, cid=str(info["cid"])))  # type: ignore
