@@ -9,7 +9,7 @@ from nonebot.log import logger
 from ..model.cache import Cache
 from ..model.exception import AbortError
 from ..optional import capture_exception
-from .fonts_provider import get_font
+from ..lib.fonts_provider import get_font
 
 tfidf = TFIDF()
 

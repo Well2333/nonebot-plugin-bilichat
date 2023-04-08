@@ -72,7 +72,7 @@ _✨ 多功能的B站视频解析工具 ✨_
 <summary>使用 nb-cli 安装</summary>
 在 nonebot2 项目的根目录下打开命令行, 输入以下指令即可安装
 
-    nb plugin install nonebot-plugin-bilichat
+    nb plugin install nonebot-plugin-bilichat[all]
 
 </details>
 
@@ -83,22 +83,22 @@ _✨ 多功能的B站视频解析工具 ✨_
 <details>
 <summary>pip</summary>
 
-    pip install nonebot-plugin-bilichat
+    pip install nonebot-plugin-bilichat[all]
 </details>
 <details>
 <summary>pdm</summary>
 
-    pdm add nonebot-plugin-bilichat
+    pdm add nonebot-plugin-bilichat[all]
 </details>
 <details>
 <summary>poetry</summary>
 
-    poetry add nonebot-plugin-bilichat
+    poetry add nonebot-plugin-bilichat[all]
 </details>
 <details>
 <summary>conda</summary>
 
-    conda install nonebot-plugin-bilichat
+    conda install nonebot-plugin-bilichat[all]
 </details>
 
 打开 nonebot2 项目根目录下的 `pyproject.toml` 文件, 在 `[tool.nonebot]` 部分追加写入
