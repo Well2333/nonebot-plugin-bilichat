@@ -1,3 +1,4 @@
+import importlib.util
 import sys
 from typing import Literal, Optional, Sequence, Union
 
@@ -30,9 +31,9 @@ class Config(BaseModel):
 
     # both WC and AI
     bilichat_use_bcut_asr: bool = True
-    
+
     # Word Cloud
-    bilichat_word_cloud : bool = True
+    bilichat_word_cloud: bool = True
 
     # AI Summary
     bilichat_openai_token: Optional[str]
@@ -70,8 +71,28 @@ class Config(BaseModel):
             )
             v = max_limit
         return v
-    
-    def verify_permission(self,uid:Union[str,int]):
+
+    @validator("bilichat_openai_token", always=True)
+    def check_pypackage_openai(cls, v):
+        if importlib.util.find_spec("tiktoken_async") or not v:
+            return v
+        else:
+            raise RuntimeError(
+                "Package(s) of fuction openai summary not installed, use **nb plugin install nonebot-plugin-bilichat[openai]** to install required dependencies"
+            )
+
+    @validator("bilichat_word_cloud", always=True)
+    def check_pypackage_wordcloud(cls, v):
+        if (
+            importlib.util.find_spec("wordcloud") and importlib.util.find_spec("jieba")
+        ) or not v:
+            return v
+        else:
+            raise RuntimeError(
+                "Package(s) of fuction wordcloud not installed, use **nb plugin install nonebot-plugin-bilichat[wordcloud]** to install required dependencies"
+            )
+
+    def verify_permission(self, uid: Union[str, int]):
         if self.bilichat_whitelist:
             return str(uid) in self.bilichat_whitelist
         elif self.bilichat_blacklist:

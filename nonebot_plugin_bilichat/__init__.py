@@ -21,10 +21,13 @@ from nonebot.typing import T_State
 from .config import __version__, plugin_config
 from .lib.b23_extract import b23_extract
 from .lib.content_resolve import get_video_basic, get_video_cache
-from .lib.content_summarise import openai_summarization
-from .lib.wordcloud import wordcloud
 from .model.exception import AbortError
 from .optional import capture_exception
+
+if plugin_config.bilichat_openai_token:
+    from .summary.content_summarise import openai_summarization
+if plugin_config.bilichat_word_cloud:
+    from .wordcloud.wordcloud import wordcloud
 
 __plugin_meta__ = PluginMetadata(
     name="nonebot-plugin-bilichat",

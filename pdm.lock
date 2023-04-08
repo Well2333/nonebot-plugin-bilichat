@@ -384,17 +384,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "nonebot2"
-version = "2.0.0rc4"
-extras = ["websockets"]
-requires_python = ">=3.8,<4.0"
-summary = "An asynchronous python bot framework."
-dependencies = [
-    "nonebot2==2.0.0rc4",
-    "websockets<11.0,>=10.0",
-]
-
-[[package]]
 name = "numpy"
 version = "1.24.2"
 requires_python = ">=3.8"
@@ -684,7 +673,7 @@ summary = "Backport of pathlib-compatible object wrapper for zip files"
 
 [metadata]
 lock_version = "4.1"
-content_hash = "sha256:09380e59ddebc69eda9faf064d231a7f5ed2fb11a076eadd9e8ce56d8dee7b42"
+content_hash = "sha256:c4e313018e95b8eec742005e08ad1006ab4840012dcec22538209ca50bdfbade"
 
 [metadata.files]
 "aiosqlite 0.18.0" = [
