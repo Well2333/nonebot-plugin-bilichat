@@ -59,16 +59,11 @@ class ASRData(BaseModel):
 
     def to_srt(self) -> str:
         "转成srt格式字幕"
-        return "\n".join(
-            f"{n}\n{seg.to_srt_ts()}\n{seg.transcript}\n"
-            for n, seg in enumerate(self.utterances, 1)
-        )
+        return "\n".join(f"{n}\n{seg.to_srt_ts()}\n{seg.transcript}\n" for n, seg in enumerate(self.utterances, 1))
 
     def to_lrc(self) -> str:
         "转成lrc格式字幕"
-        return "\n".join(
-            f"{seg.to_lrc_ts()}{seg.transcript}" for seg in self.utterances
-        )
+        return "\n".join(f"{seg.to_lrc_ts()}{seg.transcript}" for seg in self.utterances)
 
     def to_ass(self) -> str:
         ...

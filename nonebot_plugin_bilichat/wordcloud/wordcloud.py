@@ -3,13 +3,13 @@ from io import BytesIO
 from typing import Dict
 
 from jieba.analyse.tfidf import TFIDF
-from wordcloud import WordCloud
 from nonebot.log import logger
+from wordcloud import WordCloud
 
+from ..lib.fonts_provider import get_font
 from ..model.cache import Cache
 from ..model.exception import AbortError
 from ..optional import capture_exception
-from ..lib.fonts_provider import get_font
 
 tfidf = TFIDF()
 
@@ -21,9 +21,7 @@ async def wordcloud(cache: Cache, cid: str = "0"):
             return None
         elif not cache.episodes[cid].jieba:
             loop = asyncio.get_running_loop()
-            cache.episodes[cid].jieba = await loop.run_in_executor(
-                None, get_frequencies, cache.episodes[cid].content
-            )
+            cache.episodes[cid].jieba = await loop.run_in_executor(None, get_frequencies, cache.episodes[cid].content)
             cache.save()
         return await get_worldcloud_image(cache.episodes[cid].jieba)
     except AbortError as e:

@@ -31,13 +31,9 @@ async def openai_summarization(cache: Cache, cid: str = "0"):
             return "视频无有效字幕"
         elif not cache.episodes[cid].openai:
             if cache.id[:2].lower() in ["bv", "av"]:
-                ai_summary = await subtitle_summarise(
-                    cache.title, cache.episodes[cid].content
-                )
+                ai_summary = await subtitle_summarise(cache.title, cache.episodes[cid].content)
             elif cache.id[:2].lower() == "cv":
-                ai_summary = await column_summarise(
-                    cache.title, cache.episodes[cid].content[0]
-                )
+                ai_summary = await column_summarise(cache.title, cache.episodes[cid].content[0])
             else:
                 raise ValueError(f"Illegal Video(Column) types {cache.id}")
 
@@ -45,9 +41,7 @@ async def openai_summarization(cache: Cache, cid: str = "0"):
                 cache.episodes[cid].openai = ai_summary.summary
                 cache.save()
             else:
-                logger.warning(
-                    f"Video(Column) {cache.id} summary failure: {ai_summary.raw}"
-                )
+                logger.warning(f"Video(Column) {cache.id} summary failure: {ai_summary.raw}")
                 return None
         return cache.episodes[cid].openai or "视频无法总结"  # TODO: add image type output
     except AbortError as e:

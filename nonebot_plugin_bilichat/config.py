@@ -1,6 +1,6 @@
 import importlib.util
 import sys
-from typing import Literal, Optional, Sequence, Union
+from typing import Literal, Optional, Sequence, Union, Set
 
 from nonebot import get_driver
 from nonebot.log import logger
@@ -28,6 +28,8 @@ class Config(BaseModel):
     bilichat_blacklist: Sequence[str] = []
     bilichat_dynamic_font: Optional[str]
     bilichat_cd_time: int = 120
+    bilichat_forword_msg: Sequence[str] = {}  # ("info", "wordcloud", "summary")
+    nickname: Sequence[str] = ["awesome-nonebot"]
 
     # both WC and AI
     bilichat_use_bcut_asr: bool = True
@@ -38,19 +40,33 @@ class Config(BaseModel):
     # AI Summary
     bilichat_openai_token: Optional[str]
     bilichat_openai_proxy: Optional[str]
-    bilichat_openai_model: Literal[
-        "gpt-3.5-turbo-0301", "gpt-4-0314", "gpt-4-32k-0314"
-    ] = "gpt-3.5-turbo-0301"
+    bilichat_openai_model: Literal["gpt-3.5-turbo-0301", "gpt-4-0314", "gpt-4-32k-0314"] = "gpt-3.5-turbo-0301"
     bilichat_openai_token_limit: int = 3500
+
+    @validator("bilichat_forword_msg")
+    def check_adapter_can_send_forword_msg(cls, v):
+        if not v:
+            return
+        drivers = get_driver()._adapters.keys()
+        if "OneBot V12" in drivers:
+            logger.warning(
+                "Forword_msg is not implemented by OneBot V12, events of OneBot V12 will not be sent as forword_msg!"
+            )
+        if "OneBot V11" in drivers:
+            logger.warning(
+                "Using forward_msg may cause serious risk control restrictions, please enable this feature with caution!"
+            )
+
+    @validator("nickname")
+    def check_nickname(cls, v):
+        return list(v) or ["awesome-nonebot"]
 
     @validator("bilichat_openai_proxy")
     def check_openai_proxy(cls, v, values):
         if values["bilichat_openai_token"] is None:
             return v
         if v is None:
-            logger.warning(
-                "you have enabled openai summary without a proxy, this may cause request failure."
-            )
+            logger.warning("you have enabled openai summary without a proxy, this may cause request failure.")
         return v
 
     @validator("bilichat_openai_token_limit")
@@ -83,9 +99,7 @@ class Config(BaseModel):
 
     @validator("bilichat_word_cloud", always=True)
     def check_pypackage_wordcloud(cls, v):
-        if (
-            importlib.util.find_spec("wordcloud") and importlib.util.find_spec("jieba")
-        ) or not v:
+        if (importlib.util.find_spec("wordcloud") and importlib.util.find_spec("jieba")) or not v:
             return v
         else:
             raise RuntimeError(

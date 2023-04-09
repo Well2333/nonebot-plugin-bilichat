@@ -108,9 +108,7 @@ async def get_video_cache(info: Dict):
             },
         )
     elif str(info["cid"]) not in cache.episodes.keys():
-        logger.debug(
-            f'cache of av{info["aid"]} exists, but cid{info["cid"]} not found, appending cache'
-        )
+        logger.debug(f'cache of av{info["aid"]} exists, but cid{info["cid"]} not found, appending cache')
         cache.episodes[str(info["cid"])] = Episode(
             title=None,
             content=await get_subtitle(int(info["aid"]), int(info["cid"])),

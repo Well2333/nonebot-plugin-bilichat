@@ -16,9 +16,7 @@ font_vanfont = str(get_font_sync("vanfont.ttf"))
 
 
 async def binfo_image_create(video_view: ViewReply, b23_url: str):
-    video_info = (
-        video_view.activity_season if video_view.activity_season.arc.aid else video_view
-    )
+    video_info = video_view.activity_season if video_view.activity_season.arc.aid else video_view
 
     client = hc
     client.headers.update(
@@ -160,11 +158,7 @@ async def binfo_image_create(video_view: ViewReply, b23_url: str):
             level_color = (255, 0, 0)
 
         # 头像
-        face_url = (
-            up_data["card"]["face"]
-            if up_data
-            else "https://i0.hdslb.com/bfs/face/member/noface.jpg"
-        )
+        face_url = up_data["card"]["face"] if up_data else "https://i0.hdslb.com/bfs/face/member/noface.jpg"
         face_req = await client.get(face_url)
         if face_req.status_code == 404:
             face_req = await client.get(f"{face_url}@160w_160h_1c_1s.webp")
@@ -181,13 +175,9 @@ async def binfo_image_create(video_view: ViewReply, b23_url: str):
             name_color or "black",
             name_font,
         )
-        name_size_x, _ = name_font.getsize(
-            up_data["card"]["name"] if up_data else f"账号已注销（{uid} "
-        )
+        name_size_x, _ = name_font.getsize(up_data["card"]["name"] if up_data else f"账号已注销（{uid} ")
         # 等级
-        draw.text(
-            (160 + name_size_x + 10, 16 + (i * 120)), up_level, level_color, icon_font
-        )
+        draw.text((160 + name_size_x + 10, 16 + (i * 120)), up_level, level_color, icon_font)
         # 身份
         up_title_size_x, up_title_size_y = up_title_font.getsize(up_title)
         draw.rectangle(

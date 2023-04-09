@@ -113,20 +113,22 @@ _✨ 多功能的B站视频解析工具 ✨_
 
 | 配置项 | 类型 | 默认值 | 说明 |
 |:-----:|:----:|:----:|:----:|
-| bilichat_block              | bool      | False              | 是否拦截事件(防止其他插件二次解析) |
-| bilichat_enable_private     | bool      | True               | 是否允许响应私聊 |
-| bilichat_enable_v12_channel | bool      | True               | 是否允许响应频道消息(ob12专属) |
-| bilichat_enable_unkown_src  | bool      | False              | 是否允许响应未知来源的消息 |
-| bilichat_whitelist          | list[str] | []                 | **响应**的群聊(频道)名单, 会覆盖黑名单 |
-| bilichat_blacklist          | list[str] | []                 | **不响应**的群聊(频道)名单 |
-| bilichat_dynamic_font       | str       | None               | 视频信息及词云图片使用的字体 |
-| bilichat_cd_time            | int       | 120                | 对同一视频的响应冷却时间(防止刷屏) |
-| bilichat_use_bcut_asr       | bool      | True               | 是否在**没有字幕时**调用必剪接口生成字幕 |
-| bilichat_word_cloud         | bool      | True               | 是否开启词云功能 |
-| bilichat_openai_token       | str       | None               | openai的apikey, 若留空则禁用AI总结 |
-| bilichat_openai_proxy       | str       | None               | 访问openai使用的代理地址 |
-| bilichat_openai_model       | str       | gpt-3.5-turbo-0301 | 使用的语言模型名称 |
-| bilichat_openai_token_limit | int       | 3500               | 请求的文本量上限, 计算方式可参考[tiktoken](https://github.com/openai/tiktoken) |
+| bilichat_block              | bool      | False                | 是否拦截事件(防止其他插件二次解析) |
+| bilichat_enable_private     | bool      | True                 | 是否允许响应私聊 |
+| bilichat_enable_v12_channel | bool      | True                 | 是否允许响应频道消息(ob12专属) |
+| bilichat_enable_unkown_src  | bool      | False                | 是否允许响应未知来源的消息 |
+| bilichat_whitelist          | list[str] | []                   | **响应**的群聊(频道)名单, 会覆盖黑名单 |
+| bilichat_blacklist          | list[str] | []                   | **不响应**的群聊(频道)名单 |
+| bilichat_dynamic_font       | str       | None                 | 视频信息及词云图片使用的字体 |
+| bilichat_cd_time            | int       | 120                  | 对同一视频的响应冷却时间(防止刷屏) |
+| bilichat_forword_msg        | set[str]  | ()                   | 对什么类型的消息开启合并转发(ob11专属),包含 `info`、`wordcloud`、`summary` 三个可选项 |
+| nickname                    | set[str]  | ("awesome-nonebot",) | 合并转发中,bot的昵称(取第一个值) |
+| bilichat_use_bcut_asr       | bool      | True                 | 是否在**没有字幕时**调用必剪接口生成字幕 |
+| bilichat_word_cloud         | bool      | True                 | 是否开启词云功能 |
+| bilichat_openai_token       | str       | None                 | openai的apikey, 若留空则禁用AI总结 |
+| bilichat_openai_proxy       | str       | None                 | 访问openai使用的代理地址 |
+| bilichat_openai_model       | str       | gpt-3.5-turbo-0301   | 使用的语言模型名称 |
+| bilichat_openai_token_limit | int       | 3500                 | 请求的文本量上限, 计算方式可参考[tiktoken](https://github.com/openai/tiktoken) |
 
 ## 🎉 使用
 
