@@ -12,9 +12,7 @@ from ..model.openai import AISummary
 
 if plugin_config.bilichat_openai_token:
     logger.info("Loading OpenAI Token enc model")
-    tiktoken_enc = asyncio.run(
-        tiktoken_async.encoding_for_model(plugin_config.bilichat_openai_model)
-    )
+    tiktoken_enc = asyncio.run(tiktoken_async.encoding_for_model(plugin_config.bilichat_openai_model))
     logger.success(f"Enc model {tiktoken_enc.name} load successfully")
 
 
@@ -33,9 +31,7 @@ def get_user_prompt(title: str, transcript: str) -> List[Dict[str, str]]:
         "Or if there is very little content that cannot be well summarized, "
         "then you can simply output the two words 'no meaning'. Remember, not to output anything else."
     )
-    return get_full_prompt(
-        f'Title: "{title}"\nTranscript: "{transcript}"', sys_prompt, language
-    )
+    return get_full_prompt(f'Title: "{title}"\nTranscript: "{transcript}"', sys_prompt, language)
 
 
 def count_tokens(prompts: List[Dict[str, str]]):
@@ -61,18 +57,14 @@ def count_tokens(prompts: List[Dict[str, str]]):
     return num_tokens
 
 
-def get_small_size_transcripts(
-    text_data: List[str], token_limit: int = plugin_config.bilichat_openai_token_limit
-):
+def get_small_size_transcripts(text_data: List[str], token_limit: int = plugin_config.bilichat_openai_token_limit):
     unique_texts = list(OrderedDict.fromkeys(text_data))
     while count_tokens(get_user_prompt("", " ".join(unique_texts))) > token_limit:
         unique_texts.pop(random.randint(0, len(unique_texts) - 1))
     return " ".join(unique_texts)
 
 
-def get_full_prompt(
-    prompt: str, system: Optional[str] = None, language: Optional[str] = None
-):
+def get_full_prompt(prompt: str, system: Optional[str] = None, language: Optional[str] = None):
     plist: List[Dict[str, str]] = []
     if system:
         plist.append({"role": "system", "content": system})
@@ -113,10 +105,6 @@ async def openai_req(
         )
         if req.status_code != 200:
             return AISummary(error=True, message=req.text, raw=req.json())
-        logger.info(
-            f"[OpenAI] Response:\n{req.json()['choices'][0]['message']['content']}"
-        )
+        logger.info(f"[OpenAI] Response:\n{req.json()['choices'][0]['message']['content']}")
         logger.info(f"[OpenAI] Response token usage: {req.json()['usage']}")
-        return AISummary(
-            summary=req.json()["choices"][0]["message"]["content"], raw=req.json()
-        )
+        return AISummary(summary=req.json()["choices"][0]["message"]["content"], raw=req.json())

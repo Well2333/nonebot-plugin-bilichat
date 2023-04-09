@@ -132,9 +132,7 @@ async def grpc_get_followed_dynamics_noads():
         DynamicType.live_rcmd,
         DynamicType.banner,
     ]
-    dynamic_list = [
-        dyn for dyn in resp.dynamic_list.list if dyn.card_type not in exclude_list
-    ]
+    dynamic_list = [dyn for dyn in resp.dynamic_list.list if dyn.card_type not in exclude_list]
     dynamic_list.reverse()
     return dynamic_list
 

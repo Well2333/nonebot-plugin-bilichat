@@ -9,7 +9,7 @@ from ..model.bcut_asr import ResultStateEnum
 from ..model.exception import AbortError
 from .bcut_asr import BcutASR
 from .bilibili_request import get_player, grpc_get_playview, hc
-from ..optional import capture_exception # type: ignore
+from ..optional import capture_exception  # type: ignore
 
 
 async def get_subtitle_url(aid: int, cid: int) -> Optional[str]:

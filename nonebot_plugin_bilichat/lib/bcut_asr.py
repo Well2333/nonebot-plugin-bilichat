@@ -15,14 +15,10 @@ from ..model.bcut_asr import (
 
 __version__ = "0.0.2"
 
-API_REQ_UPLOAD = (
-    "https://member.bilibili.com/x/bcut/rubick-interface/resource/create"  # 申请上传
-)
+API_REQ_UPLOAD = "https://member.bilibili.com/x/bcut/rubick-interface/resource/create"  # 申请上传
 API_COMMIT_UPLOAD = "https://member.bilibili.com/x/bcut/rubick-interface/resource/create/complete"  # 提交上传
 API_CREATE_TASK = "https://member.bilibili.com/x/bcut/rubick-interface/task"  # 创建任务
-API_QUERY_RESULT = (
-    "https://member.bilibili.com/x/bcut/rubick-interface/task/result"  # 查询结果
-)
+API_QUERY_RESULT = "https://member.bilibili.com/x/bcut/rubick-interface/task/result"  # 查询结果
 
 SUPPORT_SOUND_FORMAT = Literal["flac", "aac", "m4a", "mp3", "wav"]
 
@@ -158,9 +154,7 @@ class BcutASR:
 
     async def create_task(self) -> str:
         "开始创建转换任务"
-        resp = await self.session.post(
-            API_CREATE_TASK, json={"resource": self.__download_url, "model_id": "7"}
-        )
+        resp = await self.session.post(API_CREATE_TASK, json={"resource": self.__download_url, "model_id": "7"})
         resp.raise_for_status()
         resp = resp.json()
         if code := resp["code"]:
@@ -172,9 +166,7 @@ class BcutASR:
 
     async def result(self, task_id: Optional[str] = None) -> ResultRspSchema:
         "查询转换结果"
-        resp = await self.session.get(
-            API_QUERY_RESULT, params={"model_id": 7, "task_id": task_id or self.task_id}
-        )
+        resp = await self.session.get(API_QUERY_RESULT, params={"model_id": 7, "task_id": task_id or self.task_id})
         resp.raise_for_status()
         resp = resp.json()
         if code := resp["code"]:

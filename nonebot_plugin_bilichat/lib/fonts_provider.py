@@ -34,7 +34,9 @@ async def get_font(font: str = DEFUALT_DYNAMIC_FONT):
             logger.debug(f"Font {url.name} found in local")
             return font_path.joinpath(url.name)
         else:
-            logger.warning(f"font {font} does not exist, this will take several seconds to minutes to download fonts depend on your network.")
+            logger.warning(
+                f"font {font} does not exist, this will take several seconds to minutes to download fonts depend on your network."
+            )
             async with httpx.AsyncClient() as client:
                 resp = await client.get(font)
                 if resp.status_code != 200:
@@ -74,9 +76,7 @@ def font_init():
             for chunk in r.iter_bytes():
                 font_file.write(chunk)
         with ZipFile(font_file) as z:
-            fonts = [
-                i for i in z.filelist if str(i.filename).startswith("bbot_fonts/font/")
-            ]
+            fonts = [i for i in z.filelist if str(i.filename).startswith("bbot_fonts/font/")]
             for font in fonts:
                 file_name = Path(font.filename).name
                 local_file = font_path.joinpath(file_name)
@@ -90,9 +90,7 @@ def font_init():
         if plugin_config.bilichat_dynamic_font.startswith("http"):
             custom_font = URL(plugin_config.bilichat_dynamic_font)
             if not custom_font.is_absolute():
-                raise ValueError(
-                    f"The custom font {plugin_config.bilichat_dynamic_font} is not a valid URL!"
-                )
+                raise ValueError(f"The custom font {plugin_config.bilichat_dynamic_font} is not a valid URL!")
             if custom_font.name != URL(DEFUALT_DYNAMIC_FONT).name:
                 logger.debug(get_font_sync(plugin_config.bilichat_dynamic_font))
         else:

@@ -24,9 +24,9 @@ class Cache(BaseModel):
     @classmethod
     def get(cls, id: Union[str, int]):
         f = cache_dir.joinpath(f"{id}.json")
-        return cls.parse_file(f,encoding="utf-8") if f.exists() else None
+        return cls.parse_file(f, encoding="utf-8") if f.exists() else None
 
     def save(self):
         cache_dir.touch(0o755)
         f = cache_dir.joinpath(f"{self.id}.json")
-        f.write_text(self.json(ensure_ascii=False),encoding="utf-8")
+        f.write_text(self.json(ensure_ascii=False), encoding="utf-8")
