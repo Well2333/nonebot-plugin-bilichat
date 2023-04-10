@@ -32,6 +32,12 @@ openai = [
     "tiktoken-async>=0.3.2",
 ]
 
+all = [
+    "jieba>=0.42.1",
+    "wordcloud>=1.8.2.2",
+    "tiktoken-async>=0.3.2",
+]
+
 [tool.pdm.dev-dependencies]
 dev = [
     "black>=23.3.0",
