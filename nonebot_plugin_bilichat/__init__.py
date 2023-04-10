@@ -226,6 +226,7 @@ async def video_info_v12(bot: V12_Bot, event: V12_ME, state: T_State, matcher: M
         logger.exception(e)
         await matcher.finish(f"{reply}未知错误: {str(e)}")
 
+    # wordcloud
     if plugin_config.bilichat_word_cloud:
         if image := await wordcloud(cache=cache, cid=str(info["cid"])):
             wc_image = await get_image_v12(bot, state["bili_number"], "wc", data=image)

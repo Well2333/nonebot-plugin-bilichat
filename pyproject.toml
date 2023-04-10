@@ -2,7 +2,7 @@
 
 [project]
 name = "nonebot-plugin-bilichat"
-version = "1.1.1"
+version = "1.1.2"
 description = "一个通过 OpenAI 来对b站视频进行总结插件"
 authors = [
     {name = "djkcyl", email = "cyl@cyllive.cn"},
@@ -35,6 +35,12 @@ openai = [
 newbing = [
     "EdgeGPT>=0.1.22.1",
     "minidynamicrender>=1.1.9",
+]
+
+all = [
+    "jieba>=0.42.1",
+    "wordcloud>=1.8.2.2",
+    "tiktoken-async>=0.3.2",
 ]
 
 [tool.pdm.dev-dependencies]
