@@ -60,12 +60,6 @@ _✨ 多功能的B站视频解析工具 ✨_
 
 </details>
 
-## 📝 TODO
-
-- [x] 简易的黑(白)名单系统
-- [ ] 更好的权限控制系统
-- [ ] 图片形式发送视频总结
-
 ## 💿 安装
 
 <details>
@@ -113,22 +107,32 @@ _✨ 多功能的B站视频解析工具 ✨_
 
 | 配置项 | 类型 | 默认值 | 说明 |
 |:-----:|:----:|:----:|:----:|
-| bilichat_block              | bool      | False                | 是否拦截事件(防止其他插件二次解析) |
-| bilichat_enable_private     | bool      | True                 | 是否允许响应私聊 |
-| bilichat_enable_v12_channel | bool      | True                 | 是否允许响应频道消息(ob12专属) |
-| bilichat_enable_unkown_src  | bool      | False                | 是否允许响应未知来源的消息 |
-| bilichat_whitelist          | list[str] | []                   | **响应**的群聊(频道)名单, 会覆盖黑名单 |
-| bilichat_blacklist          | list[str] | []                   | **不响应**的群聊(频道)名单 |
-| bilichat_dynamic_font       | str       | None                 | 视频信息及词云图片使用的字体 |
-| bilichat_cd_time            | int       | 120                  | 对同一视频的响应冷却时间(防止刷屏) |
-| bilichat_forword_msg        | set[str]  | ()                   | 对什么类型的消息开启合并转发(ob11专属),包含 `info`、`wordcloud`、`summary` 三个可选项 |
-| nickname                    | set[str]  | ("awesome-nonebot",) | 合并转发中,bot的昵称(取第一个值) |
-| bilichat_use_bcut_asr       | bool      | True                 | 是否在**没有字幕时**调用必剪接口生成字幕 |
-| bilichat_word_cloud         | bool      | True                 | 是否开启词云功能 |
-| bilichat_openai_token       | str       | None                 | openai的apikey, 若留空则禁用AI总结 |
-| bilichat_openai_proxy       | str       | None                 | 访问openai使用的代理地址 |
-| bilichat_openai_model       | str       | gpt-3.5-turbo-0301   | 使用的语言模型名称 |
-| bilichat_openai_token_limit | int       | 3500                 | 请求的文本量上限, 计算方式可参考[tiktoken](https://github.com/openai/tiktoken) |
+| bilichat_block               | bool      | False                | 是否拦截事件(防止其他插件二次解析) |
+| bilichat_enable_private      | bool      | True                 | 是否允许响应私聊 |
+| bilichat_enable_v12_channel  | bool      | True                 | 是否允许响应频道消息(ob12专属) |
+| bilichat_enable_unkown_src   | bool      | False                | 是否允许响应未知来源的消息 |
+| bilichat_whitelist           | list[str] | []                   | **响应**的群聊(频道)名单, 会覆盖黑名单 |
+| bilichat_blacklist           | list[str] | []                   | **不响应**的群聊(频道)名单 |
+| bilichat_dynamic_font        | str       | None                 | 视频信息及词云图片使用的字体 |
+| bilichat_cd_time             | int       | 120                  | 对同一视频的响应冷却时间(防止刷屏) |
+| bilichat_forword_msg         | set[str]  | ()                   | 对什么类型的消息开启合并转发(ob11专属),包含 `info`、`wordcloud`、`summary` 三个可选项 |
+| bilichat_forword_direct      | bool      | False                | 是否使用直接发送的方式替换合并转发 |
+| nickname                     | set[str]  | ("awesome-nonebot",) | 合并转发中,bot的昵称(取第一个值) |
+| bilichat_use_bcut_asr        | bool      | True                 | 是否在**没有字幕时**调用必剪接口生成字幕 |
+| bilichat_word_cloud          | bool      | True                 | 是否开启词云功能 |
+| bilichat_openai_token        | str       | None                 | openai的apikey, 若留空则禁用AI总结 |
+| bilichat_openai_proxy        | str       | None                 | 访问openai或newbing使用的代理地址 |
+| bilichat_openai_model        | str       | gpt-3.5-turbo-0301   | 使用的语言模型名称 |
+| bilichat_openai_token_limit  | int       | 3500                 | 请求的文本量上限, 计算方式可参考[tiktoken](https://github.com/openai/tiktoken) |
+| bilichat_newbing_cookie      | str       | None                 | newbing的cookie文件路径(获取方式参考[这里](https://github.com/acheong08/EdgeGPT#getting-authentication-required)和[这里](https://github.com/Harry-Jing/nonebot-plugin-bing-chat#%EF%B8%8F-%E9%85%8D%E7%BD%AE))
+| bilichat_newbing_token_limit | int       | 0                    | 请求的文本量上限, 0为无上限 |
+
+注:
+
+1. 合并转发由于极易受风控影响，因此不推荐使用
+2. 如果同时填写了 `bilichat_openai_token` 和 `bilichat_newbing_cookie`，则会使用 `chatgpt` 进行总结
+3. 经测试，目前 newbing 至少能总结 12000 字符以上的文本，推测 token 上限应为 `gpt-4-32k-0314` 的 `32200` token，但过长的内容易造成输出内容包含额外内容或总结失败，因此也建议设置一个合理的 token 上限 ~~（反正不要钱，要啥自行车）~~
+4. 由于 newbing 限制较大，也不如 chatgpt 听话，且需要联网查询资料，因此使用体验并不如 chatgpt ~~（反正不要钱，要啥自行车）~~
 
 ## 🎉 使用
 

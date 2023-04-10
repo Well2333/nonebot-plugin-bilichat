@@ -8,6 +8,7 @@ class Episode(BaseModel):
     content: List[str]
     jieba: Optional[Dict]
     openai: Optional[str]
+    newbing: Optional[str]
 
 
 class Cache(BaseModel):
