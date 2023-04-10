@@ -28,7 +28,7 @@ class Config(BaseModel):
     bilichat_blacklist: Sequence[str] = []
     bilichat_dynamic_font: Optional[str]
     bilichat_cd_time: int = 120
-    bilichat_forword_msg: Sequence[str] = {}  # ("info", "wordcloud", "summary")
+    bilichat_forword_msg: Sequence[str] = []  # ("info", "wordcloud", "summary")
     nickname: Sequence[str] = ["awesome-nonebot"]
 
     # both WC and AI
@@ -56,6 +56,7 @@ class Config(BaseModel):
             logger.warning(
                 "Using forward_msg may cause serious risk control restrictions, please enable this feature with caution!"
             )
+        return v
 
     @validator("nickname")
     def check_nickname(cls, v):
