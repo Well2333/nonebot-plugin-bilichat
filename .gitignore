@@ -13,3 +13,5 @@ venv
 .env
 log
 qrcode.png
+
+cookies.json

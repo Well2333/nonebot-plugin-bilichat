@@ -1,6 +1,8 @@
 import importlib.util
 import sys
-from typing import Literal, Optional, Sequence, Union, Set
+from typing import Literal, Optional, List, Union
+from pathlib import Path
+import json
 
 from nonebot import get_driver
 from nonebot.log import logger
@@ -24,12 +26,11 @@ class Config(BaseModel):
     bilichat_enable_private: bool = True
     bilichat_enable_v12_channel: bool = True
     bilichat_enable_unkown_src: bool = False
-    bilichat_whitelist: Sequence[str] = []
-    bilichat_blacklist: Sequence[str] = []
+    bilichat_whitelist: List[str] = []
+    bilichat_blacklist: List[str] = []
     bilichat_dynamic_font: Optional[str]
     bilichat_cd_time: int = 120
-    bilichat_forword_msg: Sequence[str] = []  # ("info", "wordcloud", "summary")
-    nickname: Sequence[str] = ["awesome-nonebot"]
+    nickname: List[str] = ["awesome-nonebot"]
 
     # both WC and AI
     bilichat_use_bcut_asr: bool = True
@@ -42,21 +43,8 @@ class Config(BaseModel):
     bilichat_openai_proxy: Optional[str]
     bilichat_openai_model: Literal["gpt-3.5-turbo-0301", "gpt-4-0314", "gpt-4-32k-0314"] = "gpt-3.5-turbo-0301"
     bilichat_openai_token_limit: int = 3500
-
-    @validator("bilichat_forword_msg")
-    def check_adapter_can_send_forword_msg(cls, v):
-        if not v:
-            return
-        drivers = get_driver()._adapters.keys()
-        if "OneBot V12" in drivers:
-            logger.warning(
-                "Forword_msg is not implemented by OneBot V12, events of OneBot V12 will not be sent as forword_msg!"
-            )
-        if "OneBot V11" in drivers:
-            logger.warning(
-                "Using forward_msg may cause serious risk control restrictions, please enable this feature with caution!"
-            )
-        return v
+    bilichat_newbing_cookie: Optional[str]
+    bilichat_newbing_token_limit: int = 0
 
     @validator("nickname")
     def check_nickname(cls, v):
@@ -64,7 +52,7 @@ class Config(BaseModel):
 
     @validator("bilichat_openai_proxy")
     def check_openai_proxy(cls, v, values):
-        if values["bilichat_openai_token"] is None:
+        if not (values["bilichat_openai_token"] or values["bilichat_newbing_cookie"]):
             return v
         if v is None:
             logger.warning("you have enabled openai summary without a proxy, this may cause request failure.")
@@ -91,12 +79,30 @@ class Config(BaseModel):
 
     @validator("bilichat_openai_token", always=True)
     def check_pypackage_openai(cls, v):
-        if importlib.util.find_spec("tiktoken_async") or not v:
+        if (importlib.util.find_spec("tiktoken_async") and importlib.util.find_spec("minidynamicrender")) or not v:
             return v
         else:
             raise RuntimeError(
                 "Package(s) of fuction openai summary not installed, use **nb plugin install nonebot-plugin-bilichat[openai]** to install required dependencies"
             )
+
+    @validator("bilichat_newbing_cookie", always=True)
+    def check_pypackage_newbing_and_cookie(cls, v):
+        if not v:
+            return v
+        if not importlib.util.find_spec("EdgeGPT") or not importlib.util.find_spec("minidynamicrender"):
+            raise RuntimeError(
+                "Package(s) of fuction newbing summary not installed, use **nb plugin install nonebot-plugin-bilichat[newbing]** to install required dependencies"
+            )
+
+        # verify cookie file
+        try:
+            if Path(v).is_file():
+                json.loads(Path(v).read_text("utf-8"))
+        except Exception as e:
+            raise ValueError("Config bilichat_newbing_cookie got a problem occurred") from e
+
+        return v
 
     @validator("bilichat_word_cloud", always=True)
     def check_pypackage_wordcloud(cls, v):
