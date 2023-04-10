@@ -30,8 +30,6 @@ class Config(BaseModel):
     bilichat_blacklist: List[str] = []
     bilichat_dynamic_font: Optional[str]
     bilichat_cd_time: int = 120
-    bilichat_forword_msg: List[str] = []  # ("info", "wordcloud", "summary")
-    bilichat_forword_direct: bool = False
     nickname: List[str] = ["awesome-nonebot"]
 
     # both WC and AI

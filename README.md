@@ -115,9 +115,6 @@ _✨ 多功能的B站视频解析工具 ✨_
 | bilichat_blacklist           | list[str] | []                   | **不响应**的群聊(频道)名单 |
 | bilichat_dynamic_font        | str       | None                 | 视频信息及词云图片使用的字体 |
 | bilichat_cd_time             | int       | 120                  | 对同一视频的响应冷却时间(防止刷屏) |
-| bilichat_forword_msg         | set[str]  | ()                   | 对什么类型的消息开启合并转发(ob11专属),包含 `info`、`wordcloud`、`summary` 三个可选项 |
-| bilichat_forword_direct      | bool      | False                | 是否使用直接发送的方式替换合并转发 |
-| nickname                     | set[str]  | ("awesome-nonebot",) | 合并转发中,bot的昵称(取第一个值) |
 | bilichat_use_bcut_asr        | bool      | True                 | 是否在**没有字幕时**调用必剪接口生成字幕 |
 | bilichat_word_cloud          | bool      | True                 | 是否开启词云功能 |
 | bilichat_openai_token        | str       | None                 | openai的apikey, 若留空则禁用AI总结 |
@@ -129,7 +126,7 @@ _✨ 多功能的B站视频解析工具 ✨_
 
 注:
 
-1. 合并转发由于极易受风控影响，因此不推荐使用
+1. ~~合并转发由于极易受风控影响，因此不推荐使用~~已经把合并转发砍了，没精力适配这玩意了
 2. 如果同时填写了 `bilichat_openai_token` 和 `bilichat_newbing_cookie`，则会使用 `chatgpt` 进行总结
 3. 经测试，目前 newbing 至少能总结 12000 字符以上的文本，推测 token 上限应为 `gpt-4-32k-0314` 的 `32200` token，但过长的内容易造成输出内容包含额外内容或总结失败，因此也建议设置一个合理的 token 上限 ~~（反正不要钱，要啥自行车）~~
 4. 由于 newbing 限制较大，也不如 chatgpt 听话，且需要联网查询资料，因此使用体验并不如 chatgpt ~~（反正不要钱，要啥自行车）~~

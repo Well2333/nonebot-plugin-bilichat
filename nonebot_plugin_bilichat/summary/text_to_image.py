@@ -9,7 +9,7 @@ from ..lib.store import cache_dir
 
 
 cache = cache_dir.joinpath("text2image")
-cache.touch(0o755, exist_ok=True)
+cache.mkdir(0o755, parents=True, exist_ok=True)
 cache = str(cache.absolute())
 
 
