@@ -39,12 +39,12 @@ class Config(BaseModel):
     bilichat_word_cloud: bool = True
 
     # AI Summary
+    bilichat_newbing_cookie: Optional[str]
+    bilichat_newbing_token_limit: int = 0
     bilichat_openai_token: Optional[str]
     bilichat_openai_proxy: Optional[str]
     bilichat_openai_model: Literal["gpt-3.5-turbo-0301", "gpt-4-0314", "gpt-4-32k-0314"] = "gpt-3.5-turbo-0301"
     bilichat_openai_token_limit: int = 3500
-    bilichat_newbing_cookie: Optional[str]
-    bilichat_newbing_token_limit: int = 0
 
     @validator("nickname")
     def check_nickname(cls, v):
