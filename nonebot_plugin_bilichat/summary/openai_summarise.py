@@ -8,6 +8,7 @@ from .text_to_image import rich_text2image
 from ..model.cache import Cache
 from ..model.exception import AbortError
 from ..optional import capture_exception  # type: ignore
+from ..config import plugin_config
 
 
 async def subtitle_summarise(title: str, sub: List[str]):
@@ -27,10 +28,7 @@ async def column_summarise(cv_title: str, cv_text: str):
 
 async def openai_summarization(cache: Cache, cid: str = "0"):
     try:
-        logger.info(f"Generation summary of Video(Column) {cache.id}")
-        if not cache.episodes[cid] or not cache.episodes[cid].content:
-            return "视频无有效字幕"
-        elif not cache.episodes[cid].openai:
+        if not cache.episodes[cid].openai:
             if cache.id[:2].lower() in ["bv", "av"]:
                 ai_summary = await subtitle_summarise(cache.title, cache.episodes[cid].content)
             elif cache.id[:2].lower() == "cv":
@@ -44,7 +42,7 @@ async def openai_summarization(cache: Cache, cid: str = "0"):
             else:
                 logger.warning(f"Video(Column) {cache.id} summary failure: {ai_summary.raw}")
                 return f"视频(专栏) {cache.id} 总结失败: {ai_summary.raw}"
-        if img := await rich_text2image(cache.episodes[cid].openai or "视频无法总结"):
+        if img := await rich_text2image(cache.episodes[cid].openai or "视频无法总结", plugin_config.bilichat_openai_model):
             return img
         else:
             return f"总结图片生成失败, 直接发送原文:\n{cache.episodes[cid].openai}"

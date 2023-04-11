@@ -9,11 +9,11 @@ from EdgeGPT import Chatbot, ConversationStyle
 from nonebot.log import logger
 
 from ..config import plugin_config
+from ..lib.store import BING_APOLOGY
 from ..model.cache import Cache
 from ..model.exception import AbortError
 from ..optional import capture_exception  # type: ignore
 from .text_to_image import rich_text2image
-from ..lib.store import BING_APOLOGY
 
 cookies = json.loads(Path(plugin_config.bilichat_newbing_cookie).read_text("utf-8"))  # type: ignore
 logger.info("Try init bing chatbot")
@@ -26,9 +26,8 @@ for count in range(5):
         logger.error(f"Bing chatbot init failed, retrying {count+1}/5")
 
 
-
 def get_small_size_transcripts(title: str, text_data: List[str]):
-    prompt = f"请为视频“{title}”总结文案,开头简述要点(大于40字符),\
+    prompt = f"请为视频“{title}”总结文案,开头用一整段文字简述视频的要点(大于40字符),\
 随后总结2-6条视频的Bulletpoint(每条大于15字符),\
 然后使用以下格式输出总结内容 ## 总结 \n ## 要点 \n - [Emoji] Bulletpoint\n\n,\
 如果你无法找到相关的信息可以尝试自己总结,\
@@ -53,13 +52,10 @@ async def newbing_req(prompt: str):
     return None if bing_resp["contentOrigin"] == "Apology" else bing_resp["text"]
 
 
-
 async def newbing_summarization(cache: Cache, cid: str = "0"):
+    meaning = False
     try:
-        logger.info(f"Generation summary of Video(Column) {cache.id}")
-        if not cache.episodes[cid] or not cache.episodes[cid].content:
-            return "视频无有效字幕"
-        elif not cache.episodes[cid].newbing:
+        if not cache.episodes[cid].newbing:
             if cache.id[:2].lower() in ["bv", "av"]:
                 ai_summary = await newbing_req(get_small_size_transcripts(cache.title, cache.episodes[cid].content))
             elif cache.id[:2].lower() == "cv":
@@ -69,27 +65,30 @@ async def newbing_summarization(cache: Cache, cid: str = "0"):
             else:
                 raise ValueError(f"Illegal Video(Column) types {cache.id}")
 
-
             # 如果为空则是拒绝回答
             if ai_summary is None:
-                return BING_APOLOGY.read_bytes()
+                return BING_APOLOGY.read_bytes(), False
             # 大于 100 认为有意义
             elif len(ai_summary) > 100:
                 cache.episodes[cid].newbing = ai_summary
                 cache.save()
+                meaning = True
             # 小于 100 认为无意义
             else:
                 logger.warning(f"Video(Column) {cache.id} summary failure")
                 cache.episodes[cid].newbing = f"视频(专栏) {cache.id} 总结失败: {ai_summary}"
-
-        if img := await rich_text2image(cache.episodes[cid].newbing or "视频无法总结"):
-            return img
         else:
-            return f"总结图片生成失败, 直接发送原文:\n{cache.episodes[cid].newbing}"
+            meaning = True
+            logger.info("Using cached newbing summarization")
+
+        if img := await rich_text2image(cache.episodes[cid].newbing or "视频无法总结", "new Bing(testing)"):
+            return img, meaning
+        else:
+            return f"总结图片生成失败, 直接发送原文:\n{cache.episodes[cid].newbing}", meaning
     except AbortError as e:
         logger.exception(f"Video(Column) {cache.id} summary aborted: {e}")
-        return f"视频(专栏) {cache.id} 总结中止: {e}"
+        return f"视频(专栏) {cache.id} 总结中止: {e}", False
     except Exception as e:
         capture_exception()
         logger.exception(f"Video(Column) {cache.id} summary failed: {e}")
-        return f"视频(专栏) {cache.id} 总结失败: {e}"
+        return f"视频(专栏) {cache.id} 总结失败: {e}", False
