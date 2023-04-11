@@ -13,7 +13,7 @@ cache.mkdir(0o755, parents=True, exist_ok=True)
 cache = str(cache.absolute())
 
 
-async def rich_text2image(data: str):
+async def rich_text2image(data: str, src: str):
     config = ConfigInit(
         data_path=cache,
         font_path={
@@ -22,6 +22,7 @@ async def rich_text2image(data: str):
             "emoji": str(await get_font("nte.ttf")),
         },
     )
+    data = f"AI Summarization, Powered by A60 & Well404 \nNLP Model: {src}\n==========================================={data}"
     if config.dyn_color and config.dyn_font and config.dy_size:
         render = DynTextRender(config.static_path, config.dyn_color, config.dyn_font, config.dy_size)
         image = await render.run(
