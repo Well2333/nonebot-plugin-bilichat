@@ -13,9 +13,17 @@ from ..model.cache import Cache
 from ..model.exception import AbortError
 from ..optional import capture_exception  # type: ignore
 from .text_to_image import rich_text2image
+from ..lib.store import BING_APOLOGY
 
 cookies = json.loads(Path(plugin_config.bilichat_newbing_cookie).read_text("utf-8"))  # type: ignore
-bot = Chatbot(cookies=cookies, proxy=plugin_config.bilichat_openai_proxy)  # type: ignore
+logger.info("Try init bing chatbot")
+for count in range(5):
+    try:
+        bot = Chatbot(cookies=cookies, proxy=plugin_config.bilichat_openai_proxy)  # type: ignore
+        logger.success("Bing chatbot init success")
+        break
+    except Exception:
+        logger.error(f"Bing chatbot init failed, retrying {count+1}/5")
 
 
 def get_small_size_transcripts(title: str, text_data: List[str]):
@@ -40,7 +48,8 @@ async def newbing_req(prompt: str):
     )
     await bot.reset()
     logger.debug(ans)
-    return None if ans["item"]["messages"][1]["contentOrigin"] == "Apology" else ans["item"]["messages"][1]["text"]
+    bing_resp = ans["item"]["messages"][1]
+    return None if bing_resp["contentOrigin"] == "Apology" else bing_resp["text"]
 
 
 async def newbing_summarization(cache: Cache, cid: str = "0"):
@@ -58,12 +67,17 @@ async def newbing_summarization(cache: Cache, cid: str = "0"):
             else:
                 raise ValueError(f"Illegal Video(Column) types {cache.id}")
 
-            if ai_summary and len(ai_summary) > 100:
+            # 如果为空则是拒绝回答
+            if ai_summary is None:
+                return BING_APOLOGY.read_bytes()
+            # 大于 100 认为有意义
+            elif len(ai_summary) > 100:
                 cache.episodes[cid].newbing = ai_summary
                 cache.save()
+            # 小于 100 认为无意义
             else:
                 logger.warning(f"Video(Column) {cache.id} summary failure")
-                return f"视频(专栏) {cache.id} 总结失败: 可能是视频无意义或包含冒犯性信息"
+                cache.episodes[cid].newbing = f"视频(专栏) {cache.id} 总结失败: {ai_summary}"
         if img := await rich_text2image(cache.episodes[cid].newbing or "视频无法总结"):
             return img
         else:
