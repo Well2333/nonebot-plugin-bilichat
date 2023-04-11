@@ -26,6 +26,7 @@ for count in range(5):
         logger.error(f"Bing chatbot init failed, retrying {count+1}/5")
 
 
+
 def get_small_size_transcripts(title: str, text_data: List[str]):
     prompt = f"请为视频“{title}”总结文案,开头简述要点(大于40字符),\
 随后总结2-6条视频的Bulletpoint(每条大于15字符),\
@@ -52,6 +53,7 @@ async def newbing_req(prompt: str):
     return None if bing_resp["contentOrigin"] == "Apology" else bing_resp["text"]
 
 
+
 async def newbing_summarization(cache: Cache, cid: str = "0"):
     try:
         logger.info(f"Generation summary of Video(Column) {cache.id}")
@@ -67,6 +69,7 @@ async def newbing_summarization(cache: Cache, cid: str = "0"):
             else:
                 raise ValueError(f"Illegal Video(Column) types {cache.id}")
 
+
             # 如果为空则是拒绝回答
             if ai_summary is None:
                 return BING_APOLOGY.read_bytes()
@@ -78,6 +81,7 @@ async def newbing_summarization(cache: Cache, cid: str = "0"):
             else:
                 logger.warning(f"Video(Column) {cache.id} summary failure")
                 cache.episodes[cid].newbing = f"视频(专栏) {cache.id} 总结失败: {ai_summary}"
+
         if img := await rich_text2image(cache.episodes[cid].newbing or "视频无法总结"):
             return img
         else:

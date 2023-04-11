@@ -45,7 +45,6 @@ class Config(BaseModel):
     bilichat_openai_proxy: Optional[str]
     bilichat_openai_model: Literal["gpt-3.5-turbo-0301", "gpt-4-0314", "gpt-4-32k-0314"] = "gpt-3.5-turbo-0301"
     bilichat_openai_token_limit: int = 3500
-    
 
     @validator("nickname")
     def check_nickname(cls, v):

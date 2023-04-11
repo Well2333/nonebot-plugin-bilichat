@@ -2,7 +2,9 @@
 
 [project]
 name = "nonebot-plugin-bilichat"
+
 version = "1.2.1"
+
 description = "一个通过 OpenAI 来对b站视频进行总结插件"
 authors = [
     {name = "djkcyl", email = "cyl@cyllive.cn"},
