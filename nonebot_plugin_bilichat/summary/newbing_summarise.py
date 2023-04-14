@@ -3,7 +3,7 @@ import random
 import re
 from collections import OrderedDict
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from EdgeGPT import Chatbot, ConversationStyle
 from nonebot.log import logger
@@ -39,7 +39,7 @@ def get_small_size_transcripts(title: str, text_data: List[str]):
     return prompt + ",".join(unique_texts)
 
 
-async def newbing_req(prompt: str):
+async def newbing_req(prompt: str) -> Optional[str]:
     logger.debug(f"prompt have {len(prompt)} chars")
     ans = await bot.ask(
         prompt=prompt,

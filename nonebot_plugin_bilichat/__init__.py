@@ -105,7 +105,7 @@ async def video_info_v11(bot: V11_Bot, event: V11_ME, state: T_State, matcher: M
         await matcher.finish(reply + msg)
     image = V11_MS.image(img)
     msgid = (await matcher.send(reply + image + msg))["message_id"]
-    reply = V11_MS.reply(msgid)
+    # reply = V11_MS.reply(msgid) # 引用图像消息在手机上显示太长了，引用原始消息更合适
 
     # furtuer fuctions
     if not plugin_config.bilichat_openai_token and not plugin_config.bilichat_word_cloud:
@@ -140,7 +140,7 @@ async def video_info_v11(bot: V11_Bot, event: V11_ME, state: T_State, matcher: M
             await matcher.finish(f"{reply}视频无有效字幕")
 
     if wc_image or summary:
-        await matcher.finish(reply + wc_image + summary)
+        await matcher.finish(reply + summary + wc_image)
 
 
 async def get_image_v12(bot: V12_Bot, bili_number: str, suffix: str, data):
@@ -161,7 +161,7 @@ async def video_info_v12(bot: V12_Bot, event: V12_ME, state: T_State, matcher: M
     fileid = await bot.upload_file(type="data", name=f"{state['bili_number']}.jpg", data=img)
     image = V12_MS.image(file_id=fileid["file_id"])
     msgid = (await matcher.send(reply + image + msg))["message_id"]
-    reply = V12_MS.reply(msgid)
+    # reply = V12_MS.reply(msgid) 引用图像消息在手机上显示太长了，引用原始消息更合适
 
     # furtuer fuctions
     if not plugin_config.bilichat_openai_token and not plugin_config.bilichat_word_cloud:
@@ -195,4 +195,4 @@ async def video_info_v12(bot: V12_Bot, event: V12_ME, state: T_State, matcher: M
             await matcher.send(f"{reply}视频无有效字幕")
 
     if wc_image or summary:
-        await matcher.finish(reply + wc_image + summary)  # type: ignore
+        await matcher.finish(reply + summary + wc_image)  # type: ignore
