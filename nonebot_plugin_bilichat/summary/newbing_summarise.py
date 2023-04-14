@@ -51,6 +51,25 @@ async def newbing_req(prompt: str):
     bing_resp = ans["item"]["messages"][1]
     return None if bing_resp["contentOrigin"] == "Apology" else bing_resp["text"]
 
+def newbing_summary_preprocess(ai_summary:str) -> str:
+    """预处理（清洗）newbing输出的总结内容"""
+    searchObj =   re.search(r'##\s+总结\s+(.*)##\s+要点\s+(.*)', ai_summary, re.S)  # 要求必须有“总结”和“要点”两个词，并且去除总结前面BB的内容
+    if searchObj:
+        summary = searchObj.group(1).strip()
+        bulletpoint = searchObj.group(2).strip()
+        bulletpoint = re.sub(r'\[\^\d+\^\]\s*', '', bulletpoint)  # 去除引用标记 eg. [^1^]
+
+        """
+            要点列表条目之间的换行数量不稳定，可能为 [0-n] 个
+            为了避免丢失换行，先强制给它加上一个换行
+            然后再合并多余的换行
+        """
+        bulletpoint = re.sub(r'-\s*\[(.+?)\]\s*', r'\n● \g<1> ', bulletpoint)
+        bulletpoint = re.sub(r'\n+', r'\n', bulletpoint).strip()
+
+        return f"## 总结\n{summary}\n\n## 要点\n{bulletpoint}"
+    else:
+        return ''
 
 async def newbing_summarization(cache: Cache, cid: str = "0"):
     meaning = False
@@ -65,8 +84,10 @@ async def newbing_summarization(cache: Cache, cid: str = "0"):
             else:
                 raise ValueError(f"Illegal Video(Column) types {cache.id}")
 
+            ai_summary = newbing_summary_preprocess(ai_summary or '')
+
             # 如果为空则是拒绝回答
-            if ai_summary is None:
+            if not ai_summary:
                 return BING_APOLOGY.read_bytes(), False
             # 大于 100 认为有意义
             elif len(ai_summary) > 100:
