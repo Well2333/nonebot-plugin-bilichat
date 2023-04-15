@@ -69,13 +69,20 @@ async def get_subtitle(aid: int, cid: int) -> List[str]:
             )
         audio_resp.raise_for_status()
         audio = audio_resp.content
-        try:
-            asr = await get_bcut_asr(audio)
-        except Exception as e:
-            logger.exception(f"BCut-ASR conversion failed: {e}")
-            capture_exception()
-            raise AbortError("BCut-ASR conversion failed") from e
-        return [x.transcript for x in asr]
+        for count in range(plugin_config.bilichat_neterror_retry):
+            try:
+                asr = await get_bcut_asr(audio)
+                return [x.transcript for x in asr]
+            except httpx.ReadTimeout as e:
+                logger.error(
+                    f"except httpx.ReadTimeout, retry count remaining {plugin_config.bilichat_neterror_retry-count-1}"
+                )
+                await asyncio.sleep(5)
+            except Exception as e:
+                logger.exception(f"BCut-ASR conversion failed: {e}")
+                capture_exception()
+                raise AbortError("BCut-ASR conversion failed") from e
+        raise AbortError("BCut-ASR conversion failed due to network error")
     else:
         raise AbortError("Subtitles not found and BCut-ASR is disabled in env")
     return [x["content"] for x in subtitle.json()["body"]]

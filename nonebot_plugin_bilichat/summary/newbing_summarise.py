@@ -3,7 +3,7 @@ import random
 import re
 from collections import OrderedDict
 from pathlib import Path
-from typing import List
+from typing import List, Dict
 
 from EdgeGPT import Chatbot, ConversationStyle
 from nonebot.log import logger
@@ -27,16 +27,38 @@ for count in range(5):
 
 
 def get_small_size_transcripts(title: str, text_data: List[str]):
-    prompt = f"请为视频“{title}”总结文案,开头用一整段文字简述视频的要点(大于40字符),\
-随后总结2-6条视频的Bulletpoint(每条大于15字符),\
-然后使用以下格式输出总结内容 ## 总结 \n ## 要点 \n - [Emoji] Bulletpoint\n\n,\
-如果你无法找到相关的信息可以尝试自己总结,\
-但请一定不要输出任何其他内容。视频文案的内容如下: "
+    prompt = (
+        "使用以下Markdown模板为我总结视频字幕数据，除非字幕中的内容无意义，或者内容较少无法总结，或者未提供字幕数据，或者无有效内容，你就不使用模板回复，只回复“无意义”：\
+        ## 概述\
+        {内容，尽可能精简总结内容不要太详细}\
+        ## 要点\
+        - {使用不重复并合适的emoji，仅限一个，禁止重复} {内容不换行大于15字，可多项，条数与有效内容数量呈正比}\
+        不要随意翻译任何内容。仅使用中文总结。\
+        不说与总结无关的其他内容，你的回复仅限固定格式提供的“概述”和“要点”两项。"
+        + f"视频标题为“{title}”，视频字幕数据如下，立刻开始总结："
+    )
     unique_texts = list(OrderedDict.fromkeys(text_data))
     if plugin_config.bilichat_newbing_token_limit > 0:
         while len(",".join(unique_texts)) + len(prompt) > plugin_config.bilichat_newbing_token_limit:
             unique_texts.pop(random.randint(0, len(unique_texts) - 1))
     return prompt + ",".join(unique_texts)
+
+
+def newbing_summary_preprocess(ai_summary: str):
+    # https://github.com/djkcyl/nonebot-plugin-bilichat/pull/18
+    """预处理（清洗）newbing输出的总结内容"""
+    if search_obj := re.search(r"##\s+概述\s+(.*)##\s+要点\s+(.*)", ai_summary, re.S):
+        summary = search_obj[1].strip()
+        bulletpoint = search_obj[2].strip()
+        bulletpoint = re.sub(r"\[\^\d+\^\]\s*", "", bulletpoint)  # 去除引用标记 eg. [^1^]
+        bulletpoint = re.sub(r"-\s*\[(.+?)\]\s*", r"\n● \g<1> ", bulletpoint)
+        bulletpoint = re.sub(r"\n+", r"\n", bulletpoint).strip()
+        bing_summary = f"## 总结\n{summary}\n\n## 要点\n{bulletpoint}"
+        logger.info(f"Newbing summary: \n{bing_summary}")
+        return bing_summary
+    else:
+        logger.debug(f"Newbing output is meaningless: \n{ai_summary}")
+        return None
 
 
 async def newbing_req(prompt: str):
@@ -48,8 +70,12 @@ async def newbing_req(prompt: str):
     )
     await bot.reset()
     logger.debug(ans)
-    bing_resp = ans["item"]["messages"][1]
-    return None if bing_resp["contentOrigin"] == "Apology" else bing_resp["text"]
+    bing_resp: Dict = ans["item"]["messages"][1]
+    return (
+        newbing_summary_preprocess(bing_resp.get("text", ""))
+        if plugin_config.bilichat_newbing_preprocess
+        else bing_resp.get("text", None)
+    )
 
 
 async def newbing_summarization(cache: Cache, cid: str = "0"):

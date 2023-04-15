@@ -115,15 +115,16 @@ _✨ 多功能的B站视频解析工具 ✨_
 | bilichat_blacklist           | list[str] | []                   | **不响应**的群聊(频道)名单 |
 | bilichat_dynamic_font        | str       | None                 | 视频信息及词云图片使用的字体 |
 | bilichat_cd_time             | int       | 120                  | 对同一视频的响应冷却时间(防止刷屏) |
+| bilichat_neterror_retry      | int       | 3                    | 对部分网络请求错误的尝试次数 |
 | bilichat_use_bcut_asr        | bool      | True                 | 是否在**没有字幕时**调用必剪接口生成字幕 |
 | bilichat_word_cloud          | bool      | True                 | 是否开启词云功能 |
 | bilichat_newbing_cookie      | str       | None                 | newbing的cookie文件路径(获取方式参考[这里](https://github.com/acheong08/EdgeGPT#getting-authentication-required)和[这里](https://github.com/Harry-Jing/nonebot-plugin-bing-chat#%EF%B8%8F-%E9%85%8D%E7%BD%AE)) , 若留空则禁用newbing总结 |
 | bilichat_newbing_token_limit | int       | 0                    | newbing请求的文本量上限, 0为无上限 |
+| bilichat_newbing_preprocess  | bool      | True                 | 是否对newbing的返回值进行预处理, 以去除其中不想要的内容 |
 | bilichat_openai_token        | str       | None                 | openai的apikey, 若留空则禁用openai总结 |
 | bilichat_openai_proxy        | str       | None                 | 访问openai或newbing使用的代理地址 |
 | bilichat_openai_model        | str       | gpt-3.5-turbo-0301   | 使用的语言模型名称 |
 | bilichat_openai_token_limit  | int       | 3500                 | 请求的文本量上限, 计算方式可参考[tiktoken](https://github.com/openai/tiktoken) |
-
 
 注:
 
@@ -131,7 +132,6 @@ _✨ 多功能的B站视频解析工具 ✨_
 2. 如果同时填写了 `bilichat_openai_token` 和 `bilichat_newbing_cookie`，则会使用 `openai` 进行总结
 3. 经测试，目前 newbing 至少能总结 12000 字符以上的文本，推测 token 上限应为 `gpt-4-32k-0314` 的 `32200` token，但过长的内容易造成输出内容包含额外内容或总结失败，因此也建议设置一个合理的 token 上限 ~~（反正不要钱，要啥自行车）~~
 4. 由于 newbing 限制较大，也不如 openai 听话，且需要联网查询资料，因此使用体验并不如 chatgpt ~~（反正不要钱，要啥自行车）~~
-
 
 ## 🎉 使用
 

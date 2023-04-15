@@ -30,6 +30,7 @@ class Config(BaseModel):
     bilichat_blacklist: List[str] = []
     bilichat_dynamic_font: Optional[str]
     bilichat_cd_time: int = 120
+    bilichat_neterror_retry = 3
     nickname: List[str] = ["awesome-nonebot"]
 
     # both WC and AI
@@ -41,6 +42,7 @@ class Config(BaseModel):
     # AI Summary
     bilichat_newbing_cookie: Optional[str]
     bilichat_newbing_token_limit: int = 0
+    bilichat_newbing_preprocess: bool = True
     bilichat_openai_token: Optional[str]
     bilichat_openai_proxy: Optional[str]
     bilichat_openai_model: Literal["gpt-3.5-turbo-0301", "gpt-4-0314", "gpt-4-32k-0314"] = "gpt-3.5-turbo-0301"
