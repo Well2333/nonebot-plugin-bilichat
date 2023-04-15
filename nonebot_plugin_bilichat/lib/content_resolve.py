@@ -78,7 +78,7 @@ async def get_video_basic(bili_number: str, uid: Union[str, int]):
     # generate video information
     try:
         b23_url = await get_b23_url(f"https://www.bilibili.com/video/{bvid}")
-        data = await binfo_image_create(video_info, b23_url)
+        data = (await binfo_image_create(video_info, b23_url)) if plugin_config.bilichat_basic_info else "IMG_RENDER_DISABLED"
         logger.debug(f"Video parsing complete - aid:{aid} cid:{cid} title:{title}")
         return (b23_url, data, {"aid": aid, "cid": cid, "title": title})
     except TimeoutException:
@@ -104,6 +104,7 @@ async def get_video_cache(info: Dict):
                     content=await get_subtitle(int(info["aid"]), int(info["cid"])),
                     jieba=None,
                     openai=None,
+                    newbing=None,
                 )
             },
         )
@@ -114,6 +115,7 @@ async def get_video_cache(info: Dict):
             content=await get_subtitle(int(info["aid"]), int(info["cid"])),
             jieba=None,
             openai=None,
+            newbing=None,
         )
     else:
         logger.debug(f'cache of av{info["aid"]} exists, use cache')

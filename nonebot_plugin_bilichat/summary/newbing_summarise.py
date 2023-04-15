@@ -46,13 +46,18 @@ def get_small_size_transcripts(title: str, text_data: List[str]):
 
 def newbing_summary_preprocess(ai_summary: str):
     # https://github.com/djkcyl/nonebot-plugin-bilichat/pull/18
-    """预处理（清洗）newbing输出的总结内容"""
+    """Pre-process (clean) the summary content of newbing output"""
     if search_obj := re.search(r"##\s+概述\s+(.*)##\s+要点\s+(.*)", ai_summary, re.S):
+        # content separation
         summary = search_obj[1].strip()
         bulletpoint = search_obj[2].strip()
-        bulletpoint = re.sub(r"\[\^\d+\^\]\s*", "", bulletpoint)  # 去除引用标记 eg. [^1^]
+        # remove reference like [^1^]
+        summary = re.sub(r"\[\^\d+\^\]\s*", "", summary)
+        bulletpoint = re.sub(r"\[\^\d+\^\]\s*", "", bulletpoint)
+        # reset line breaks
         bulletpoint = re.sub(r"-\s*\[(.+?)\]\s*", r"\n● \g<1> ", bulletpoint)
         bulletpoint = re.sub(r"\n+", r"\n", bulletpoint).strip()
+        # final output
         bing_summary = f"## 总结\n{summary}\n\n## 要点\n{bulletpoint}"
         logger.info(f"Newbing summary: \n{bing_summary}")
         return bing_summary
