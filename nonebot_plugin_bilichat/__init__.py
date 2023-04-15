@@ -103,12 +103,14 @@ async def video_info_v11(bot: V11_Bot, event: V11_ME, state: T_State, matcher: M
     reply = V11_MS.reply(event.message_id)
     if not img:
         await matcher.finish(reply + msg)
-    image = V11_MS.image(img)
-    msgid = (await matcher.send(reply + image + msg))["message_id"]
-    reply = V11_MS.reply(msgid)
+    elif img != "IMG_RENDER_DISABLED":
+        image = V11_MS.image(img)
+        msgid = (await matcher.send(reply + image + msg))["message_id"]
+        if plugin_config.bilichat_reply_to_basic_info:
+            reply = V11_MS.reply(msgid)
 
     # furtuer fuctions
-    if not plugin_config.bilichat_openai_token and not plugin_config.bilichat_word_cloud:
+    if not ENABLE_SUMMARY and not plugin_config.bilichat_word_cloud:
         raise FinishedException
 
     # get video cache
@@ -158,13 +160,14 @@ async def video_info_v12(bot: V12_Bot, event: V12_ME, state: T_State, matcher: M
     reply = V12_MS.reply(message_id=event.message_id, user_id=event.get_user_id())
     if not img or not info:
         await matcher.finish(reply + msg)
-    fileid = await bot.upload_file(type="data", name=f"{state['bili_number']}.jpg", data=img)
-    image = V12_MS.image(file_id=fileid["file_id"])
-    msgid = (await matcher.send(reply + image + msg))["message_id"]
-    reply = V12_MS.reply(msgid)
+    elif img != "IMG_RENDER_DISABLED":
+        image = await get_image_v12(bot, state["bili_number"], suffix="basic", data=img)
+        msgid = (await matcher.send(reply + image + msg))["message_id"]
+        if plugin_config.bilichat_reply_to_basic_info:
+            reply = V12_MS.reply(msgid)
 
     # furtuer fuctions
-    if not plugin_config.bilichat_openai_token and not plugin_config.bilichat_word_cloud:
+    if not ENABLE_SUMMARY and not plugin_config.bilichat_word_cloud:
         raise FinishedException
 
     try:

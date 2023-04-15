@@ -32,6 +32,10 @@ class Config(BaseModel):
     bilichat_cd_time: int = 120
     bilichat_neterror_retry = 3
     nickname: List[str] = ["awesome-nonebot"]
+    
+    # basic info
+    bilichat_basic_info: bool = True
+    bilichat_reply_to_basic_info: bool = True
 
     # both WC and AI
     bilichat_use_bcut_asr: bool = True

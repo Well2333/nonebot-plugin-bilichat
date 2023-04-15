@@ -13,10 +13,24 @@ _✨ 多功能的B站视频解析工具 ✨_
 <a href="./LICENSE">
     <img src="https://img.shields.io/github/license/djkcyl/nonebot-plugin-bilichat.svg" alt="license">
 </a>
+
+<a href="https://pypi.python.org/pypi/nonebot-plugin-bilichat">
+  <img alt="PyPI - Downloads" src="https://img.shields.io/pypi/dm/nonebot-plugin-bilichat">
+</a>
+
 <a href="https://pypi.python.org/pypi/nonebot-plugin-bilichat">
     <img src="https://img.shields.io/pypi/v/nonebot-plugin-bilichat.svg" alt="pypi">
 </a>
+
 <img src="https://img.shields.io/badge/python-3.8+-blue.svg" alt="python">
+
+<a href="https://pdm.fming.dev">
+    <img src="https://img.shields.io/badge/pdm-managed-blueviolet" alt="pdm-managed">
+</a>
+
+<a href="https://github.com/psf/black">
+    <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code style: black">
+</a>
 
 </div>
 
@@ -105,33 +119,56 @@ _✨ 多功能的B站视频解析工具 ✨_
 
 在 nonebot2 项目的`.env`文件中添加下表中的配置, 配置均为**非必须项**
 
+### 通用配置项
+
 | 配置项 | 类型 | 默认值 | 说明 |
 |:-----:|:----:|:----:|:----:|
-| bilichat_block               | bool      | False                | 是否拦截事件(防止其他插件二次解析) |
-| bilichat_enable_private      | bool      | True                 | 是否允许响应私聊 |
-| bilichat_enable_v12_channel  | bool      | True                 | 是否允许响应频道消息(ob12专属) |
-| bilichat_enable_unkown_src   | bool      | False                | 是否允许响应未知来源的消息 |
-| bilichat_whitelist           | list[str] | []                   | **响应**的群聊(频道)名单, 会覆盖黑名单 |
-| bilichat_blacklist           | list[str] | []                   | **不响应**的群聊(频道)名单 |
-| bilichat_dynamic_font        | str       | None                 | 视频信息及词云图片使用的字体 |
-| bilichat_cd_time             | int       | 120                  | 对同一视频的响应冷却时间(防止刷屏) |
-| bilichat_neterror_retry      | int       | 3                    | 对部分网络请求错误的尝试次数 |
-| bilichat_use_bcut_asr        | bool      | True                 | 是否在**没有字幕时**调用必剪接口生成字幕 |
-| bilichat_word_cloud          | bool      | True                 | 是否开启词云功能 |
-| bilichat_newbing_cookie      | str       | None                 | newbing的cookie文件路径(获取方式参考[这里](https://github.com/acheong08/EdgeGPT#getting-authentication-required)和[这里](https://github.com/Harry-Jing/nonebot-plugin-bing-chat#%EF%B8%8F-%E9%85%8D%E7%BD%AE)) , 若留空则禁用newbing总结 |
-| bilichat_newbing_token_limit | int       | 0                    | newbing请求的文本量上限, 0为无上限 |
-| bilichat_newbing_preprocess  | bool      | True                 | 是否对newbing的返回值进行预处理, 以去除其中不想要的内容 |
-| bilichat_openai_token        | str       | None                 | openai的apikey, 若留空则禁用openai总结 |
-| bilichat_openai_proxy        | str       | None                 | 访问openai或newbing使用的代理地址 |
-| bilichat_openai_model        | str       | gpt-3.5-turbo-0301   | 使用的语言模型名称 |
-| bilichat_openai_token_limit  | int       | 3500                 | 请求的文本量上限, 计算方式可参考[tiktoken](https://github.com/openai/tiktoken) |
+| bilichat_block              | bool      | False | 是否拦截事件(防止其他插件二次解析) |
+| bilichat_enable_private     | bool      | True  | 是否允许响应私聊 |
+| bilichat_enable_v12_channel | bool      | True  | 是否允许响应频道消息(ob12专属) |
+| bilichat_enable_unkown_src  | bool      | False | 是否允许响应未知来源的消息 |
+| bilichat_whitelist          | list[str] | []    | **响应**的群聊(频道)名单, 会覆盖黑名单 |
+| bilichat_blacklist          | list[str] | []    | **不响应**的群聊(频道)名单 |
+| bilichat_dynamic_font       | str       | None  | 视频信息及词云图片使用的字体 |
+| bilichat_cd_time            | int       | 120   | 对同一视频的响应冷却时间(防止刷屏) |
+| bilichat_neterror_retry     | int       | 3     | 对部分网络请求错误的尝试次数 |
+| bilichat_use_bcut_asr       | bool      | True  | 是否在**没有字幕时**调用必剪接口生成字幕 |
+
+### 基础信息配置项
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-----:|:----:|:----:|:----:|
+| bilichat_basic_info          | bool | True | 是否开启视频基本信息 |
+| bilichat_reply_to_basic_info | bool | True | 后续消息是否回复基础信息(关闭则回复发送者的信息) |
+
+### 词云配置项
+
+开启此功能需要安装对应的依赖 `nonebot-plugin-bilichat[wordcloud]`
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-----:|:----:|:----:|:----:|
+| bilichat_word_cloud  | bool | True | 是否开启词云功能 |
+
+### AI视频总结配置项
+
+开启此功能需要安装对应的依赖 `nonebot-plugin-bilichat[openai,newbing]`
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-----:|:----:|:----:|:----:|
+| bilichat_newbing_cookie      | str       | None               | newbing的cookie文件路径(获取方式参考[这里](https://github.com/acheong08/EdgeGPT#getting-authentication-required)和[这里](https://github.com/Harry-Jing/nonebot-plugin-bing-chat#%EF%B8%8F-%E9%85%8D%E7%BD%AE)) , 若留空则禁用newbing总结 |
+| bilichat_newbing_token_limit | int       | 0                  | newbing请求的文本量上限, 0为无上限 |
+| bilichat_newbing_preprocess  | bool      | True               | 是否对newbing的返回值进行预处理, 以去除其中不想要的内容 |
+| bilichat_openai_token        | str       | None               | openai的apikey, 若留空则禁用openai总结 |
+| bilichat_openai_proxy        | str       | None               | 访问openai或newbing使用的代理地址 |
+| bilichat_openai_model        | str       | gpt-3.5-turbo-0301 | 使用的语言模型名称 |
+| bilichat_openai_token_limit  | int       | 3500               | 请求的文本量上限, 计算方式可参考[tiktoken](https://github.com/openai/tiktoken) |
 
 注:
 
-1. ~~合并转发由于极易受风控影响，因此不推荐使用~~已经把合并转发砍了，没精力适配这玩意了
-2. 如果同时填写了 `bilichat_openai_token` 和 `bilichat_newbing_cookie`，则会使用 `openai` 进行总结
-3. 经测试，目前 newbing 至少能总结 12000 字符以上的文本，推测 token 上限应为 `gpt-4-32k-0314` 的 `32200` token，但过长的内容易造成输出内容包含额外内容或总结失败，因此也建议设置一个合理的 token 上限 ~~（反正不要钱，要啥自行车）~~
-4. 由于 newbing 限制较大，也不如 openai 听话，且需要联网查询资料，因此使用体验并不如 chatgpt ~~（反正不要钱，要啥自行车）~~
+1. 如果同时填写了 `bilichat_openai_token` 和 `bilichat_newbing_cookie`，则会使用 `newbing` 进行总结, 并在 `newbing` 总结失败时使用 `openai` 进行总结
+2. `newbing` 和 `openai` 均有缓存机制，同一视频在**获取到正常的总结内容后**不会重复发送请求，如需刷新请求内容可以手动删除对应视频的缓存文件或整个缓存文件夹
+3. 经测试，目前 `newbing` 至少能总结 12000 字符以上的文本，推测 token 上限应为 `gpt-4-32k-0314` 的 `32200` token，但过长的内容易造成输出内容包含额外内容或总结失败，因此也建议设置一个合理的 token 上限 ~~（反正不要钱，要啥自行车）~~
+4. 由于 `newbing` 限制较大，也不如 `openai` 听话，且需要联网查询资料，因此使用体验并不如 chatgpt ~~（反正不要钱，要啥自行车）~~
 
 ## 🎉 使用
 
@@ -155,3 +192,7 @@ _✨ 多功能的B站视频解析工具 ✨_
 - [BBot-Graia](https://github.com/djkcyl/BBot-Graia) 功能来源 ~~(我 牛 我 自 己)~~
 - [ABot-Graia](https://github.com/djkcyl/ABot-Graia) 永远怀念最好的 ABot 🙏
 - [nonebot-plugin-template](https://github.com/A-kirami/nonebot-plugin-template): 项目的 README 模板
+
+## ⏳ Star 趋势
+
+[![Stargazers over time](https://starchart.cc/djkcyl/nonebot-plugin-bilichat.svg)](https://starchart.cc/djkcyl/nonebot-plugin-bilichat)
