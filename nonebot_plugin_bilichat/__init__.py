@@ -48,16 +48,18 @@ __plugin_meta__ = PluginMetadata(
 )
 
 
-async def _bili_check(event: Union[V11_ME, V12_ME], state: T_State):
-    if isinstance(event, (V11_PME, V12_PME)):
+async def _bili_check(bot: Union[V11_Bot, V12_Bot], event: Union[V11_ME, V12_ME], state: T_State):
+    if str(event.get_user_id()) == str(bot.self_id):
+        return plugin_config.bilichat_enable_self
+    elif isinstance(event, (V11_PME, V12_PME)):
         state["_uid_"] = event.user_id
         return plugin_config.bilichat_enable_private
     elif isinstance(event, (V11_GME, V12_GME)):
         state["_uid_"] = event.group_id
         return plugin_config.verify_permission(event.group_id)
-    elif isinstance(event, V12_CME):
-        state["_uid_"] = event.channel_id
-        return plugin_config.bilichat_enable_v12_channel
+    # elif isinstance(event, V12_CME):
+    #     state["_uid_"] = event.channel_id
+    #     return plugin_config.bilichat_enable_v12_channel
     else:
         state["_uid_"] = "unkown"
         return plugin_config.bilichat_enable_unkown_src

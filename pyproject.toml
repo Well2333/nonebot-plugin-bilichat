@@ -53,6 +53,10 @@ dev = [
     "nonebot-plugin-all4one>=0.1.0a2",
     "nonebot2[fastapi,websockets]>=2.0.0rc4",
 ]
+test = [
+    "nonebug>=0.3.2",
+    "pytest-asyncio>=0.21.0",
+]
 
 [tool.black]
 line-length = 120

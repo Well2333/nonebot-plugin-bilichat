@@ -1,8 +1,8 @@
 import importlib.util
-import sys
-from typing import Literal, Optional, List, Union
-from pathlib import Path
 import json
+import sys
+from pathlib import Path
+from typing import List, Literal, Optional, Union
 
 from nonebot import get_driver
 from nonebot.log import logger
@@ -24,6 +24,7 @@ class Config(BaseModel):
     # general
     bilichat_block: bool = False
     bilichat_enable_private: bool = True
+    bilichat_enable_self: bool = False
     bilichat_enable_v12_channel: bool = True
     bilichat_enable_unkown_src: bool = False
     bilichat_whitelist: List[str] = []
@@ -32,7 +33,7 @@ class Config(BaseModel):
     bilichat_cd_time: int = 120
     bilichat_neterror_retry = 3
     nickname: List[str] = ["awesome-nonebot"]
-    
+
     # basic info
     bilichat_basic_info: bool = True
     bilichat_reply_to_basic_info: bool = True
