@@ -3,7 +3,7 @@
 [project]
 name = "nonebot-plugin-bilichat"
 
-version = "1.4.0"
+version = "1.4.1"
 
 description = "一个通过 OpenAI 来对b站视频进行总结插件"
 authors = [
@@ -52,6 +52,10 @@ dev = [
     "black>=23.3.0",
     "nonebot-plugin-all4one>=0.1.0a2",
     "nonebot2[fastapi,websockets]>=2.0.0rc4",
+]
+test = [
+    "nonebug>=0.3.2",
+    "pytest-asyncio>=0.21.0",
 ]
 
 [tool.black]

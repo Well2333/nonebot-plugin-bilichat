@@ -139,7 +139,8 @@ _✨ 多功能的B站视频解析工具 ✨_
 |:-----:|:----:|:----:|:----:|
 | bilichat_block              | bool      | False | 是否拦截事件(防止其他插件二次解析) |
 | bilichat_enable_private     | bool      | True  | 是否允许响应私聊 |
-| bilichat_enable_v12_channel | bool      | True  | 是否允许响应频道消息(ob12专属) |
+| bilichat_enable_self        | bool      | False | 是否允许响应自身的消息 |
+| bilichat_enable_v12_channel | bool      | True  | ~~是否允许响应频道消息(ob12专属)~~(暂未实现) |
 | bilichat_enable_unkown_src  | bool      | False | 是否允许响应未知来源的消息 |
 | bilichat_whitelist          | list[str] | []    | **响应**的群聊(频道)名单, 会覆盖黑名单 |
 | bilichat_blacklist          | list[str] | []    | **不响应**的群聊(频道)名单 |
@@ -147,6 +148,13 @@ _✨ 多功能的B站视频解析工具 ✨_
 | bilichat_cd_time            | int       | 120   | 对同一视频的响应冷却时间(防止刷屏) |
 | bilichat_neterror_retry     | int       | 3     | 对部分网络请求错误的尝试次数 |
 | bilichat_use_bcut_asr       | bool      | True  | 是否在**没有字幕时**调用必剪接口生成字幕 |
+
+注:
+
+1. 由于 OneBot 协议未规定是否应上报自身事件，因此在不同的场景下能否获取自身事件并不一定，`bilichat_enable_self` 实际能否生效也与之相关
+2. 当 `bilichat_whitelist` 存在时，`bilichat_blacklist` 将会被禁用
+3. `bilichat_dynamic_font` 可填写自定义的字体url，但并不推荐修改
+4. 当使用 `bcut_asr` 接口来生成AI字幕时，根据视频时长和网络情况有可能会识别失败，Bot会提示 `BCut-ASR conversion failed due to network error`。可以通过调高 `bilichat_neterror_retry` 次数或几分钟后重试来尝试重新生成字幕
 
 ### 基础信息配置项
 
@@ -162,6 +170,8 @@ _✨ 多功能的B站视频解析工具 ✨_
 | 配置项 | 类型 | 默认值 | 说明 |
 |:-----:|:----:|:----:|:----:|
 | bilichat_word_cloud  | bool | True | 是否开启词云功能 |
+
+注：词云功能在 python3.11 中由于 `wordcloud` 包安装失败暂时无法启用，请不要在 3.11 中开启此功能
 
 ### AI视频总结配置项
 
@@ -179,10 +189,11 @@ _✨ 多功能的B站视频解析工具 ✨_
 
 注:
 
-1. 如果同时填写了 `bilichat_openai_token` 和 `bilichat_newbing_cookie`，则会使用 `newbing` 进行总结, 并在 `newbing` 总结失败时使用 `openai` 进行总结
-2. `newbing` 和 `openai` 均有缓存机制，同一视频在**获取到正常的总结内容后**不会重复发送请求，如需刷新请求内容可以手动删除对应视频的缓存文件或整个缓存文件夹
-3. 经测试，目前 `newbing` 至少能总结 12000 字符以上的文本，推测 token 上限应为 `gpt-4-32k-0314` 的 `32200` token，但过长的内容易造成输出内容包含额外内容或总结失败，因此也建议设置一个合理的 token 上限 ~~（反正不要钱，要啥自行车）~~
-4. 由于 `newbing` 限制较大，也不如 `openai` 听话，且需要联网查询资料，因此使用体验并不如 chatgpt ~~（反正不要钱，要啥自行车）~~
+1. openai 与 newbing 目前均需求科学上网才能使用，国内服务器请务必填写 `bilichat_openai_proxy` 或全局透明代理
+2. 如果同时填写了 `bilichat_openai_token` 和 `bilichat_newbing_cookie`，则会使用 `newbing` 进行总结, 并在 `newbing` 总结失败时使用 `openai` 进行总结
+3. `newbing` 和 `openai` 均有缓存机制，同一视频在**获取到正常的总结内容后**不会重复发送请求，如需刷新请求内容可以手动删除对应视频的缓存文件或整个缓存文件夹
+4. 经测试，目前 `newbing` 至少能总结 12000 字符以上的文本，推测 token 上限应为 `gpt-4-32k-0314` 的 `32200` token，但过长的内容易造成输出内容包含额外内容或总结失败，因此也建议设置一个合理的 token 上限 ~~（反正不要钱，要啥自行车）~~
+5. 由于 `newbing` 限制较大，也不如 `openai` 听话，且需要联网查询资料，因此使用体验并不如 chatgpt ~~（反正不要钱，要啥自行车）~~
 
 ## 🎉 使用
 
@@ -191,6 +202,7 @@ _✨ 多功能的B站视频解析工具 ✨_
 ### 指令表
 
 > 正在开发指令相关，请无视这里的模板
+> 指令设计方案征集中，如果有什么想要实现的功能可以在issue中提出
 
 | 指令 | 权限 | 需要@ | 范围 | 说明 |
 |:-----:|:----:|:----:|:----:|:----:|
