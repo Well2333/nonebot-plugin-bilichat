@@ -109,7 +109,7 @@ _✨ 多功能的B站视频解析工具 ✨_
 <details>
 <summary>pip</summary>
 
-    pip install nonebot-plugin-bilichat[openai,newbing,wordcloud]
+    pip install nonebot-plugin-bilichat[all]
 </details>
 <details>
 <summary>pdm</summary>
