@@ -3,17 +3,17 @@ from typing import List
 
 from loguru import logger
 
-from .openai import get_small_size_transcripts, get_user_prompt, openai_req
-from .text_to_image import rich_text2image
+from ..config import plugin_config
 from ..model.cache import Cache
 from ..model.exception import AbortError
 from ..optional import capture_exception  # type: ignore
-from ..config import plugin_config
+from .openai import get_small_size_transcripts, get_summarise_prompt, openai_req
+from .text_to_image import rich_text2image
 
 
 async def subtitle_summarise(title: str, sub: List[str]):
     small_size_transcripts = get_small_size_transcripts(sub)
-    prompt = get_user_prompt(title, small_size_transcripts)
+    prompt = get_summarise_prompt(title, small_size_transcripts)
     logger.debug(prompt)
     return await openai_req(prompt)
 
@@ -21,7 +21,7 @@ async def subtitle_summarise(title: str, sub: List[str]):
 async def column_summarise(cv_title: str, cv_text: str):
     sentences = re.split(r"[，。；,.;\n]+", cv_text)
     small_size_transcripts = get_small_size_transcripts(sentences)
-    prompt = get_user_prompt(cv_title, small_size_transcripts)
+    prompt = get_summarise_prompt(cv_title, small_size_transcripts)
     logger.debug(prompt)
     return await openai_req(prompt)
 
@@ -36,8 +36,8 @@ async def openai_summarization(cache: Cache, cid: str = "0"):
             else:
                 raise ValueError(f"Illegal Video(Column) types {cache.id}")
 
-            if ai_summary.summary:
-                cache.episodes[cid].openai = ai_summary.summary
+            if ai_summary.response:
+                cache.episodes[cid].openai = ai_summary.response
                 cache.save()
             else:
                 logger.warning(f"Video(Column) {cache.id} summary failure: {ai_summary.raw}")

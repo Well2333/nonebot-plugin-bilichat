@@ -1,6 +1,6 @@
+import random
 import re
 import string
-import random
 
 
 def num_fmt(num: int):

@@ -17,13 +17,18 @@ from .text_to_image import rich_text2image
 
 cookies = json.loads(Path(plugin_config.bilichat_newbing_cookie).read_text("utf-8"))  # type: ignore
 logger.info("Try init bing chatbot")
+init = False
 for count in range(5):
     try:
         bot = Chatbot(cookies=cookies, proxy=plugin_config.bilichat_openai_proxy)  # type: ignore
         logger.success("Bing chatbot init success")
+        init = True
         break
-    except Exception:
-        logger.error(f"Bing chatbot init failed, retrying {count+1}/5")
+    except Exception as e:
+        logger.error(f"Bing chatbot init failed, retrying {count+1}/5: {e}")
+
+if not init:
+    raise RuntimeError("Bing chatbot init failed")
 
 
 def get_small_size_transcripts(title: str, text_data: List[str]):
