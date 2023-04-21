@@ -103,11 +103,17 @@ class Config(BaseModel):
             )
 
         # verify cookie file
-        try:
-            if Path(v).is_file():
+        if Path(v).is_file():
+            try:
                 json.loads(Path(v).read_text("utf-8"))
-        except Exception as e:
-            raise ValueError("Config bilichat_newbing_cookie got a problem occurred") from e
+            except Exception as e:
+                raise ValueError("Config bilichat_newbing_cookie got a problem occurred") from e
+
+        elif Path(v).is_dir():
+            raise ValueError(f"Config bilichat_newbing_cookie requires a file, but {v} is a folder")
+
+        else:
+            raise ValueError(f"Path {v} is not recognized")
 
         return v
 
