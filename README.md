@@ -94,7 +94,11 @@ _✨ 多功能的B站视频解析工具 ✨_
 <summary>使用 nb-cli 安装</summary>
 在 nonebot2 项目的根目录下打开命令行, 输入以下指令即可安装
 
-    nb plugin install nonebot-plugin-bilichat[all]
+    nb plugin install nonebot-plugin-bilichat
+
+注: 由于 nb-cli 不支持依赖组，因此需要启用词云和AI总结的用户要通过其他的包管理器安装额外的依赖
+
+    pip install nonebot-plugin-bilichat[all]
 
 </details>
 

@@ -90,7 +90,7 @@ class Config(BaseModel):
             return v
         else:
             raise RuntimeError(
-                "Package(s) of fuction openai summary not installed, use **nb plugin install nonebot-plugin-bilichat[openai]** to install required dependencies"
+                "Package(s) of fuction openai summary not installed, use **pip install nonebot-plugin-bilichat[openai]** to install required dependencies"
             )
 
     @validator("bilichat_newbing_cookie", always=True)
@@ -99,7 +99,7 @@ class Config(BaseModel):
             return v
         if not importlib.util.find_spec("EdgeGPT") or not importlib.util.find_spec("minidynamicrender"):
             raise RuntimeError(
-                "Package(s) of fuction newbing summary not installed, use **nb plugin install nonebot-plugin-bilichat[newbing]** to install required dependencies"
+                "Package(s) of fuction newbing summary not installed, use **pip install nonebot-plugin-bilichat[newbing]** to install required dependencies"
             )
 
         # verify cookie file
@@ -123,7 +123,7 @@ class Config(BaseModel):
             return v
         else:
             raise RuntimeError(
-                "Package(s) of fuction wordcloud not installed, use **nb plugin install nonebot-plugin-bilichat[wordcloud]** to install required dependencies"
+                "Package(s) of fuction wordcloud not installed, use **pip install nonebot-plugin-bilichat[wordcloud]** to install required dependencies"
             )
 
     def verify_permission(self, uid: Union[str, int]):
