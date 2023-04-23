@@ -7,6 +7,7 @@ from httpx._exceptions import TimeoutException
 from nonebot.log import logger
 
 from ..config import plugin_config
+from ..model.arguments import Options
 from ..model.cache import Cache, Episode
 from ..optional import capture_exception  # type: ignore
 from .bilibili_request import get_b23_url, grpc_get_view_info
@@ -94,12 +95,9 @@ async def get_video_basic(bili_number: str, uid: Union[str, int]):
         return (f"视频解析 API 调用出错：{e}", None, None)
 
 
-async def get_video_cache(info: Dict):
-    cache = Cache.get(f'av{info["aid"]}')
-    # cache file not exists
-    if not cache:
-        logger.debug(f'cache of av{info["aid"]} not exists, create cache')
-        cache = Cache.create(
+async def get_video_cache(info: Dict, options: Options):
+    async def create_cache():
+        return Cache.create(
             id=f'av{info["aid"]}',
             title=info["title"],
             episodes={
@@ -111,7 +109,18 @@ async def get_video_cache(info: Dict):
                     newbing=None,
                 )
             },
+            temp=options.no_cache,
         )
+
+    if options.no_cache:
+        logger.debug(f'parameter --no-cache of av{info["aid"]} detected, using temporary cache')
+        return await create_cache()
+
+    cache = Cache.get(f'av{info["aid"]}')
+    # cache file not exists
+    if not cache:
+        logger.debug(f'cache of av{info["aid"]} not exists, create cache')
+        return await create_cache()
     # cache file exists but cid not found
     elif str(info["cid"]) not in cache.episodes.keys():
         logger.debug(f'cache of av{info["aid"]} exists, but cid{info["cid"]} not found, appending cache')
@@ -122,7 +131,14 @@ async def get_video_cache(info: Dict):
             openai=None,
             newbing=None,
         )
-    # cache file exists
+    # all exists but need refresh
+    elif options.refresh:
+        logger.debug(f'parameter --refresh of av{info["aid"]} detected, remove summary cache')
+        episode = cache.episodes[str(info["cid"])]
+        episode.jieba = None
+        episode.openai = None
+        episode.newbing = None
+    # all exists
     else:
         logger.debug(f'cache of av{info["aid"]} exists, use cache')
     return cache
