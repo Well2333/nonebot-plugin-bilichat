@@ -1,6 +1,9 @@
 import re
-from typing import Union
+import shlex
+from itertools import chain
+from typing import Union, cast
 
+from nonebot.adapters import MessageSegment
 from nonebot.adapters.onebot.v11 import Bot as V11_Bot
 from nonebot.adapters.onebot.v11 import GroupMessageEvent as V11_GME
 from nonebot.adapters.onebot.v11 import Message as V11_Message
@@ -17,6 +20,7 @@ from nonebot.consts import REGEX_GROUP, REGEX_STR
 from nonebot.exception import FinishedException
 from nonebot.log import logger
 from nonebot.matcher import Matcher
+from nonebot.params import Depends
 from nonebot.plugin import PluginMetadata, on_regex
 from nonebot.rule import Rule
 from nonebot.typing import T_State
@@ -24,6 +28,7 @@ from nonebot.typing import T_State
 from .config import __version__, plugin_config
 from .lib.b23_extract import b23_extract
 from .lib.content_resolve import get_video_basic, get_video_cache
+from .model.arguments import Options, parser
 from .model.exception import AbortError
 from .optional import capture_exception  # type: ignore
 
@@ -72,18 +77,28 @@ bili = on_regex(
     rule=Rule(_bili_check),
 )
 
-
-@bili.handle()
-async def get_bili_number_re(state: T_State):
-    state["bili_number"] = state[REGEX_STR]
-
-
 b23 = on_regex(
     r"b23.(tv|wtf)[\\/]+(\w+)",
     block=plugin_config.bilichat_block,
     priority=1,
     rule=Rule(_bili_check),
 )
+
+
+def get_args(event: Union[V11_ME, V12_ME]):
+    return parser.parse_known_args(
+        list(
+            chain.from_iterable(
+                shlex.split(str(seg)) if cast(MessageSegment, seg).is_text() else (seg,) for seg in event.get_message()
+            )
+        ),  # type: ignore
+        namespace=Options(),
+    )[0]
+
+
+@bili.handle()
+async def get_bili_number_re(state: T_State):
+    state["bili_number"] = state[REGEX_STR]
 
 
 @b23.handle()
@@ -96,7 +111,9 @@ async def get_bili_number_b23(state: T_State):
 
 @bili.handle()
 @b23.handle()
-async def video_info_v11(bot: V11_Bot, event: V11_ME, state: T_State, matcher: Matcher):
+async def video_info_v11(
+    bot: V11_Bot, event: V11_ME, state: T_State, matcher: Matcher, options: Options = Depends(get_args)
+):
     # sourcery skip: raise-from-previous-error
     # basic info
     msg, img, info = await get_video_basic(state["bili_number"], state["_uid_"])
@@ -117,7 +134,7 @@ async def video_info_v11(bot: V11_Bot, event: V11_ME, state: T_State, matcher: M
 
     # get video cache
     try:
-        cache = await get_video_cache(info)
+        cache = await get_video_cache(info, options)
     except AbortError as e:
         logger.exception(e)
         await matcher.finish(f"{reply}视频字幕获取失败: {str(e)}")
@@ -154,7 +171,9 @@ async def get_image_v12(bot: V12_Bot, bili_number: str, suffix: str, data):
 
 @bili.handle()
 @b23.handle()
-async def video_info_v12(bot: V12_Bot, event: V12_ME, state: T_State, matcher: Matcher):
+async def video_info_v12(
+    bot: V12_Bot, event: V12_ME, state: T_State, matcher: Matcher, options: Options = Depends(get_args)
+):
     # basic info
     msg, img, info = await get_video_basic(state["bili_number"], state["_uid_"])
     if not msg:
@@ -173,7 +192,7 @@ async def video_info_v12(bot: V12_Bot, event: V12_ME, state: T_State, matcher: M
         raise FinishedException
 
     try:
-        cache = await get_video_cache(info)
+        cache = await get_video_cache(info, options)
     except AbortError as e:
         logger.exception(e)
         await matcher.finish(f"{reply}视频字幕获取失败: {str(e)}")
