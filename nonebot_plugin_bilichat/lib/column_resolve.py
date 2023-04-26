@@ -1,5 +1,3 @@
-from typing import Tuple
-
 from lxml import etree
 from lxml.etree import _Element, _ElementUnicodeResult
 
@@ -9,7 +7,7 @@ from .bilibili_request import hc
 XPATH = "//p//text() | //h1/text() | //h2/text() | //h3/text() | //h4/text() | //h5/text() | //h6/text()"
 
 
-async def get_cv(cvid: str) -> Tuple[str, str]:
+async def get_cv(cvid: str):
     cv = await hc.get(f"https://www.bilibili.com/read/cv{cvid}")
     if cv.status_code != 200:
         raise AbortError("专栏获取失败")
@@ -21,4 +19,4 @@ async def get_cv(cvid: str) -> Tuple[str, str]:
     main_article: _Element = http_parser.xpath('//div[@id="read-article-holder"]')[0]
     plist: _ElementUnicodeResult = main_article.xpath(XPATH)
     text_list = [text.strip() for text in plist if text.strip()]
-    return title, "\n".join(text_list)
+    return title, text_list
