@@ -48,7 +48,7 @@ async def video_info_get(vid_id: str):
     return await grpc_get_view_info(bvid=vid_id)
 
 
-async def get_video_basic(bili_number: str, uid: Union[str, int]):
+async def get_content_basic(bili_number: str, uid: Union[str, int]):
     # get video info
     logger.info(f"Parsing video {bili_number}")
     try:
@@ -95,7 +95,7 @@ async def get_video_basic(bili_number: str, uid: Union[str, int]):
         return (f"视频解析 API 调用出错：{e}", None, None)
 
 
-async def get_video_cache(info: Dict, options: Options):
+async def get_content_cache(info: Dict, options: Options):
     async def create_cache():
         return Cache.create(
             id=f'av{info["aid"]}',
