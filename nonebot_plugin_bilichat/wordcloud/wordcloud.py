@@ -9,7 +9,7 @@ from wordcloud import WordCloud
 from ..lib.fonts_provider import get_font
 from ..model.cache import Cache
 from ..model.exception import AbortError
-from ..optional import capture_exception
+from ..optional import capture_exception  # type: ignore
 
 tfidf = TFIDF()
 
