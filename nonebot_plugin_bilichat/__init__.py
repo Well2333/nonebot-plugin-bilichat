@@ -102,10 +102,14 @@ async def get_bili_number_re(state: T_State):
 
 @b23.handle()
 async def get_bili_number_b23(state: T_State):
+    bililink = await b23_extract(state[REGEX_GROUP])
     if matched := re.search(
-        r"av(\d{1,15})|BV(1[A-Za-z0-9]{2}4.1.7[A-Za-z0-9]{2})|cv(\d{1,16})", await b23_extract(state[REGEX_GROUP])  # type: ignore
+        r"av(\d{1,15})|BV(1[A-Za-z0-9]{2}4.1.7[A-Za-z0-9]{2})|cv(\d{1,16})", bililink  # type: ignore
     ):
         state["bili_number"] = matched.group()
+    else:
+        logger.info(f"{bililink} is not video or column")
+        raise FinishedException
 
 
 @bili.handle()
