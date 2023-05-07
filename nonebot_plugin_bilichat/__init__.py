@@ -1,16 +1,12 @@
 import re
 import shlex
 from itertools import chain
-from typing import Union, cast
+from typing import cast
 
 from nonebot.adapters import MessageSegment
-from nonebot.adapters.onebot.v11 import Bot as V11_Bot
 from nonebot.adapters.onebot.v11 import GroupMessageEvent as V11_GME
-from nonebot.adapters.onebot.v11 import MessageEvent as V11_ME
 from nonebot.adapters.onebot.v11 import PrivateMessageEvent as V11_PME
-from nonebot.adapters.onebot.v12 import Bot as V12_Bot
 from nonebot.adapters.onebot.v12 import GroupMessageEvent as V12_GME
-from nonebot.adapters.onebot.v12 import MessageEvent as V12_ME
 from nonebot.adapters.onebot.v12 import PrivateMessageEvent as V12_PME
 from nonebot.consts import REGEX_GROUP, REGEX_STR
 from nonebot.exception import FinishedException
@@ -27,7 +23,7 @@ from .lib.content_resolve import get_column_basic, get_content_cache, get_video_
 from .model.arguments import Options, parser
 from .model.exception import AbortError
 from .optional import capture_exception  # type: ignore
-from .utils import get_image, get_reply
+from .utils import BOT, MESSAGE_EVENT, get_image, get_reply
 
 if plugin_config.bilichat_openai_token or plugin_config.bilichat_newbing_cookie:
     ENABLE_SUMMARY = True
@@ -52,7 +48,7 @@ __plugin_meta__ = PluginMetadata(
 )
 
 
-async def _bili_check(bot: Union[V11_Bot, V12_Bot], event: Union[V11_ME, V12_ME], state: T_State):
+async def _bili_check(bot: BOT, event: MESSAGE_EVENT, state: T_State):
     if str(event.get_user_id()) == str(bot.self_id):
         return plugin_config.bilichat_enable_self
     elif isinstance(event, (V11_PME, V12_PME)):
@@ -84,7 +80,7 @@ b23 = on_regex(
 )
 
 
-def get_args(event: Union[V11_ME, V12_ME]):
+def get_args(event: MESSAGE_EVENT):
     return parser.parse_known_args(
         list(
             chain.from_iterable(
@@ -115,8 +111,8 @@ async def get_bili_number_b23(state: T_State):
 @bili.handle()
 @b23.handle()
 async def video_info(
-    bot: Union[V11_Bot, V12_Bot],
-    event: Union[V11_ME, V12_ME],
+    bot: BOT,
+    event: MESSAGE_EVENT,
     state: T_State,
     matcher: Matcher,
     options: Options = Depends(get_args),
