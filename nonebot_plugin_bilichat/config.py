@@ -25,7 +25,7 @@ class Config(BaseModel):
     bilichat_block: bool = False
     bilichat_enable_private: bool = True
     bilichat_enable_self: bool = False
-    bilichat_enable_v12_channel: bool = True
+    bilichat_enable_channel: bool = True
     bilichat_enable_unkown_src: bool = False
     bilichat_whitelist: List[str] = []
     bilichat_blacklist: List[str] = []
