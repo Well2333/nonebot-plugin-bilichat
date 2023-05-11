@@ -395,6 +395,15 @@ requires_python = ">=3.5"
 summary = "Type system extensions for programs checked with the mypy type checker."
 
 [[package]]
+name = "nonebot-adapter-mirai2"
+version = "0.0.22"
+requires_python = ">=3.8,<4.0.0"
+summary = "兼容 MiraiApiHttp2.x 的 nonebot2_adapter"
+dependencies = [
+    "nonebot2<3.0.0,>=2.0.0-beta.4",
+]
+
+[[package]]
 name = "nonebot-adapter-onebot"
 version = "2.2.2"
 requires_python = ">=3.8,<4.0"
@@ -402,6 +411,16 @@ summary = "OneBot(CQHTTP) adapter for nonebot2"
 dependencies = [
     "msgpack<2.0.0,>=1.0.3",
     "nonebot2<3.0.0,>=2.0.0-beta.3",
+]
+
+[[package]]
+name = "nonebot-adapter-qqguild"
+version = "0.2.2"
+requires_python = ">=3.8,<4.0"
+summary = "QQ Guild adapter for nonebot2"
+dependencies = [
+    "nonebot2<3.0.0,>=2.0.0-beta.1",
+    "pydantic<2.0.0,>=1.9.0",
 ]
 
 [[package]]
@@ -436,6 +455,19 @@ summary = "Local Storage Support for NoneBot2"
 dependencies = [
     "nonebot2<3.0.0,>=2.0.0-rc.1",
     "typing-extensions>=4.0.0",
+]
+
+[[package]]
+name = "nonebot-plugin-segbuilder"
+version = "0.1.1"
+requires_python = ">=3.8"
+summary = "为不同的适配器提供更通用且简易的消息段构建方式"
+dependencies = [
+    "anyio>=3.4.0",
+    "httpx>=0.20.0",
+    "nonebot-adapter-mirai2>=0.0.22",
+    "nonebot-adapter-onebot>=2.2.2",
+    "nonebot-adapter-qqguild>=0.2.1",
 ]
 
 [[package]]
@@ -843,7 +875,7 @@ summary = "Backport of pathlib-compatible object wrapper for zip files"
 [metadata]
 lock_version = "4.2"
 groups = ["default", "all", "dev", "test"]
-content_hash = "sha256:4fbb7eaefa669341d2ff05ded176787f09f42161cea312383da9c9fbbaf40772"
+content_hash = "sha256:3d2cd105058ba38131362ef5770c686c1cc3aa3d2ed9bc0531a506d3fa6a48c3"
 
 [metadata.files]
 "aiosqlite 0.18.0" = [
@@ -1677,9 +1709,17 @@ content_hash = "sha256:4fbb7eaefa669341d2ff05ded176787f09f42161cea312383da9c9fbb
     {url = "https://files.pythonhosted.org/packages/2a/e2/5d3f6ada4297caebe1a2add3b126fe800c96f56dbe5d1988a2cbe0b267aa/mypy_extensions-1.0.0-py3-none-any.whl", hash = "sha256:4392f6c0eb8a5668a69e23d168ffa70f0be9ccfd32b5cc2d26a34ae5b844552d"},
     {url = "https://files.pythonhosted.org/packages/98/a4/1ab47638b92648243faf97a5aeb6ea83059cc3624972ab6b8d2316078d3f/mypy_extensions-1.0.0.tar.gz", hash = "sha256:75dbf8955dc00442a438fc4d0666508a9a97b6bd41aa2f0ffe9d2f2725af0782"},
 ]
+"nonebot-adapter-mirai2 0.0.22" = [
+    {url = "https://files.pythonhosted.org/packages/77/81/705b0a8f005bfccba47216759f2b2362ef2ebbd5f3d4ad86a74f32d8e365/nonebot_adapter_mirai2-0.0.22.tar.gz", hash = "sha256:c4c4fe39a35aad46969ea424f174b82643b91d3d821fa20974116e21b0a99f75"},
+    {url = "https://files.pythonhosted.org/packages/8a/e4/fe772fb5a84d77f412ef9373a6907479adfb65e816d6d9fbdb6175e1efb1/nonebot_adapter_mirai2-0.0.22-py3-none-any.whl", hash = "sha256:76bd46a463e3a87a62f4fa57b8823013987b0a75ab0a50af6bd364cc09e49be8"},
+]
 "nonebot-adapter-onebot 2.2.2" = [
     {url = "https://files.pythonhosted.org/packages/34/70/e273687bcf68df26efc1cc27cab1f7992a5d46477775d8c4a0e4bbcba745/nonebot_adapter_onebot-2.2.2.tar.gz", hash = "sha256:0c7340dbc075f25bdb7e5cb0575e5758155b3939f77c36f5b51440e24c155306"},
     {url = "https://files.pythonhosted.org/packages/46/d8/27f1faf050fc7383b46818357a7271c3c7ecf8f9406fbba414a81820fd09/nonebot_adapter_onebot-2.2.2-py3-none-any.whl", hash = "sha256:1ee231cacfd47afcc0b77a67c8bc56440f33750b2d976139a20732e023cb79b9"},
+]
+"nonebot-adapter-qqguild 0.2.2" = [
+    {url = "https://files.pythonhosted.org/packages/0c/23/81753fc0b663ba6c0916d2d30c95108de57b5293f986f6870a9d15ee658c/nonebot_adapter_qqguild-0.2.2.tar.gz", hash = "sha256:a428dda064f4501c285ea7fb51f81fc17e25dca2c2a82edaf1aa34454e28f1b8"},
+    {url = "https://files.pythonhosted.org/packages/e2/79/1c48262c040ff67a42e9b7671563f9e39e2e262ef79dc8c4e9e2cbcee413/nonebot_adapter_qqguild-0.2.2-py3-none-any.whl", hash = "sha256:b47cf5793d2aeed53e3d0bd9f0fbd371ce4155e4fb3be48e15e0abe64228ee24"},
 ]
 "nonebot-plugin-all4one 0.1.0a2" = [
     {url = "https://files.pythonhosted.org/packages/1c/82/189c786bae73f24977e217553edefccaf2509d866e68c030d92bea22a17b/nonebot_plugin_all4one-0.1.0a2-py3-none-any.whl", hash = "sha256:44a95f1c46bb607f2c0061e5e3bf1e6afd0b22950920f10dd676c526a7a7f042"},
@@ -1692,6 +1732,10 @@ content_hash = "sha256:4fbb7eaefa669341d2ff05ded176787f09f42161cea312383da9c9fbb
 "nonebot-plugin-localstore 0.4.1" = [
     {url = "https://files.pythonhosted.org/packages/27/d4/c863b32d301825ae9fab59cfbe5c74817df4b19d7a3e150426c25c4d2f75/nonebot_plugin_localstore-0.4.1.tar.gz", hash = "sha256:9b6dcb98f6a4e48c5c80b2319acc2e1c424462261a210491d437f5b96abb5d67"},
     {url = "https://files.pythonhosted.org/packages/d1/06/bd1ada3f75c6a511f14dc9f2fa836cca75d3ca35b30db5c50e4ef0393bec/nonebot_plugin_localstore-0.4.1-py3-none-any.whl", hash = "sha256:dea442fcf8baa5898c15ccea761703cdde46e6fc6bb1c886261b0ab793db8193"},
+]
+"nonebot-plugin-segbuilder 0.1.1" = [
+    {url = "https://files.pythonhosted.org/packages/39/dd/e0f68db6b007d42d8777243124e4b1215a53636bf8cb5d0f6297fdefe222/nonebot_plugin_segbuilder-0.1.1.tar.gz", hash = "sha256:3dacc9dc59f93531d6c4f4b6a6a2a0af33f0a54c1086ca47cc1c53c53081d78f"},
+    {url = "https://files.pythonhosted.org/packages/61/36/6fb0d53c5e46c949c9b9858fa27d5ba5f7e008bf563425fcd0e6bfff530b/nonebot_plugin_segbuilder-0.1.1-py3-none-any.whl", hash = "sha256:dc00df51ccdeb0d5f28e504ca866ad14d60f6c6ef978464b832c68a531697f48"},
 ]
 "nonebot2 2.0.0rc4" = [
     {url = "https://files.pythonhosted.org/packages/65/54/d23c32d571eeae0330e222b072efe6aa6384a3f8a4f40ce6768992446547/nonebot2-2.0.0rc4-py3-none-any.whl", hash = "sha256:dba33955e07f962d4fc0d3841b1d5d20ed00b8eb4189f0ac608b07e193148a3b"},

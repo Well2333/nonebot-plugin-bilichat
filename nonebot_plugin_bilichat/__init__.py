@@ -1,19 +1,31 @@
+import contextlib
 import re
 import shlex
 from itertools import chain
-from typing import cast
+from typing import Union, cast
 
 from nonebot.adapters import MessageSegment
+from nonebot.adapters.mirai2 import Bot as Mirai_Bot
+from nonebot.adapters.mirai2.event import FriendMessage as Mirai_PME
+from nonebot.adapters.mirai2.event import GroupMessage as Mirai_GME
+from nonebot.adapters.mirai2.event import MessageEvent as Mirai_ME
+from nonebot.adapters.onebot.v11 import Bot as V11_Bot
 from nonebot.adapters.onebot.v11 import GroupMessageEvent as V11_GME
+from nonebot.adapters.onebot.v11 import MessageEvent as V11_ME
 from nonebot.adapters.onebot.v11 import PrivateMessageEvent as V11_PME
+from nonebot.adapters.onebot.v12 import Bot as V12_Bot
+from nonebot.adapters.onebot.v12 import ChannelMessageEvent as V12_CME
 from nonebot.adapters.onebot.v12 import GroupMessageEvent as V12_GME
+from nonebot.adapters.onebot.v12 import MessageEvent as V12_ME
 from nonebot.adapters.onebot.v12 import PrivateMessageEvent as V12_PME
+from nonebot.adapters.qqguild import Bot as QG_Bot
+from nonebot.adapters.qqguild.event import MessageEvent as QG_ME
 from nonebot.consts import REGEX_GROUP, REGEX_STR
 from nonebot.exception import FinishedException
 from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import Depends
-from nonebot.plugin import PluginMetadata, on_regex
+from nonebot.plugin import PluginMetadata, on_regex, require
 from nonebot.rule import Rule
 from nonebot.typing import T_State
 
@@ -23,7 +35,14 @@ from .lib.content_resolve import get_column_basic, get_content_cache, get_video_
 from .model.arguments import Options, parser
 from .model.exception import AbortError
 from .optional import capture_exception  # type: ignore
-from .utils import BOT, MESSAGE_EVENT, get_image, get_reply
+
+require("nonebot_plugin_segbuilder")
+
+
+from nonebot_plugin_segbuilder import SegmentBuilder
+
+BOT = Union[V11_Bot, V12_Bot, QG_Bot, Mirai_Bot]
+MESSAGE_EVENT = Union[V11_ME, V12_ME, QG_ME, Mirai_ME]
 
 if plugin_config.bilichat_openai_token or plugin_config.bilichat_newbing_cookie:
     ENABLE_SUMMARY = True
@@ -51,15 +70,18 @@ __plugin_meta__ = PluginMetadata(
 async def _bili_check(bot: BOT, event: MESSAGE_EVENT, state: T_State):
     if str(event.get_user_id()) == str(bot.self_id):
         return plugin_config.bilichat_enable_self
-    elif isinstance(event, (V11_PME, V12_PME)):
-        state["_uid_"] = event.user_id
+    elif isinstance(event, (V11_PME, V12_PME, Mirai_PME)):
+        state["_uid_"] = event.get_user_id()
         return plugin_config.bilichat_enable_private
     elif isinstance(event, (V11_GME, V12_GME)):
         state["_uid_"] = event.group_id
         return plugin_config.verify_permission(event.group_id)
-    # elif isinstance(event, V12_CME):
-    #     state["_uid_"] = event.channel_id
-    #     return plugin_config.bilichat_enable_v12_channel
+    elif isinstance(event, Mirai_GME):
+        state["_uid_"] = event.sender.group.id
+        return plugin_config.verify_permission(event.sender.group.id)
+    elif isinstance(event, (V12_CME, QG_ME)):
+        state["_uid_"] = event.channel_id
+        return plugin_config.bilichat_enable_channel
     else:
         state["_uid_"] = "unkown"
         return plugin_config.bilichat_enable_unkown_src
@@ -117,7 +139,10 @@ async def video_info(
     matcher: Matcher,
     options: Options = Depends(get_args),
 ):
-    reply = await get_reply(event)
+    DISABLE_REPLY = isinstance(bot, Mirai_Bot)  # 部分平台Reply暂不可用
+    DISABLE_LINK = isinstance(bot, QG_Bot)  # 部分平台发送链接都要审核
+    SEND_IMAGE_SEPARATELY = isinstance(bot, QG_Bot)  # 部分平台无法一次性发送多张图片，或无法与其他消息组合发出
+    reply = "" if DISABLE_REPLY else await SegmentBuilder.reply(bot, event)
     # basic info
     bili_number, uid = state["bili_number"], state["_uid_"]
     if bili_number[:2] in ["BV", "bv", "av"]:
@@ -127,10 +152,17 @@ async def video_info(
         if not img:
             await matcher.finish(reply + msg)
         elif img != "IMG_RENDER_DISABLED":
-            image = await get_image(img, bot)
-            msgid = (await matcher.send(reply + image + msg))["message_id"]  # type: ignore
-            if plugin_config.bilichat_reply_to_basic_info:
-                reply = await get_reply(event, msgid)
+            image = await SegmentBuilder.image(bot, img)
+            msg = "" if DISABLE_LINK else msg
+            if SEND_IMAGE_SEPARATELY:
+                if reply and msg:
+                    await matcher.send(reply + msg)
+                re_msg = await matcher.send(image)
+            else:
+                re_msg = await matcher.send(reply + image + msg)
+            if plugin_config.bilichat_reply_to_basic_info and not DISABLE_REPLY:
+                with contextlib.suppress(Exception):
+                    reply = await SegmentBuilder.reply(bot, event, re_msg["message_id"])
     elif bili_number[:2] == "cv" and FUTUER_FUCTIONS:
         info = await get_column_basic(bili_number, uid)
         if not info:
@@ -159,7 +191,7 @@ async def video_info(
     wc_image = ""
     if plugin_config.bilichat_word_cloud:
         if image := await wordcloud(cache=cache, cid=str(info.cid)):
-            wc_image = await get_image(image, bot)
+            wc_image = await SegmentBuilder.image(bot, image)
         else:
             await matcher.finish(f"{reply}视频无有效字幕")
 
@@ -168,9 +200,18 @@ async def video_info(
     if ENABLE_SUMMARY:
         if summary := await summarization(cache=cache, cid=str(info.cid)):
             if isinstance(summary, bytes):
-                summary = await get_image(summary, bot)
+                summary = await SegmentBuilder.image(bot, summary)
         else:
             await matcher.finish(f"{reply}视频无有效字幕")
 
-    if wc_image or summary:
+    if wc_image:
+        if SEND_IMAGE_SEPARATELY:
+            await matcher.send(wc_image)
+            if summary:
+                await matcher.finish(summary)
+        await matcher.finish(reply + wc_image + summary)  # type: ignore
+
+    elif summary:
+        if SEND_IMAGE_SEPARATELY:
+            await matcher.finish(summary)
         await matcher.finish(reply + wc_image + summary)  # type: ignore
