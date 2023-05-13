@@ -142,7 +142,7 @@ async def video_info(
     DISABLE_REPLY = isinstance(bot, Mirai_Bot)  # 部分平台Reply暂不可用
     DISABLE_LINK = isinstance(bot, QG_Bot)  # 部分平台发送链接都要审核
     SEND_IMAGE_SEPARATELY = isinstance(bot, QG_Bot)  # 部分平台无法一次性发送多张图片，或无法与其他消息组合发出
-    reply = "" if DISABLE_REPLY else await SegmentBuilder.reply(bot, event)
+    reply = "" if DISABLE_REPLY else await SegmentBuilder.reply()
     # basic info
     bili_number, uid = state["bili_number"], state["_uid_"]
     if bili_number[:2] in ["BV", "bv", "av"]:
@@ -152,7 +152,7 @@ async def video_info(
         if not img:
             await matcher.finish(reply + msg)
         elif img != "IMG_RENDER_DISABLED":
-            image = await SegmentBuilder.image(bot, img)
+            image = await SegmentBuilder.image(image=img)
             msg = "" if DISABLE_LINK else msg
             if SEND_IMAGE_SEPARATELY:
                 if reply and msg:
@@ -162,7 +162,7 @@ async def video_info(
                 re_msg = await matcher.send(reply + image + msg)
             if plugin_config.bilichat_reply_to_basic_info and not DISABLE_REPLY:
                 with contextlib.suppress(Exception):
-                    reply = await SegmentBuilder.reply(bot, event, re_msg["message_id"])
+                    reply = await SegmentBuilder.reply(message_id=re_msg["message_id"])
     elif bili_number[:2] == "cv" and FUTUER_FUCTIONS:
         info = await get_column_basic(bili_number, uid)
         if not info:
@@ -191,7 +191,7 @@ async def video_info(
     wc_image = ""
     if plugin_config.bilichat_word_cloud:
         if image := await wordcloud(cache=cache, cid=str(info.cid)):
-            wc_image = await SegmentBuilder.image(bot, image)
+            wc_image = await SegmentBuilder.image(image=image)
         else:
             await matcher.finish(f"{reply}视频无有效字幕")
 
@@ -200,7 +200,7 @@ async def video_info(
     if ENABLE_SUMMARY:
         if summary := await summarization(cache=cache, cid=str(info.cid)):
             if isinstance(summary, bytes):
-                summary = await SegmentBuilder.image(bot, summary)
+                summary = await SegmentBuilder.image(image=summary)
         else:
             await matcher.finish(f"{reply}视频无有效字幕")
 

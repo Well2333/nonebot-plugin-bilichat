@@ -459,7 +459,7 @@ dependencies = [
 
 [[package]]
 name = "nonebot-plugin-segbuilder"
-version = "0.1.1"
+version = "0.2.0"
 requires_python = ">=3.8"
 summary = "为不同的适配器提供更通用且简易的消息段构建方式"
 dependencies = [
@@ -874,8 +874,9 @@ summary = "Backport of pathlib-compatible object wrapper for zip files"
 
 [metadata]
 lock_version = "4.2"
+cross_platform = true
 groups = ["default", "all", "dev", "test"]
-content_hash = "sha256:3d2cd105058ba38131362ef5770c686c1cc3aa3d2ed9bc0531a506d3fa6a48c3"
+content_hash = "sha256:d37572a8af5663898a8011bdfe7491321a0963ca109d684fda95b6e14ca2b1c6"
 
 [metadata.files]
 "aiosqlite 0.18.0" = [
@@ -1733,9 +1734,9 @@ content_hash = "sha256:3d2cd105058ba38131362ef5770c686c1cc3aa3d2ed9bc0531a506d3f
     {url = "https://files.pythonhosted.org/packages/27/d4/c863b32d301825ae9fab59cfbe5c74817df4b19d7a3e150426c25c4d2f75/nonebot_plugin_localstore-0.4.1.tar.gz", hash = "sha256:9b6dcb98f6a4e48c5c80b2319acc2e1c424462261a210491d437f5b96abb5d67"},
     {url = "https://files.pythonhosted.org/packages/d1/06/bd1ada3f75c6a511f14dc9f2fa836cca75d3ca35b30db5c50e4ef0393bec/nonebot_plugin_localstore-0.4.1-py3-none-any.whl", hash = "sha256:dea442fcf8baa5898c15ccea761703cdde46e6fc6bb1c886261b0ab793db8193"},
 ]
-"nonebot-plugin-segbuilder 0.1.1" = [
-    {url = "https://files.pythonhosted.org/packages/39/dd/e0f68db6b007d42d8777243124e4b1215a53636bf8cb5d0f6297fdefe222/nonebot_plugin_segbuilder-0.1.1.tar.gz", hash = "sha256:3dacc9dc59f93531d6c4f4b6a6a2a0af33f0a54c1086ca47cc1c53c53081d78f"},
-    {url = "https://files.pythonhosted.org/packages/61/36/6fb0d53c5e46c949c9b9858fa27d5ba5f7e008bf563425fcd0e6bfff530b/nonebot_plugin_segbuilder-0.1.1-py3-none-any.whl", hash = "sha256:dc00df51ccdeb0d5f28e504ca866ad14d60f6c6ef978464b832c68a531697f48"},
+"nonebot-plugin-segbuilder 0.2.0" = [
+    {url = "https://files.pythonhosted.org/packages/01/e2/5246736d5fe3580a5d5020b89ca969722a1e0e8a0c72b347ea4a2d91aabd/nonebot_plugin_segbuilder-0.2.0.tar.gz", hash = "sha256:a780c13669880e2f5c6ff0a5722c6d69248e30eeeb9e6962dfc75c57a7680057"},
+    {url = "https://files.pythonhosted.org/packages/79/63/19326536b4f753785a3e7e2a4ed0d0e42f98e03bd554678208d927206145/nonebot_plugin_segbuilder-0.2.0-py3-none-any.whl", hash = "sha256:b6e53b05f906f472c5813f23699e2b50e58a543300aa4ad1de25330327b0d9b1"},
 ]
 "nonebot2 2.0.0rc4" = [
     {url = "https://files.pythonhosted.org/packages/65/54/d23c32d571eeae0330e222b072efe6aa6384a3f8a4f40ce6768992446547/nonebot2-2.0.0rc4-py3-none-any.whl", hash = "sha256:dba33955e07f962d4fc0d3841b1d5d20ed00b8eb4189f0ac608b07e193148a3b"},
