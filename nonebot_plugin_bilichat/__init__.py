@@ -68,20 +68,25 @@ __plugin_meta__ = PluginMetadata(
 
 
 async def _bili_check(bot: BOT, event: MESSAGE_EVENT, state: T_State):
-    if str(event.get_user_id()) == str(bot.self_id):
-        return plugin_config.bilichat_enable_self
-    elif isinstance(event, (V11_PME, V12_PME, Mirai_PME)):
+    # check if self msg
+    if str(event.get_user_id()) == str(bot.self_id) and not plugin_config.bilichat_enable_self:
+        return False
+    # private msg use user id
+    if isinstance(event, (V11_PME, V12_PME, Mirai_PME)):
         state["_uid_"] = event.get_user_id()
         return plugin_config.bilichat_enable_private
+    # group msg use group id
     elif isinstance(event, (V11_GME, V12_GME)):
         state["_uid_"] = event.group_id
         return plugin_config.verify_permission(event.group_id)
     elif isinstance(event, Mirai_GME):
         state["_uid_"] = event.sender.group.id
         return plugin_config.verify_permission(event.sender.group.id)
+    # channel like msg use channel id
     elif isinstance(event, (V12_CME, QG_ME)):
         state["_uid_"] = event.channel_id
         return plugin_config.bilichat_enable_channel
+    # other
     else:
         state["_uid_"] = "unkown"
         return plugin_config.bilichat_enable_unkown_src
