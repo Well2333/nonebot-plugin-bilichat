@@ -144,6 +144,7 @@ async def video_info(
     matcher: Matcher,
     options: Options = Depends(get_args),
 ):
+    # sourcery skip: hoist-similar-statement-from-if, swap-nested-ifs, use-fstring-for-concatenation
     DISABLE_REPLY = isinstance(bot, Mirai_Bot)  # 部分平台Reply暂不可用
     DISABLE_LINK = isinstance(bot, QG_Bot)  # 部分平台发送链接都要审核
     SEND_IMAGE_SEPARATELY = isinstance(bot, QG_Bot)  # 部分平台无法一次性发送多张图片，或无法与其他消息组合发出
@@ -186,11 +187,11 @@ async def video_info(
         cache = await get_content_cache(info, options)
     except AbortError as e:
         logger.exception(e)
-        await matcher.finish(f"{reply}视频字幕获取失败: {str(e)}")
+        await matcher.finish(reply + f"视频字幕获取失败: {str(e)}")
     except Exception as e:
         capture_exception()
         logger.exception(e)
-        await matcher.finish(f"{reply}未知错误: {e}")
+        await matcher.finish(reply + f"未知错误: {e}")
 
     # wordcloud
     wc_image = ""
@@ -198,7 +199,7 @@ async def video_info(
         if image := await wordcloud(cache=cache, cid=str(info.cid)):
             wc_image = await SegmentBuilder.image(image=image)
         else:
-            await matcher.finish(f"{reply}视频无有效字幕")
+            await matcher.finish(reply + "视频无有效字幕")
 
     # summary
     summary = ""
@@ -207,7 +208,7 @@ async def video_info(
             if isinstance(summary, bytes):
                 summary = await SegmentBuilder.image(image=summary)
         else:
-            await matcher.finish(f"{reply}视频无有效字幕")
+            await matcher.finish(reply + "视频无有效字幕")
 
     if wc_image:
         if SEND_IMAGE_SEPARATELY:
