@@ -2,7 +2,7 @@ import contextlib
 import re
 import shlex
 from itertools import chain
-from typing import Union, cast
+from typing import Tuple, Union, cast
 
 from nonebot.adapters import MessageSegment
 from nonebot.adapters.mirai2 import Bot as Mirai_Bot
@@ -20,11 +20,10 @@ from nonebot.adapters.onebot.v12 import MessageEvent as V12_ME
 from nonebot.adapters.onebot.v12 import PrivateMessageEvent as V12_PME
 from nonebot.adapters.qqguild import Bot as QG_Bot
 from nonebot.adapters.qqguild.event import MessageEvent as QG_ME
-from nonebot.consts import REGEX_GROUP, REGEX_STR
 from nonebot.exception import FinishedException
 from nonebot.log import logger
 from nonebot.matcher import Matcher
-from nonebot.params import Depends
+from nonebot.params import Depends, RegexGroup, RegexStr
 from nonebot.plugin import PluginMetadata, on_regex, require
 from nonebot.rule import Rule
 from nonebot.typing import T_State
@@ -59,6 +58,8 @@ __plugin_meta__ = PluginMetadata(
     name="nonebot-plugin-bilichat",
     description="一个通过 OpenAI 来对b站视频进行总结插件",
     usage="直接发送视频链接即可",
+    homepage="https://github.com/Aunly/nonebot-plugin-bilichat",
+    supported_adapters={"~onebot.v11", "~onebot.v12", "~qqguild", "~mirai2"},
     extra={
         "author": "djkcyl & Well404",
         "version": __version__,
@@ -119,13 +120,13 @@ def get_args(event: MESSAGE_EVENT):
 
 
 @bili.handle()
-async def get_bili_number_re(state: T_State):
-    state["bili_number"] = state[REGEX_STR]
+async def get_bili_number_re(state: T_State, bili_number: str = RegexStr()):
+    state["bili_number"] = bili_number
 
 
 @b23.handle()
-async def get_bili_number_b23(state: T_State):
-    bililink = await b23_extract(state[REGEX_GROUP])
+async def get_bili_number_b23(state: T_State, b23: Tuple = RegexGroup()):
+    bililink = await b23_extract(list(b23))
     if matched := re.search(
         r"av(\d{1,15})|BV(1[A-Za-z0-9]{2}4.1.7[A-Za-z0-9]{2})|cv(\d{1,16})", bililink  # type: ignore
     ):

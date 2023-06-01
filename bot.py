@@ -18,6 +18,7 @@ driver.register_adapter(QQGUILD_Adapter)
 # nonebot.load_plugin("nonebot_plugin_sentry")
 # nonebot.load_plugin("nonebot_plugin_all4one")
 nonebot.load_plugin("nonebot_plugin_bilichat")
+nonebot.load_builtin_plugin("echo")
 
 if __name__ == "__main__":
     nonebot.run()
