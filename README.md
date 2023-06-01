@@ -144,6 +144,7 @@ _✨ 多功能的B站视频解析工具 ✨_
 | bilichat_block              | bool      | False | 是否拦截事件(防止其他插件二次解析) |
 | bilichat_enable_private     | bool      | True  | 是否允许响应私聊 |
 | bilichat_enable_self        | bool      | False | 是否允许响应自身的消息 |
+| bilichat_only_self          | bool      | False | 是否仅响应自身的消息，开启后会**覆盖全部其他规则**（人机合一特供） |
 | bilichat_enable_channel     | bool      | True  | 是否允许响应频道的消息 |
 | bilichat_enable_unkown_src  | bool      | False | 是否允许响应未知来源的消息 |
 | bilichat_whitelist          | list[str] | []    | **响应**的群聊(频道)名单, 会覆盖黑名单 |

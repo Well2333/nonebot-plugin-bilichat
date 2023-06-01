@@ -70,7 +70,16 @@ __plugin_meta__ = PluginMetadata(
 
 async def _bili_check(bot: BOT, event: MESSAGE_EVENT, state: T_State):
     # check if self msg
-    if str(event.get_user_id()) == str(bot.self_id) and not plugin_config.bilichat_enable_self:
+    print(event.get_user_id())
+    print(bot.self_id)
+    if str(event.get_user_id()) == str(bot.self_id):
+        print("self")
+        if plugin_config.bilichat_only_self:
+            state["_uid_"] = event.get_session_id()
+            return True
+        elif plugin_config.bilichat_enable_self:
+            return False
+    elif plugin_config.bilichat_only_self:
         return False
     # private msg use user id
     if isinstance(event, (V11_PME, V12_PME, Mirai_PME)):
