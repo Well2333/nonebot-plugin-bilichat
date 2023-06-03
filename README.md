@@ -153,6 +153,7 @@ _✨ 多功能的B站视频解析工具 ✨_
 | bilichat_cd_time            | int       | 120   | 对同一视频的响应冷却时间(防止刷屏) |
 | bilichat_neterror_retry     | int       | 3     | 对部分网络请求错误的尝试次数 |
 | bilichat_use_bcut_asr       | bool      | True  | 是否在**没有字幕时**调用必剪接口生成字幕 |
+| bilichat_show_error_msg     | bool      | True  | 是否在解析失败时发送错误信息 |
 
 注:
 
@@ -166,6 +167,7 @@ _✨ 多功能的B站视频解析工具 ✨_
 | 配置项 | 类型 | 默认值 | 说明 |
 |:-----:|:----:|:----:|:----:|
 | bilichat_basic_info          | bool | True | 是否开启视频基本信息 |
+| bilichat_basic_info_url      | bool | True | 开启视频进本信息的情况下，是否一同回复一个链接 |
 | bilichat_reply_to_basic_info | bool | True | 后续消息是否回复基础信息(关闭则回复发送者的信息) |
 
 ### 词云配置项
@@ -240,6 +242,7 @@ BV12v4y1E7NT -r --no-cache # 可以多个参数混用
 - [ABot-Graia](https://github.com/djkcyl/ABot-Graia) 永远怀念最好的 ABot 🙏
 - [nonebot-plugin-template](https://github.com/A-kirami/nonebot-plugin-template): 项目的 README 模板
 - [nonebot-plugin-bing-chat](https://github.com/Harry-Jing/nonebot-plugin-bing-chat): newbing解析的代码参考
+- [Misaka-Mikoto-Tech](https://github.com/Misaka-Mikoto-Tech) 为本项目提交了多项BUG修复和代码参考
 
 ## ⏳ Star 趋势
 
