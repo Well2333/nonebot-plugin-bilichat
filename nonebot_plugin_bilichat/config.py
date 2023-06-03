@@ -55,10 +55,6 @@ class Config(BaseModel):
     bilichat_openai_model: Literal["gpt-3.5-turbo-0301", "gpt-4-0314", "gpt-4-32k-0314"] = "gpt-3.5-turbo-0301"
     bilichat_openai_token_limit: int = 3500
 
-    @validator("nickname")
-    def check_nickname(cls, v):
-        return list(v) or ["awesome-nonebot"]
-
     @validator("bilichat_openai_proxy")
     def check_openai_proxy(cls, v, values):
         if not (values["bilichat_openai_token"] or values["bilichat_newbing_cookie"]):
