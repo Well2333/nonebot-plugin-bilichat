@@ -32,11 +32,12 @@ class Config(BaseModel):
     bilichat_blacklist: List[str] = []
     bilichat_dynamic_font: Optional[str]
     bilichat_cd_time: int = 120
-    bilichat_neterror_retry = 3
-    nickname: List[str] = ["awesome-nonebot"]
+    bilichat_neterror_retry: int = 3
+    bilichat_show_error_msg: bool = True
 
     # basic info
     bilichat_basic_info: bool = True
+    bilichat_basic_info_url: bool = True
     bilichat_reply_to_basic_info: bool = True
 
     # both WC and AI

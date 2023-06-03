@@ -151,9 +151,9 @@ async def video_info(
     matcher: Matcher,
     options: Options = Depends(get_args),
 ):
-    # sourcery skip: hoist-similar-statement-from-if, swap-nested-ifs, use-fstring-for-concatenation
+    # sourcery skip: raise-from-previous-error, use-fstring-for-concatenation
     DISABLE_REPLY = isinstance(bot, Mirai_Bot)  # 部分平台Reply暂不可用
-    DISABLE_LINK = isinstance(bot, QG_Bot)  # 部分平台发送链接都要审核
+    DISABLE_LINK = isinstance(bot, QG_Bot) and plugin_config.bilichat_basic_info_url  # 部分平台发送链接都要审核
     SEND_IMAGE_SEPARATELY = isinstance(bot, QG_Bot)  # 部分平台无法一次性发送多张图片，或无法与其他消息组合发出
     reply = "" if DISABLE_REPLY else await SegmentBuilder.reply()
     # basic info
@@ -194,11 +194,15 @@ async def video_info(
         cache = await get_content_cache(info, options)
     except AbortError as e:
         logger.exception(e)
-        await matcher.finish(reply + f"视频字幕获取失败: {str(e)}")
+        if plugin_config.bilichat_show_error_msg:
+            await matcher.finish(reply + f"视频字幕获取失败: {str(e)}")
+        raise FinishedException
     except Exception as e:
         capture_exception()
         logger.exception(e)
-        await matcher.finish(reply + f"未知错误: {e}")
+        if plugin_config.bilichat_show_error_msg:
+            await matcher.finish(reply + f"未知错误: {e}")
+        raise FinishedException
 
     # wordcloud
     wc_image = ""
@@ -206,7 +210,9 @@ async def video_info(
         if image := await wordcloud(cache=cache, cid=str(info.cid)):
             wc_image = await SegmentBuilder.image(image=image)
         else:
-            await matcher.finish(reply + "视频无有效字幕")
+            if plugin_config.bilichat_show_error_msg:
+                await matcher.finish(reply + "视频无有效字幕")
+            raise FinishedException
 
     # summary
     summary = ""
@@ -215,7 +221,9 @@ async def video_info(
             if isinstance(summary, bytes):
                 summary = await SegmentBuilder.image(image=summary)
         else:
-            await matcher.finish(reply + "视频无有效字幕")
+            if plugin_config.bilichat_show_error_msg:
+                await matcher.finish(reply + "视频无有效字幕")
+            raise FinishedException
 
     if wc_image:
         if SEND_IMAGE_SEPARATELY:
