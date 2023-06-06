@@ -110,6 +110,9 @@ class Config(BaseModel):
         elif Path(v).is_dir():
             raise ValueError(f"Config bilichat_newbing_cookie requires a file, but {v} is a folder")
 
+        elif v == "no_login":
+            logger.info("Using newbing summary without a cookie")
+        
         else:
             raise ValueError(f"Path {v} is not recognized")
 
