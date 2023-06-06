@@ -19,7 +19,11 @@ from ..model.newbing import BingChatResponse
 from ..optional import capture_exception  # type: ignore
 from .text_to_image import rich_text2image
 
-cookies = json.loads(Path(plugin_config.bilichat_newbing_cookie).read_text("utf-8"))  # type: ignore
+cookies = (
+    {}
+    if plugin_config.bilichat_newbing_cookie == "no_login"
+    else json.loads(Path(plugin_config.bilichat_newbing_cookie).read_text("utf-8"))  # type: ignore
+)
 logger.info("Try init bing chatbot")
 init = False
 for count in range(5):

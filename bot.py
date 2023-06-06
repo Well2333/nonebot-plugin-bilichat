@@ -9,10 +9,10 @@ from nonebot.adapters.qqguild import Adapter as QQGUILD_Adapter
 nonebot.init()
 
 driver = nonebot.get_driver()
-driver.register_adapter(MIRAI_Adapter)
+# driver.register_adapter(MIRAI_Adapter)
 driver.register_adapter(ONEBOT_V11Adapter)
 driver.register_adapter(ONEBOT_V12Adapter)
-driver.register_adapter(QQGUILD_Adapter)
+# driver.register_adapter(QQGUILD_Adapter)
 # driver.register_adapter(Walleq_Adapter)
 
 # nonebot.load_plugin("nonebot_plugin_sentry")
