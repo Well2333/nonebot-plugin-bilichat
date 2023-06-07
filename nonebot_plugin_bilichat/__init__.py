@@ -154,7 +154,7 @@ async def video_info(
 ):
     # sourcery skip: raise-from-previous-error, use-fstring-for-concatenation
     DISABLE_REPLY = isinstance(bot, Mirai_Bot)  # 部分平台Reply暂不可用
-    DISABLE_LINK = isinstance(bot, QG_Bot) and plugin_config.bilichat_basic_info_url  # 部分平台发送链接都要审核
+    DISABLE_LINK = isinstance(bot, QG_Bot) or not plugin_config.bilichat_basic_info_url  # 部分平台发送链接都要审核
     SEND_IMAGE_SEPARATELY = isinstance(bot, QG_Bot)  # 部分平台无法一次性发送多张图片，或无法与其他消息组合发出
     reply = "" if DISABLE_REPLY else await SegmentBuilder.reply()
     # basic info
@@ -210,6 +210,8 @@ async def video_info(
     if plugin_config.bilichat_word_cloud:
         if image := await wordcloud(cache=cache, cid=str(info.cid)):
             wc_image = await SegmentBuilder.image(image=image)
+            if SEND_IMAGE_SEPARATELY:
+                await matcher.send(wc_image)
         else:
             if plugin_config.bilichat_show_error_msg:
                 await matcher.finish(reply + "视频无有效字幕")
@@ -219,21 +221,15 @@ async def video_info(
     summary = ""
     if ENABLE_SUMMARY:
         if summary := await summarization(cache=cache, cid=str(info.cid)):
+            # if summary is image
             if isinstance(summary, bytes):
                 summary = await SegmentBuilder.image(image=summary)
+            if SEND_IMAGE_SEPARATELY:
+                await matcher.finish(summary)
         else:
             if plugin_config.bilichat_show_error_msg:
                 await matcher.finish(reply + "视频无有效字幕")
             raise FinishedException
 
-    if wc_image:
-        if SEND_IMAGE_SEPARATELY:
-            await matcher.send(wc_image)
-            if summary:
-                await matcher.finish(summary)
-        await matcher.finish(reply + wc_image + summary)  # type: ignore
-
-    elif summary:
-        if SEND_IMAGE_SEPARATELY:
-            await matcher.finish(summary)
-        await matcher.finish(reply + wc_image + summary)  # type: ignore
+    if (not SEND_IMAGE_SEPARATELY) and (wc_image or summary):
+        await matcher.finish(reply + wc_image + summary)

@@ -40,7 +40,7 @@ async def openai_summarization(cache: Cache, cid: str = "0"):
                 cache.save()
             else:
                 logger.warning(f"Video(Column) {cache.id} summary failure: {ai_summary.raw}")
-                return f"视频(专栏) {cache.id} 总结失败: {ai_summary.raw}"
+                return f"视频(专栏) {cache.id} 总结失败: 响应内容异常\n{ai_summary.raw}"
         if img := await rich_text2image(cache.episodes[cid].openai or "视频无法总结", plugin_config.bilichat_openai_model):
             return img
         else:
