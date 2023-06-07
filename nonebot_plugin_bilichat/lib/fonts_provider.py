@@ -58,7 +58,7 @@ def get_font_sync(font: str = DEFUALT_DYNAMIC_FONT):
     except RuntimeError:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-    return asyncio.run(get_font(font))
+    return loop.run_until_complete(get_font(font))
 
 
 def font_init():
