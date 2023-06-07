@@ -55,12 +55,12 @@ class Config(BaseModel):
     bilichat_openai_model: Literal["gpt-3.5-turbo-0301", "gpt-4-0314", "gpt-4-32k-0314"] = "gpt-3.5-turbo-0301"
     bilichat_openai_token_limit: int = 3500
 
-    @validator("bilichat_openai_proxy")
+    @validator("bilichat_openai_proxy",always=True,pre=True)
     def check_openai_proxy(cls, v, values):
         if not (values["bilichat_openai_token"] or values["bilichat_newbing_cookie"]):
             return v
         if v is None:
-            logger.warning("you have enabled openai summary without a proxy, this may cause request failure.")
+            logger.warning("you have enabled openai or newbing summary without a proxy, this may cause request failure.")
         return v
 
     @validator("bilichat_openai_token_limit")
