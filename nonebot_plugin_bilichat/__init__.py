@@ -23,8 +23,8 @@ from nonebot.adapters.qqguild.event import MessageEvent as QG_ME
 from nonebot.exception import FinishedException
 from nonebot.log import logger
 from nonebot.matcher import Matcher
-from nonebot.params import Depends, RegexGroup, RegexStr
-from nonebot.plugin import PluginMetadata, on_regex, require
+from nonebot.params import Depends
+from nonebot.plugin import PluginMetadata, on_message, require
 from nonebot.rule import Rule
 from nonebot.typing import T_State
 
@@ -70,10 +70,28 @@ __plugin_meta__ = PluginMetadata(
 
 
 async def _bili_check(bot: BOT, event: MESSAGE_EVENT, state: T_State):
+    # 检查并提取 raw_bililink
+    if plugin_config.bilichat_only_self and isinstance(event, V11_ME) and event.reply:
+        # 仅自身的情况下，检查是否是回复，是的话则取被回复的消息
+        msg = str(event.reply.message)
+    else:
+        # 其余情况取该条消息
+        msg = str(event.get_message())
+
+    for seg in ("av", "BV", "cv", "b23"):
+        if seg in msg:
+            state["_raw_bililink_"] = msg
+            return True
+    return False
+
+
+async def _permission_check(bot: BOT, event: MESSAGE_EVENT, state: T_State):
+    # 检查权限
     # check if self msg
     if str(event.get_user_id()) == str(bot.self_id):
         if plugin_config.bilichat_only_self:
             state["_uid_"] = event.get_session_id()
+            print("_permission_check true")
             return True
         elif not plugin_config.bilichat_enable_self:
             return False
@@ -100,18 +118,10 @@ async def _bili_check(bot: BOT, event: MESSAGE_EVENT, state: T_State):
         return plugin_config.bilichat_enable_unkown_src
 
 
-bili = on_regex(
-    r"av(\d{1,15})|BV(1[A-Za-z0-9]{2}4.1.7[A-Za-z0-9]{2})|cv(\d{1,16})",
+bilichat = on_message(
     block=plugin_config.bilichat_block,
     priority=1,
-    rule=Rule(_bili_check),
-)
-
-b23 = on_regex(
-    r"b23.(tv|wtf)[\\/]+(\w+)",
-    block=plugin_config.bilichat_block,
-    priority=1,
-    rule=Rule(_bili_check),
+    rule=Rule(_permission_check, _bili_check),
 )
 
 
@@ -126,14 +136,15 @@ def get_args(event: MESSAGE_EVENT):
     )[0]
 
 
-@bili.handle()
-async def get_bili_number_re(state: T_State, bili_number: str = RegexStr()):
-    state["bili_number"] = bili_number
-
-
-@b23.handle()
-async def get_bili_number_b23(state: T_State, b23: Tuple = RegexGroup()):
-    bililink = await b23_extract(list(b23))
+@bilichat.handle()
+async def get_bili_number(state: T_State):
+    raw_bililink = state["_raw_bililink_"]
+    # 如果是 B23 格式的链接，先转为正常的链接
+    if b23 := re.search(r"b23.(tv|wtf)[\\/]+(\w+)", raw_bililink):  # type: ignore
+        bililink = await b23_extract(list(b23.groups()))
+    else:
+        bililink = raw_bililink
+    # 提取其 AV BV CV 号
     if matched := re.search(
         r"av(\d{1,15})|BV(1[A-Za-z0-9]{2}4.1.7[A-Za-z0-9]{2})|cv(\d{1,16})", bililink  # type: ignore
     ):
@@ -143,8 +154,7 @@ async def get_bili_number_b23(state: T_State, b23: Tuple = RegexGroup()):
         raise FinishedException
 
 
-@bili.handle()
-@b23.handle()
+@bilichat.handle()
 async def video_info(
     bot: BOT,
     event: MESSAGE_EVENT,
