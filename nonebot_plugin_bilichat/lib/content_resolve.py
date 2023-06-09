@@ -13,7 +13,7 @@ from ..model.content import Video, Column
 from ..model.exception import AbortError
 from ..optional import capture_exception  # type: ignore
 from .bilibili_request import get_b23_url, grpc_get_view_info
-from .draw_bili_image import binfo_image_create
+from .draw_bili_image import BiliVideoImage
 from .video_subtitle import get_subtitle
 from .column_resolve import get_cv
 
@@ -84,7 +84,7 @@ async def get_video_basic(bili_number: str, uid: Union[str, int]):
     try:
         b23_url = await get_b23_url(f"https://www.bilibili.com/video/{bvid}")
         data = (
-            (await binfo_image_create(video_info, b23_url))
+            (await (await BiliVideoImage.from_view_rely(video_info, b23_url)).render())
             if plugin_config.bilichat_basic_info
             else "IMG_RENDER_DISABLED"
         )
