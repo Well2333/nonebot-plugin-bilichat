@@ -31,7 +31,7 @@ class UP:
         self.name: str = name
         self.face: BytesIO = face if isinstance(face, BytesIO) else BytesIO(face)
         self.level: int = level
-        self.name_color: str = name_color
+        self.name_color: str = name_color or "black"
         self.fans: str = fans
         self.title: str = title
 
