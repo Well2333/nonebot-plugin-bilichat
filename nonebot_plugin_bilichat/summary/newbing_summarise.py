@@ -1,3 +1,5 @@
+import asyncio
+import concurrent.futures
 import json
 import random
 import re
@@ -11,10 +13,7 @@ from nonebot.log import logger
 from ..config import plugin_config
 from ..lib.store import BING_APOLOGY
 from ..model.cache import Cache
-from ..model.exception import (
-    AbortError,
-    BingChatResponseException,
-)
+from ..model.exception import AbortError, BingChatResponseException
 from ..model.newbing import BingChatResponse
 from ..optional import capture_exception  # type: ignore
 from .text_to_image import rich_text2image
@@ -24,19 +23,25 @@ cookies = (
     if plugin_config.bilichat_newbing_cookie == "no_login"
     else json.loads(Path(plugin_config.bilichat_newbing_cookie).read_text("utf-8"))  # type: ignore
 )
-logger.info("Try init bing chatbot")
-init = False
-for count in range(5):
-    try:
-        bot = Chatbot(cookies=cookies, proxy=plugin_config.bilichat_openai_proxy)  # type: ignore
-        logger.success("Bing chatbot init success")
-        init = True
-        break
-    except Exception as e:
-        logger.error(f"Bing chatbot init failed, retrying {count+1}/5: {e}")
 
-if not init:
+bot = None
+
+
+def init_chatbot(total_count: int = 5):
+    global bot
+    for count in range(total_count):
+        try:
+            bot = Chatbot(cookies=cookies, proxy=plugin_config.bilichat_openai_proxy)  # type: ignore
+            logger.success("Bing chatbot init success")
+            return
+        except Exception as e:
+            logger.error(f"Bing chatbot init failed, retrying {count+1}/5: {e}")
     raise RuntimeError("Bing chatbot init failed")
+
+
+logger.info("Try init bing chatbot")
+init_chatbot()
+assert bot, "Bing chatbot init failed"
 
 
 def get_small_size_transcripts(title: str, text_data: List[str], type_: Literal["视频字幕", "专栏文章"] = "视频字幕"):
@@ -76,20 +81,39 @@ def newbing_summary_preprocess(ai_summary: str):
         return ""
 
 
-async def newbing_req(prompt: str):
+async def newbing_req(prompt: str, _is_retry: bool = False):
     logger.debug(f"prompt have {len(prompt)} chars")
-    raw = await bot.ask(
-        prompt=prompt,
-        conversation_style=ConversationStyle.creative,
-        wss_link="wss://sydney.bing.com/sydney/ChatHub",
-    )
-    await bot.reset()
-    res = BingChatResponse(raw=raw)
-    return (
-        newbing_summary_preprocess(res.content_answer)
-        if plugin_config.bilichat_newbing_preprocess
-        else res.content_answer
-    )
+    try:
+        if not isinstance(bot, Chatbot):
+            raise TypeError
+        raw = await bot.ask(
+            prompt=prompt,
+            conversation_style=ConversationStyle.creative,
+            wss_link="wss://sydney.bing.com/sydney/ChatHub",
+        )
+        await bot.reset()
+        res = BingChatResponse(raw=raw)
+        return (
+            newbing_summary_preprocess(res.content_answer)
+            if plugin_config.bilichat_newbing_preprocess
+            else res.content_answer
+        )
+    except BingChatResponseException as e:
+        raise e
+    except Exception as e:
+        if _is_retry:
+            raise e
+        # 如果没有重试，则刷新 bot 后重试
+        logger.warning(f"newbing summary failed (Retrying): {e}")
+        try:
+            logger.info("Try init bing chatbot")
+            loop = asyncio.get_running_loop()
+            executor = concurrent.futures.ThreadPoolExecutor()
+            await loop.run_in_executor(executor, init_chatbot)
+            assert bot, "Bing chatbot init failed"
+        except Exception:
+            return "newbing chatbot 失效，请检查 cookie 文件是否过期"
+        return await newbing_req(prompt, _is_retry=True)
 
 
 async def newbing_summarization(cache: Cache, cid: str = "0"):

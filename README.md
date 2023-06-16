@@ -201,7 +201,7 @@ _✨ 多功能的B站视频解析工具 ✨_
 3. `newbing` 和 `openai` 均有缓存机制，同一视频在**获取到正常的总结内容后**不会重复发送请求，如需刷新请求内容可以 [添加参数](#参数表) 或手动删除对应视频的缓存文件或整个缓存文件夹
 4. 经测试，目前 `newbing` 至少能总结 12000 字符以上的文本，推测 token 上限应为 `gpt-4-32k-0314` 的 `32200` token，但过长的内容易造成输出内容包含额外内容或总结失败，因此也建议设置一个合理的 token 上限 ~~（反正不要钱，要啥自行车）~~
 5. 由于 `newbing` 限制较大，也不如 `openai` 听话，且需要联网查询资料，因此使用体验并不如 chatgpt ~~（反正不要钱，要啥自行车）~~
-6. newbing cookie 文件获取方式参考[这里](https://github.com/acheong08/EdgeGPT#getting-authentication-required)和[这里](https://github.com/Harry-Jing/nonebot-plugin-bing-chat#%EF%B8%8F-%E9%85%8D%E7%BD%AE)。目前 newbing 已正式公布且无需登录也可使用，填写 `bilichat_newbing_cookie=no_login` 即可无 cookie 使用
+6. newbing cookie 文件获取方式参考[这里](https://github.com/acheong08/EdgeGPT#getting-authentication-required)和[这里](https://github.com/Harry-Jing/nonebot-plugin-bing-chat#%EF%B8%8F-%E9%85%8D%E7%BD%AE)。~~目前 newbing 已正式公布且无需登录也可使用，填写 `bilichat_newbing_cookie=no_login` 即可无 cookie 使用。~~ 目前无 cookie 使用**失败概率极高**，请谨慎考虑是否采用无 cookie 的方式。
 
 ## 🎉 使用
 

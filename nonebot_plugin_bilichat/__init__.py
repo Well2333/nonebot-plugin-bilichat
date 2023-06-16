@@ -91,7 +91,6 @@ async def _permission_check(bot: BOT, event: MESSAGE_EVENT, state: T_State):
     if str(event.get_user_id()) == str(bot.self_id):
         if plugin_config.bilichat_only_self:
             state["_uid_"] = event.get_session_id()
-            print("_permission_check true")
             return True
         elif not plugin_config.bilichat_enable_self:
             return False
