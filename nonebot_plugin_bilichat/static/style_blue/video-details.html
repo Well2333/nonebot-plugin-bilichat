@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>视频详情</title>
+    <style>
+      @font-face {
+        font-family: "van";
+        src: url("./assets/vanfont.ttf");
+      }
+      .cell,
+      .up .condition,
+      .video-cover .time,
+      .video-cover .category {
+        border-radius: 8px;
+        color: #fff;
+        text-align: center;
+        vertical-align: middle;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Microsoft YaHei", sans-serif;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: #e9e9e9;
+      }
+      .plain-text {
+        display: inline-block;
+        font-size: 42px;
+        padding: 0 36px;
+        margin-bottom: 36px;
+        word-wrap: break-word;
+      }
+      .video-cover {
+        position: relative;
+        height: 100%;
+        margin-bottom: 36px;
+        padding: 0px 36px;
+        border-radius: 8px;
+      }
+      .video-cover .cover {
+        width: 100%;
+        height: 100%;
+        border-radius: 8px;
+      }
+      .video-cover .category {
+        position: absolute;
+        top: 31px;
+        right: 78px;
+        height: 54px;
+        border-radius: 8px;
+        font-size: 30px;
+        line-height: 54px;
+        background-color: #fb7299;
+        padding: 0px 21px 0px 21px;
+      }
+      .video-cover .time {
+        position: absolute;
+        bottom: 36px;
+        left: 72px;
+        height: 60px;
+        font-size: 34px;
+        line-height: 60px;
+        background-color: rgba(32, 32, 32, 0.5);
+        padding: 0px 9px 0px 9px;
+      }
+      .up {
+        display: flex;
+        justify-content: left;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 36px;
+        padding: 0 36px;
+      }
+      .up .avatar {
+        position: relative;
+      }
+      .up .avatar .img {
+        width: 120px;
+        height: 120px;
+        border: 1px solid #ccc;
+        border-radius: 60px;
+      }
+      .up .avatar .icon {
+        position: absolute;
+        bottom: -4px;
+        right: -4px;
+      }
+      .up .info {
+        padding: 0 45px;
+      }
+      .up .info .name {
+        display: inline-block;
+        max-width: 514px;
+        width: auto;
+        font-size: 42px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+      }
+      .up .info .level {
+        font-family: "van";
+        font-size: 84px;
+      }
+      .up .info .data > span {
+        font-size: 36px;
+        color: #999;
+        margin-right: 9px;
+      }
+      .up .condition {
+        width: 200px;
+        height: 72px;
+        font-size: 38px;
+        line-height: 72px;
+        background-color: #fb7299;
+        margin-left: auto;
+      }
+      .video-info {
+        width: 100%;
+        padding: 0 36px;
+      }
+      .video-info .title {
+        font-size: 48px;
+      }
+      .video-info .data-part1 {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 24px;
+      }
+      .video-info .data-part1 > span {
+        font-size: 36px;
+        color: #999;
+      }
+      .video-info .data-part1 .view::before {
+        content: "";
+        font-family: "van";
+        margin-right: 2px;
+      }
+      .video-info .data-part1 .dm::before {
+        content: "";
+        font-family: "van";
+        margin-right: 2px;
+      }
+      .video-info .data-part1 .reply::before {
+        content: " ";
+        font-family: "van";
+        margin-right: 2px;
+      }
+      .video-info .summary {
+        margin-top: 24px;
+        font-size: 36px;
+        color: #999;
+        word-wrap: break-word;
+      }
+      .video-info .data-part2 {
+        display: flex;
+        justify-content: space-between;
+        margin: 24px 48px 36px;
+        font-size: 36px;
+        color: #000;
+        text-align: center;
+      }
+      .video-info .data-part2 > span::before {
+        display: block;
+        font-family: "van";
+        font-size: 72px;
+        text-align: center;
+      }
+      .video-info .data-part2 .like::before {
+        content: "";
+      }
+      .video-info .data-part2 .coin::before {
+        content: "";
+      }
+      .video-info .data-part2 .fav::before {
+        content: "";
+      }
+      .video-info .data-part2 .share::before {
+        content: "";
+      }
+      .video {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        width: 1080px;
+        padding-top: 36px;
+        padding-bottom: 312px;
+        background-color: #fff;
+      }
+      .video .portal {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 312px;
+        background: url("./assets/video_bottom.png");
+      }
+      .video .portal .qr-code {
+        position: absolute;
+        top: 76px;
+        right: 154px;
+        width: 140px;
+        height: 140px;
+        background-color: #000;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="video">
+      <div class="video-cover">
+        <img class="cover" src="{{ cover_image }}" />
+        <span class="category">{{ video_category }}</span>
+        <span class="time">{{ video_duration }}</span>
+      </div>
+      {% for up_info in up_infos %}
+      <div class="up">
+        <span class="avatar">
+          <img class="img" src="{{ up_info.avatar_image }}" />
+          {% if up_info.icon %}
+          <img class="icon" src="{{ up_info.icon }}" />
+          {% endif %}
+        </span>
+        <div class="info">
+          <span class="name" style="color: {{ up_info.name_color }};"
+            >{{ up_info.name }}</span
+          >
+          <span class="level" style="color: {{ up_info.level_color }};"
+            >{{ up_info.level }}</span
+          >
+          <div class="data">
+            <span class="video-num">{{ up_info.fans_count }}粉丝</span>
+            <span class="funs-num">{{ up_info.video_count }}视频</span>
+          </div>
+        </div>
+        {% if up_info.condition %}
+        <div class="condition">{{ up_info.condition }}</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+
+      <div class="video-info">
+        <div class="title">{{ video_title }}</div>
+        <div class="data-part1">
+          <span class="view">{{ view_count }}</span>
+          <span class="dm">{{ dm_count }}</span>
+          <span class="reply">{{ reply_count }}</span>
+          <span class="time">{{ upload_date }}</span>
+          <span class="av">{{ av_number }}</span>
+        </div>
+        <div class="summary">{{ video_summary }}</div>
+        <div class="data-part2">
+          <span class="like">{{ like_count }}</span>
+          <span class="coin">{{ coin_count }}</span>
+          <span class="fav">{{ fav_count }}</span>
+          <span class="share">{{ share_count }}</span>
+        </div>
+      </div>
+      <div class="portal">
+        <img class="qr-code" src="{{ qr_code_image }}" />
+      </div>
+    </div>
+  </body>
+</html>

@@ -170,10 +170,15 @@ async def video_info(
     bili_number, uid = state["bili_number"], state["_uid_"]
     if bili_number[:2] in ["BV", "bv", "av"]:
         msg, img, info = await get_video_basic(bili_number, uid)
-        if not msg or not info:
+        # 检查视频是否包含有效信息
+        if not (msg and info):
+            if msg:
+                await matcher.finish(reply + msg)
             raise FinishedException
+        # 如果不含图片
         if not img:
             await matcher.finish(reply + msg)
+        # 如果包含图片
         elif img != "IMG_RENDER_DISABLED":
             image = await SegmentBuilder.image(image=img)
             msg = "" if DISABLE_LINK else msg

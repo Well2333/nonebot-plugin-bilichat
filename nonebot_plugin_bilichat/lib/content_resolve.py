@@ -84,7 +84,7 @@ async def get_video_basic(bili_number: str, uid: Union[str, int]):
     try:
         b23_url = await get_b23_url(f"https://www.bilibili.com/video/{bvid}")
         data = (
-            (await (await BiliVideoImage.from_view_rely(video_info, b23_url)).render())
+            (await (await BiliVideoImage.from_view_rely(video_info, b23_url)).render(plugin_config.bilichat_basic_info_style))
             if plugin_config.bilichat_basic_info
             else "IMG_RENDER_DISABLED"
         )

@@ -166,9 +166,24 @@ _✨ 多功能的B站视频解析工具 ✨_
 
 | 配置项 | 类型 | 默认值 | 说明 |
 |:-----:|:----:|:----:|:----:|
-| bilichat_basic_info          | bool | True | 是否开启视频基本信息 |
-| bilichat_basic_info_url      | bool | True | 开启视频进本信息的情况下，是否一同回复一个链接 |
-| bilichat_reply_to_basic_info | bool | True | 后续消息是否回复基础信息(关闭则回复发送者的信息) |
+| bilichat_basic_info          | bool | True         | 是否开启视频基本信息 |
+| bilichat_basic_info_style    | str  | bbot_default | 视频详情的图片样式，可用样式见下方备注 |
+| bilichat_basic_info_url      | bool | True         | 开启视频进本信息的情况下，是否一同回复一个链接 |
+| bilichat_reply_to_basic_info | bool | True         | 后续消息是否回复基础信息(关闭则回复发送者的信息) |
+
+注：bilichat_basic_info_style 除默认的 bbot_default 使用 PIL 绘图，其他均依赖于 `nonebot-plugin-htmlrender`，其可用的样式如下所示
+
+<details>
+<summary>bbot_default</summary>
+
+![](docs/bbot_default.png)
+</details>
+
+<details>
+<summary>style_blue</summary>
+
+![](docs/style_blue.png)
+</details>
 
 ### 词云配置项
 

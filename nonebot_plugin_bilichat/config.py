@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 from typing import List, Literal, Optional, Union
 
-from nonebot import get_driver
+from nonebot import get_driver, require
 from nonebot.log import logger
 from pydantic import BaseModel, validator
 
@@ -37,6 +37,7 @@ class Config(BaseModel):
 
     # basic info
     bilichat_basic_info: bool = True
+    bilichat_basic_info_style: Literal["bbot_default", "style_blue"] = "bbot_default"
     bilichat_basic_info_url: bool = True
     bilichat_reply_to_basic_info: bool = True
 
@@ -126,6 +127,20 @@ class Config(BaseModel):
             raise RuntimeError(
                 "Package(s) of fuction wordcloud not installed, use **pip install nonebot-plugin-bilichat[wordcloud]** to install required dependencies"
             )
+    
+    @validator("bilichat_basic_info_style",always=True)
+    def check_htmlrender(cls,v):
+        if v == "bbot_default":
+            return v
+        else:
+            try:
+                require("nonebot_plugin_htmlrender")
+                return v
+            except Exception as e:
+                raise RuntimeError(
+                    "Package(s) of fuction styles not installed, use **pip install nonebot-plugin-bilichat[extra]** to install required dependencies"
+                ) from e
+
 
     def verify_permission(self, uid: Union[str, int]):
         if self.bilichat_whitelist:
