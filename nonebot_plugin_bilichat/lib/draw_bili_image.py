@@ -1,5 +1,8 @@
 import asyncio
+import base64
+from datetime import datetime
 from io import BytesIO
+from pathlib import Path
 from typing import List, Optional, Union
 
 import qrcode
@@ -25,6 +28,7 @@ class UP:
         face: Union[bytes, BytesIO],
         level: int,
         fans: str,
+        video_counts: int,
         title: str = "UP主",
         name_color: str = "black",
     ) -> None:
@@ -33,6 +37,7 @@ class UP:
         self.level: int = level
         self.name_color: str = name_color or "black"
         self.fans: str = fans
+        self.video_counts: int = video_counts
         self.title: str = title
 
     @classmethod
@@ -46,6 +51,7 @@ class UP:
                 raise e
         bg_color = up_data["card"]["vip"]["label"]["bg_color"] if up_data else "black"
         level = up_data["card"]["level_info"]["current_level"] if up_data else 0
+        video_counts = up_data["archive"]["count"] if up_data else 0
         face_url = up_data["card"]["face"] if up_data else "https://i0.hdslb.com/bfs/face/member/noface.jpg"
         face_req = await client.get(face_url)
         if face_req.status_code == 404:
@@ -57,6 +63,7 @@ class UP:
             level=level,
             face=face,
             fans=num_fmt(up_data["card"]["fans"]) if up_data else "N/A",
+            video_counts=video_counts,
             title=title,
         )
 
@@ -73,11 +80,15 @@ class BiliVideoImage:
         favorite: str,
         coin: str,
         like: str,
+        reply: str,
+        share: str,
+        pubdate: datetime,
         uploaders: List[UP],
         b23_url: str,
+        aid: str,
         desc: Optional[str] = None,
     ):
-        self.cover: Union[bytes, BytesIO] = cover if isinstance(cover, BytesIO) else BytesIO(cover)
+        self.cover: BytesIO = cover if isinstance(cover, BytesIO) else BytesIO(cover)
         minutes, self.seconds = divmod(duration, 60)
         self.hours, self.minutes = divmod(minutes, 60)
         self.type_name: str = type_name
@@ -88,8 +99,12 @@ class BiliVideoImage:
         self.favorite: str = favorite
         self.coin: str = coin
         self.like: str = like
+        self.reply: str = reply
+        self.share: str = share
+        self.pubdate: datetime = pubdate
         self.uploaders: List[UP] = uploaders
         self.b23_url: str = b23_url
+        self.aid: str = aid
 
     @classmethod
     async def from_view_rely(cls, video_view: ViewReply, b23_url: str) -> "BiliVideoImage":
@@ -129,15 +144,45 @@ class BiliVideoImage:
             favorite=num_fmt(video_info.arc.stat.fav),
             coin=num_fmt(video_info.arc.stat.coin),
             like=num_fmt(video_info.arc.stat.like),
+            reply=num_fmt(video_info.arc.stat.reply),
+            share=num_fmt(video_info.arc.stat.share),
+            pubdate=datetime.fromtimestamp(video_info.arc.pubdate),
             uploaders=ups,
             b23_url=b23_url,
+            aid=f"av{video_info.arc.aid}",
         )
+
+    @staticmethod
+    def get_up_level_code(level: int):
+        if level == 0:
+            up_level = "\uE6CB"
+            level_color = (191, 191, 191)
+        elif level == 1:
+            up_level = "\uE6CC"
+            level_color = (191, 191, 191)
+        elif level == 2:
+            up_level = "\uE6CD"
+            level_color = (149, 221, 178)
+        elif level == 3:
+            up_level = "\uE6CE"
+            level_color = (146, 209, 229)
+        elif level == 4:
+            up_level = "\uE6CF"
+            level_color = (255, 179, 124)
+        elif level == 5:
+            up_level = "\uE6D0"
+            level_color = (255, 108, 0)
+        else:
+            up_level = "\uE6D1"
+            level_color = (255, 0, 0)
+        return up_level, level_color
 
     async def render(self, style: str = "bbot_default"):
         loop = asyncio.get_running_loop()
         if style == "bbot_default":
-            func = self.style_bbot_default
-        return await loop.run_in_executor(None, func) # type: ignore
+            return await loop.run_in_executor(None, self.style_bbot_default)  # type: ignore
+        if style == "style_blue":
+            return await self.style_blue()
 
     def style_bbot_default(self):
         bg_y = 0
@@ -219,27 +264,7 @@ class BiliVideoImage:
         up_title_font = ImageFont.truetype(font_bold, 20)
         follower_font = ImageFont.truetype(font_semibold, 22)
         for i, up in enumerate(self.uploaders):
-            if up.level == 0:
-                up_level = "\uE6CB"
-                level_color = (191, 191, 191)
-            elif up.level == 1:
-                up_level = "\uE6CC"
-                level_color = (191, 191, 191)
-            elif up.level == 2:
-                up_level = "\uE6CD"
-                level_color = (149, 221, 178)
-            elif up.level == 3:
-                up_level = "\uE6CE"
-                level_color = (146, 209, 229)
-            elif up.level == 4:
-                up_level = "\uE6CF"
-                level_color = (255, 179, 124)
-            elif up.level == 5:
-                up_level = "\uE6D0"
-                level_color = (255, 108, 0)
-            else:
-                up_level = "\uE6D1"
-                level_color = (255, 0, 0)
+            up_level, level_color = self.get_up_level_code(up.level)
             # 头像
             face = Image.open(up.face)
             face.convert("RGB")
@@ -305,3 +330,72 @@ class BiliVideoImage:
         video.save(image, "JPEG")
 
         return image.getvalue()
+
+    async def style_blue(self):
+        import jinja2
+        from nonebot_plugin_htmlrender.browser import get_new_page
+
+        style_bule = Path(__file__).parent.parent.joinpath("static", "style_blue")
+        assets = style_bule.joinpath("assets")
+        video_time = (
+            f"{self.hours:02d}:{self.minutes:02d}:{self.seconds:02d}"
+            if self.hours
+            else f"{self.minutes:02d}:{self.seconds:02d}"
+        )
+        qr = qrcode.QRCode(border=1)
+        qr.add_data(self.b23_url)
+        qr_image = BytesIO()
+        qr.make_image(PilImage).save(qr_image, "JPEG")
+
+        ups = []
+        for up in self.uploaders:
+            level, level_color = self.get_up_level_code(up.level)
+            info = {
+                "avatar_image": f"data:image/png;base64,{base64.b64encode(up.face.getvalue()).decode()}",
+                "name": up.name,
+                "level": level,
+                "name_color": up.name_color,
+                "level_color": f"rgba{level_color}",
+                "fans_count": up.fans,
+                "video_count": up.video_counts,
+            }
+            if up.title:
+                info["condition"] = up.title
+            ups.append(info)
+
+        template_env = jinja2.Environment(
+            loader=jinja2.FileSystemLoader(style_bule),
+            enable_async=True,
+        )
+        template_path = f"file:///{style_bule.joinpath('video-details.html').absolute()}".replace("////", "///")
+        template = template_env.get_template("video-details.html")
+        html = await template.render_async(
+            **{
+                "vanfont": f"file:///{font_vanfont}".replace("////", "///"),
+                "cover_image": f"data:image/png;base64,{base64.b64encode(self.cover.getvalue()).decode()}",
+                "video_category": self.type_name,
+                "video_duration": video_time,
+                "up_infos": ups,
+                "video_title": self.title,
+                "view_count": self.view,
+                "dm_count": self.danmaku,
+                "reply_count": self.reply,
+                "upload_date": self.pubdate.strftime("%Y-%m-%d"),
+                "av_number": self.aid,
+                "video_summary": self.desc,
+                "like_count": self.like,
+                "coin_count": self.coin,
+                "fav_count": self.favorite,
+                "share_count": self.share,
+                "qr_code_image": f"data:image/png;base64,{base64.b64encode(qr_image.getvalue()).decode()}",
+            }
+        )
+
+        async with get_new_page() as page:
+            await page.goto(template_path)
+            await page.set_content(html, wait_until="networkidle")
+            await page.wait_for_timeout(5)
+            img_raw = await page.locator(".video").screenshot(
+                type="png",
+            )
+        return img_raw
