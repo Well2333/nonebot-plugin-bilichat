@@ -382,7 +382,7 @@ class BiliVideoImage:
                 "reply_count": self.reply,
                 "upload_date": self.pubdate.strftime("%Y-%m-%d"),
                 "av_number": self.aid,
-                "video_summary": self.desc,
+                "video_summary": self.desc.replace("\n","<br>"),
                 "like_count": self.like,
                 "coin_count": self.coin,
                 "fav_count": self.favorite,
