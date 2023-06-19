@@ -73,14 +73,23 @@ async def _bili_check(bot: BOT, event: MESSAGE_EVENT, state: T_State):
     # 检查并提取 raw_bililink
     if plugin_config.bilichat_only_self and isinstance(event, V11_ME) and event.reply:
         # 仅自身的情况下，检查是否是回复，是的话则取被回复的消息
-        msg = str(event.reply.message)
+        _msg = event.reply.message
     else:
         # 其余情况取该条消息
-        msg = str(event.get_message())
+        _msg = event.get_message()
 
-    for seg in ("av", "BV", "cv", "b23"):
-        if seg in msg:
-            state["_raw_bililink_"] = msg
+    # 如果是 B23 格式的链接，先转为正常的链接
+    _msg_str = str(_msg)
+    if "b23" in _msg_str:
+        if b23 := re.search(r"b23.(tv|wtf)[\\/]+(\w+)", _msg_str):  # type: ignore
+            state["_bililink_"] = await b23_extract(list(b23.groups()))
+            return True
+
+    # av bv cv 仅匹配纯文本部分，防止误触
+    _msg_str = _msg.extract_plain_text()
+    for seg in ("av", "AV", "bv", "BV", "cv", "CV"):
+        if seg in _msg_str:
+            state["_bililink_"] = _msg_str
             return True
     return False
 
@@ -137,12 +146,7 @@ def get_args(event: MESSAGE_EVENT):
 
 @bilichat.handle()
 async def get_bili_number(state: T_State):
-    raw_bililink = state["_raw_bililink_"]
-    # 如果是 B23 格式的链接，先转为正常的链接
-    if b23 := re.search(r"b23.(tv|wtf)[\\/]+(\w+)", raw_bililink):  # type: ignore
-        bililink = await b23_extract(list(b23.groups()))
-    else:
-        bililink = raw_bililink
+    bililink = state["_bililink_"]
     # 提取其 AV BV CV 号
     if matched := re.search(
         r"av(\d{1,15})|BV(1[A-Za-z0-9]{2}4.1.7[A-Za-z0-9]{2})|cv(\d{1,16})", bililink  # type: ignore
