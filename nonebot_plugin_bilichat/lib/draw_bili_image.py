@@ -31,14 +31,24 @@ class UP:
         video_counts: int,
         title: str = "UP主",
         name_color: str = "black",
+        official_verify: int = -1,
     ) -> None:
         self.name: str = name
+        """UP名"""
         self.face: BytesIO = face if isinstance(face, BytesIO) else BytesIO(face)
+        """UP头像"""
         self.level: int = level
+        """UP等级"""
         self.name_color: str = name_color or "black"
+        """UP名字颜色"""
         self.fans: str = fans
+        """粉丝数"""
         self.video_counts: int = video_counts
+        """视频投稿数量"""
         self.title: str = title
+        """合作视频中的角色"""
+        self.official_verify: int = official_verify
+        """小闪电认证：-1 为无，0 为个人，1 为企业"""
 
     @classmethod
     async def from_id(cls, client: AsyncClient, mid: int, name: str, title: str):
@@ -53,6 +63,7 @@ class UP:
         level = up_data["card"]["level_info"]["current_level"] if up_data else 0
         video_counts = up_data["archive"]["count"] if up_data else 0
         face_url = up_data["card"]["face"] if up_data else "https://i0.hdslb.com/bfs/face/member/noface.jpg"
+        official_verify = up_data["card"]["official_verify"]["type"] if up_data else -1
         face_req = await client.get(face_url)
         if face_req.status_code == 404:
             face_req = await client.get(f"{face_url}@160w_160h_1c_1s.webp")
@@ -65,6 +76,7 @@ class UP:
             fans=num_fmt(up_data["card"]["fans"]) if up_data else "N/A",
             video_counts=video_counts,
             title=title,
+            official_verify=official_verify,
         )
 
 
@@ -89,22 +101,37 @@ class BiliVideoImage:
         desc: Optional[str] = None,
     ):
         self.cover: BytesIO = cover if isinstance(cover, BytesIO) else BytesIO(cover)
+        """视频封面"""
         minutes, self.seconds = divmod(duration, 60)
         self.hours, self.minutes = divmod(minutes, 60)
         self.type_name: str = type_name
+        """视频分区"""
         self.title: str = title
+        """视频标题"""
         self.desc: str = desc or "该视频没有简介"
+        """视频简介"""
         self.view: str = view
+        """播放量"""
         self.danmaku: str = danmaku
+        """弹幕数"""
         self.favorite: str = favorite
+        """收藏"""
         self.coin: str = coin
+        """投币"""
         self.like: str = like
+        """点赞"""
         self.reply: str = reply
+        """评论"""
         self.share: str = share
+        """分享"""
         self.pubdate: datetime = pubdate
+        """发布时间"""
         self.uploaders: List[UP] = uploaders
+        """up主列表"""
         self.b23_url: str = b23_url
+        """b23短链"""
         self.aid: str = aid
+        """av号"""
 
     @classmethod
     async def from_view_rely(cls, video_view: ViewReply, b23_url: str) -> "BiliVideoImage":
@@ -336,7 +363,6 @@ class BiliVideoImage:
         from nonebot_plugin_htmlrender.browser import get_new_page
 
         style_bule = Path(__file__).parent.parent.joinpath("static", "style_blue")
-        assets = style_bule.joinpath("assets")
         video_time = (
             f"{self.hours:02d}:{self.minutes:02d}:{self.seconds:02d}"
             if self.hours
@@ -358,9 +384,9 @@ class BiliVideoImage:
                 "level_color": f"rgba{level_color}",
                 "fans_count": up.fans,
                 "video_count": up.video_counts,
+                "icon": up.official_verify,
+                "condition": up.title,
             }
-            if up.title:
-                info["condition"] = up.title
             ups.append(info)
 
         template_env = jinja2.Environment(
@@ -371,7 +397,6 @@ class BiliVideoImage:
         template = template_env.get_template("video-details.html")
         html = await template.render_async(
             **{
-                "vanfont": f"file:///{font_vanfont}".replace("////", "///"),
                 "cover_image": f"data:image/png;base64,{base64.b64encode(self.cover.getvalue()).decode()}",
                 "video_category": self.type_name,
                 "video_duration": video_time,
@@ -382,7 +407,7 @@ class BiliVideoImage:
                 "reply_count": self.reply,
                 "upload_date": self.pubdate.strftime("%Y-%m-%d"),
                 "av_number": self.aid,
-                "video_summary": self.desc.replace("\n","<br>"),
+                "video_summary": self.desc.replace("\n", "<br>"),
                 "like_count": self.like,
                 "coin_count": self.coin,
                 "fav_count": self.favorite,

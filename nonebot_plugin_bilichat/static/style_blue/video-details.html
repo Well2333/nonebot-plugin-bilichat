@@ -222,9 +222,11 @@
       {% for up_info in up_infos %}
       <div class="up">
         <span class="avatar">
-          <img class="img" src="{{ up_info.avatar_image }}" />
-          {% if up_info.icon %}
-          <img class="icon" src="{{ up_info.icon }}" />
+          <img class="img" src="{{ up_info.avatar_image }}" alt="UP头像" />
+          {% if up_info.icon == 0 %}
+          <img class="icon" src="./assets/personal.png" alt="小闪电认证" />
+          {% elif up_info.icon == 1 %}
+          <img class="icon" src="./assets/business.png" alt="小闪电认证" />
           {% endif %}
         </span>
         <div class="info">
