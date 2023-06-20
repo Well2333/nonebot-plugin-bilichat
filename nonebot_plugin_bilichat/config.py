@@ -45,7 +45,7 @@ class Config(BaseModel):
     bilichat_use_bcut_asr: bool = True
 
     # Word Cloud
-    bilichat_word_cloud: bool = True
+    bilichat_word_cloud: bool = False
 
     # AI Summary
     bilichat_newbing_cookie: Optional[str]
