@@ -191,7 +191,7 @@ _✨ 多功能的B站视频解析工具 ✨_
 
 | 配置项 | 类型 | 默认值 | 说明 |
 |:-----:|:----:|:----:|:----:|
-| bilichat_word_cloud  | bool | True | 是否开启词云功能 |
+| bilichat_word_cloud  | bool | False | 是否开启词云功能 |
 
 注：词云功能在 python3.11 中由于 `wordcloud` 包安装失败暂时无法启用，请不要在 3.11 中开启此功能
 
