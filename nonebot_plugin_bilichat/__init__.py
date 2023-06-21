@@ -42,6 +42,7 @@ from nonebot_plugin_segbuilder import SegmentBuilder
 
 BOT = Union[V11_Bot, V12_Bot, QG_Bot, Mirai_Bot]
 MESSAGE_EVENT = Union[V11_ME, V12_ME, QG_ME, Mirai_ME]
+INGNORE_TYPE = ("image",)
 
 if plugin_config.bilichat_openai_token or plugin_config.bilichat_newbing_cookie:
     ENABLE_SUMMARY = True
@@ -73,24 +74,26 @@ async def _bili_check(bot: BOT, event: MESSAGE_EVENT, state: T_State):
     # 检查并提取 raw_bililink
     if plugin_config.bilichat_only_self and isinstance(event, V11_ME) and event.reply:
         # 仅自身的情况下，检查是否是回复，是的话则取被回复的消息
-        _msg = event.reply.message
+        _msgs = event.reply.message
     else:
         # 其余情况取该条消息
-        _msg = event.get_message()
+        _msgs = event.get_message()
 
-    # 如果是 B23 格式的链接，先转为正常的链接
-    _msg_str = str(_msg)
-    if "b23" in _msg_str:
-        if b23 := re.search(r"b23.(tv|wtf)[\\/]+(\w+)", _msg_str):  # type: ignore
-            state["_bililink_"] = await b23_extract(list(b23.groups()))
-            return True
-
-    # av bv cv 仅匹配纯文本部分，防止误触
-    _msg_str = _msg.extract_plain_text()
-    for seg in ("av", "AV", "bv", "BV", "cv", "CV"):
-        if seg in _msg_str:
-            state["_bililink_"] = _msg_str
-            return True
+    for _msg in _msgs:
+        # 如果是图片格式则忽略
+        if _msg.type in INGNORE_TYPE:
+            continue
+        # b23 格式的链接
+        _msg_str = str(_msg)
+        if "b23" in _msg_str:
+            if b23 := re.search(r"b23.(tv|wtf)[\\/]+(\w+)", _msg_str):  # type: ignore
+                state["_bililink_"] = await b23_extract(list(b23.groups()))
+                return True
+        # av bv cv 格式的链接
+        for seg in ("av", "AV", "bv", "BV", "cv", "CV"):
+            if seg in _msg_str:
+                state["_bililink_"] = _msg_str
+                return True
     return False
 
 
