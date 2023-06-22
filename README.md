@@ -54,6 +54,7 @@ _✨ 多功能的B站视频解析工具 ✨_
 
 <details>
 <summary>手机端视图</summary>
+注: 此图片已过时，预期下个版本就会进行更换
 
 ![](docs/mobile.png)
 </details>
@@ -61,7 +62,9 @@ _✨ 多功能的B站视频解析工具 ✨_
 <details>
 <summary>基本信息</summary>
 
-![](docs/basic.png)
+![bbot_default](docs/bbot_default.png)
+
+![style_blue](docs/style_blue.png)
 </details>
 
 <details>
@@ -73,18 +76,7 @@ _✨ 多功能的B站视频解析工具 ✨_
 <details>
 <summary>视频总结</summary>
 
-```markdown
-## 总结
-高通第二代骁龙7+的工程机，拥有台积电4nm工艺，CPU规格和骁龙8+一模一样，GPU规格上是新的Adreno 700架构，性能表现出众，能效曲线稍逊于8+，但中低频段能效水平相同，终端机价格如果能做到1500-2000元，竞争力还是很足的。 
-
-## 要点
-- 💻 第二代骁龙7+拥有台积电4nm工艺和与骁龙8+一样的CPU规格。
-- 🎮 新的Adreno 700架构GPU规格性能强，比上一代7Gen1强了超过一倍。
-- 📈 能效曲线稍逊于8+，但中低频段能效水平相同。
-- 💰 如果终端机价格做到1500-2000元，竞争力还是很足的。
-- 🧪 高通自己也意识到骁龙7系列的竞争力问题，这也使其成了必须要解决的一个问题。
-- 🕹️ 7+ Gen2就是8+的CPU，旗舰规格下放，最大的受益者是大型游戏。
-```
+![](docs/summary.png)
 
 </details>
 
