@@ -7,7 +7,15 @@
     <style>
       @font-face {
         font-family: "van";
-        src: url("./assets/vanfont.ttf");
+        src: url("https://fonts.bbot/?name=vanfont.ttf");
+      }
+      @font-face {
+        font-family: "base";
+        src: url("https://fonts.bbot?name=HarmonyOS_Sans_SC_Medium.ttf");
+      }
+      @font-face {
+        font-family: "emoji";
+        src: url("https://fonts.bbot/?name=nte.ttf");
       }
       .cell,
       .up .condition,
@@ -22,7 +30,7 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: "Microsoft YaHei", sans-serif;
+        font-family: "base", "emoji", sans-serif;
       }
       body {
         display: flex;

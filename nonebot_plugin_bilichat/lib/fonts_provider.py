@@ -5,7 +5,6 @@ from zipfile import ZipFile
 
 import httpx
 from loguru import logger
-from nonebot import require
 from yarl import URL
 
 from ..config import plugin_config
@@ -15,14 +14,7 @@ DEFUALT_DYNAMIC_FONT = "HarmonyOS_Sans_SC_Medium.ttf"
 
 
 font_path = data_dir.joinpath("font")
-font_mime_map = {
-    "collection": "font/collection",
-    "otf": "font/otf",
-    "sfnt": "font/sfnt",
-    "ttf": "font/ttf",
-    "woff": "font/woff",
-    "woff2": "font/woff2",
-}
+
 font_path.mkdir(parents=True, exist_ok=True)
 
 
@@ -85,20 +77,6 @@ def font_init():
                     local_file.write_bytes(z.read(font))
 
         lock_file.write_text(font_url)
-
-    if plugin_config.bilichat_dynamic_font:
-        if plugin_config.bilichat_dynamic_font.startswith("http"):
-            custom_font = URL(plugin_config.bilichat_dynamic_font)
-            if not custom_font.is_absolute():
-                raise ValueError(f"The custom font {plugin_config.bilichat_dynamic_font} is not a valid URL!")
-            if custom_font.name != URL(DEFUALT_DYNAMIC_FONT).name:
-                logger.debug(get_font_sync(plugin_config.bilichat_dynamic_font))
-        else:
-            custom_font = font_path.joinpath(plugin_config.bilichat_dynamic_font)
-            if not custom_font.exists():
-                raise FileNotFoundError(
-                    f"The custom font {plugin_config.bilichat_dynamic_font} does not exist, please put the font file in {font_path.absolute()} folder!"
-                )
 
 
 font_init()
