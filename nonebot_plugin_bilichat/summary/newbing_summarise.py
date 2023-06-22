@@ -16,7 +16,7 @@ from ..model.cache import Cache
 from ..model.exception import AbortError, BingChatResponseException
 from ..model.newbing import BingChatResponse
 from ..optional import capture_exception  # type: ignore
-from .text_to_image import rich_text2image
+from .text_to_image import t2i
 
 cookies = (
     {}
@@ -137,7 +137,7 @@ async def newbing_summarization(cache: Cache, cid: str = "0"):
             # 小于 50 认为无意义
             else:
                 logger.warning(f"Video(Column) {cache.id} summary failure")
-                cache.episodes[cid].newbing = f"视频(专栏) {cache.id} 总结失败: {ai_summary}"
+                return f"视频(专栏) {cache.id} 总结失败: {ai_summary}", False
 
         elif cache.episodes[cid].newbing == "Refusal to answer":
             return BING_APOLOGY.read_bytes(), False
@@ -145,10 +145,7 @@ async def newbing_summarization(cache: Cache, cid: str = "0"):
             meaning = True
             logger.info("Using cached newbing summarization")
 
-        if img := await rich_text2image(cache.episodes[cid].newbing or "视频无法总结", "new Bing"):
-            return img, meaning
-        else:
-            return f"总结图片生成失败, 直接发送原文:\n{cache.episodes[cid].newbing}", meaning
+        return await t2i(cache.episodes[cid].newbing or "视频无法总结", "new Bing"), meaning
     except BingChatResponseException as e:
         logger.error(f"Video(Column) {cache.id} summary failed: {e}")
         cache.episodes[cid].newbing = "Refusal to answer"

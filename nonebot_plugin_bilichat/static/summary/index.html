@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI视频总结</title>
+    <style>
+      body,
+      html {
+        height: 100%;
+        margin: 0;
+        background-color: #fcf4dc; /* 浅黄色背景 */
+      }
+
+      .container {
+        max-width: 720px;
+        margin: 0 auto;
+        position: relative;
+        font-size: 32px;
+      }
+
+      .watermark {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        max-width: 600px;
+        max-height: 300px;
+        opacity: 0.15;
+        pointer-events: none;
+      }
+
+      .footer {
+        text-align: center;
+        color: gray;
+        font-size: 32px;
+        margin-top: 10px;
+      }
+    </style>
+    <script src="marked.min.js"></script>
+  </head>
+
+  <body>
+    <div class="main" alt="main">
+      <div class="container">
+        <img src="{{ src }}.png" alt="Watermark" class="watermark" />
+        <div id="markdown-content">
+          <!-- Markdown content will be inserted here -->
+        </div>
+      </div>
+      <div class="footer">Generate by @BiliChat | Powered By A60 & Well404</div>
+    </div>
+    <script>
+      // 假设你的Markdown内容存储在一个变量中
+      var markdownContent = "{{ data }}";
+
+      // 使用marked库将Markdown转换为HTML
+      var htmlContent = marked(markdownContent);
+
+      // 将转换后的HTML插入到页面中
+      document.getElementById("markdown-content").innerHTML = htmlContent;
+    </script>
+  </body>
+</html>
