@@ -1,4 +1,5 @@
 from io import BytesIO
+import re
 from pathlib import Path
 
 from dynamicadaptor.Content import RichTextDetail, Text
@@ -45,6 +46,7 @@ async def rich_text2image(data: str, src: str):
 async def pw_text2image(data: str, src: str):
     import jinja2
     from nonebot_plugin_htmlrender import get_new_page
+    from ..lib.browser import pw_font_injecter
 
     src = "openai" if src == plugin_config.bilichat_openai_model else "newbing"
     data = r"\n".join(data.splitlines())
@@ -64,6 +66,7 @@ async def pw_text2image(data: str, src: str):
     )
 
     async with get_new_page() as page:
+        await page.route(re.compile("^https://fonts.bbot/(.+)$"), pw_font_injecter)
         await page.set_viewport_size({"width": 800, "height": 2000})
         await page.goto(template_path)
         await page.set_content(html, wait_until="networkidle")

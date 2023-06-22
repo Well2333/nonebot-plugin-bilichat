@@ -1,5 +1,6 @@
 import asyncio
 import base64
+import re
 from datetime import datetime
 from io import BytesIO
 from pathlib import Path
@@ -362,6 +363,8 @@ class BiliVideoImage:
         import jinja2
         from nonebot_plugin_htmlrender.browser import get_new_page
 
+        from ..lib.browser import pw_font_injecter
+
         style_bule = Path(__file__).parent.parent.joinpath("static", "style_blue")
         video_time = (
             f"{self.hours:02d}:{self.minutes:02d}:{self.seconds:02d}"
@@ -417,6 +420,7 @@ class BiliVideoImage:
         )
 
         async with get_new_page() as page:
+            await page.route(re.compile("^https://fonts.bbot/(.+)$"), pw_font_injecter)
             await page.goto(template_path)
             await page.set_content(html, wait_until="networkidle")
             await page.wait_for_timeout(5)
