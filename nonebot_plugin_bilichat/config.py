@@ -52,15 +52,27 @@ class Config(BaseModel):
     bilichat_newbing_preprocess: bool = True
     bilichat_openai_token: Optional[str]
     bilichat_openai_proxy: Optional[str]
-    bilichat_openai_model: Literal["gpt-3.5-turbo-0301", "gpt-4-0314", "gpt-4-32k-0314"] = "gpt-3.5-turbo-0301"
+    bilichat_openai_model: Literal[
+        "gpt-3.5-turbo",
+        "gpt-3.5-turbo-0301",
+        "gpt-3.5-turbo-0613",
+        "gpt-3.5-turbo-16k",
+        "gpt-3.5-turbo-16k-0613",
+        "gpt-4",
+        "gpt-4-0314",
+        "gpt-4-0613",
+        "gpt-4-32k-0314",
+    ] = "gpt-3.5-turbo-0301"
     bilichat_openai_token_limit: int = 3500
 
-    @validator("bilichat_openai_proxy",always=True,pre=True)
+    @validator("bilichat_openai_proxy", always=True, pre=True)
     def check_openai_proxy(cls, v, values):
         if not (values["bilichat_openai_token"] or values["bilichat_newbing_cookie"]):
             return v
         if v is None:
-            logger.warning("you have enabled openai or newbing summary without a proxy, this may cause request failure.")
+            logger.warning(
+                "you have enabled openai or newbing summary without a proxy, this may cause request failure."
+            )
         return v
 
     @validator("bilichat_openai_token_limit")
@@ -69,12 +81,13 @@ class Config(BaseModel):
             return v
         if not isinstance(v, int):
             v = int(v)
-        model = values["bilichat_openai_model"]
-        max_limit = {
-            "gpt-3.5-turbo-0301": 3500,
-            "gpt-4-0314": 7600,
-            "gpt-4-32k-0314": 32200,
-        }.get(model, 3500)
+        model: str = values["bilichat_openai_model"]
+        if model.startswith("gpt-3.5"):
+            max_limit = 15000 if "16k" in model else 3500
+        elif model.startswith("gpt-4"):
+            max_limit = 32200 if "32k" in model else 7600
+        else:
+            max_limit = 3500
         if v > max_limit:
             logger.error(
                 f"Model {model} has a token cap of {max_limit} instead of {v}, token will be replaced with {max_limit}"
@@ -112,7 +125,7 @@ class Config(BaseModel):
 
         elif v == "no_login":
             logger.info("Using newbing summary without a cookie")
-        
+
         else:
             raise ValueError(f"Path {v} is not recognized")
 
@@ -126,9 +139,9 @@ class Config(BaseModel):
             raise RuntimeError(
                 "Package(s) of fuction wordcloud not installed, use **pip install nonebot-plugin-bilichat[wordcloud]** to install required dependencies"
             )
-    
-    @validator("bilichat_basic_info_style",always=True)
-    def check_htmlrender(cls,v):
+
+    @validator("bilichat_basic_info_style", always=True)
+    def check_htmlrender(cls, v):
         if v == "bbot_default":
             return v
         else:
@@ -139,7 +152,6 @@ class Config(BaseModel):
                 raise RuntimeError(
                     "Package(s) of fuction styles not installed, use **pip install nonebot-plugin-bilichat[extra]** to install required dependencies"
                 ) from e
-
 
     def verify_permission(self, uid: Union[str, int]):
         if self.bilichat_whitelist:

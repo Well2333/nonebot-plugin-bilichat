@@ -1,7 +1,7 @@
 import asyncio
 import random
 from collections import OrderedDict
-from typing import Dict, List, Optional,Literal
+from typing import Dict, List, Optional, Literal
 
 import httpx
 import tiktoken_async
@@ -36,10 +36,10 @@ def get_summarise_prompt(title: str, transcript: str, type_: Literal["视频字�
 def count_tokens(prompts: List[Dict[str, str]]):
     """根据内容计算 token 数"""
 
-    if plugin_config.bilichat_openai_model == "gpt-3.5-turbo-0301":
+    if plugin_config.bilichat_openai_model.startswith("gpt-3.5"):
         tokens_per_message = 4
         tokens_per_name = -1
-    elif plugin_config.bilichat_openai_model == "gpt-4":
+    elif plugin_config.bilichat_openai_model.startswith("gpt-4"):
         tokens_per_message = 3
         tokens_per_name = 1
     else:
@@ -56,7 +56,9 @@ def count_tokens(prompts: List[Dict[str, str]]):
     return num_tokens
 
 
-def get_small_size_transcripts(title:str,text_data: List[str], token_limit: int = plugin_config.bilichat_openai_token_limit):
+def get_small_size_transcripts(
+    title: str, text_data: List[str], token_limit: int = plugin_config.bilichat_openai_token_limit
+):
     unique_texts = list(OrderedDict.fromkeys(text_data))
     while count_tokens(get_summarise_prompt(title, " ".join(unique_texts))) > token_limit:
         unique_texts.pop(random.randint(0, len(unique_texts) - 1))
