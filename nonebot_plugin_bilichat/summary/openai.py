@@ -36,7 +36,7 @@ def get_summarise_prompt(title: str, transcript: str, type_: Literal["视频字�
 def count_tokens(prompts: List[Dict[str, str]]):
     """根据内容计算 token 数"""
 
-    if plugin_config.bilichat_openai_model.startswith("gpt-3.5-turbo-0301"):
+    if plugin_config.bilichat_openai_model.startswith("gpt-3.5"):
         tokens_per_message = 4
         tokens_per_name = -1
     elif plugin_config.bilichat_openai_model.startswith("gpt-4"):
