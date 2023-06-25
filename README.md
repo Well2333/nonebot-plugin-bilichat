@@ -146,6 +146,7 @@ _✨ 多功能的B站视频解析工具 ✨_
 | bilichat_neterror_retry     | int       | 3     | 对部分网络请求错误的尝试次数 |
 | bilichat_use_bcut_asr       | bool      | True  | 是否在**没有字幕时**调用必剪接口生成字幕 |
 | bilichat_show_error_msg     | bool      | True  | 是否在解析失败时发送错误信息 |
+| bilichat_use_browser        | bool      | Auto  | 是否使用浏览器，`Auto` 会根据是否含有相应的依赖进行选择 |
 
 注:
 
@@ -158,21 +159,21 @@ _✨ 多功能的B站视频解析工具 ✨_
 
 | 配置项 | 类型 | 默认值 | 说明 |
 |:-----:|:----:|:----:|:----:|
-| bilichat_basic_info          | bool | True         | 是否开启视频基本信息 |
-| bilichat_basic_info_style    | str  | bbot_default | 视频详情的图片样式，可用样式见下方备注 |
-| bilichat_basic_info_url      | bool | True         | 开启视频进本信息的情况下，是否一同回复一个链接 |
-| bilichat_reply_to_basic_info | bool | True         | 后续消息是否回复基础信息(关闭则回复发送者的信息) |
+| bilichat_basic_info          | bool | True    | 是否开启视频基本信息 |
+| bilichat_basic_info_style    | str  | default | 视频详情的图片样式，可用样式见下方备注 |
+| bilichat_basic_info_url      | bool | True    | 开启视频进本信息的情况下，是否一同回复一个链接 |
+| bilichat_reply_to_basic_info | bool | True    | 后续消息是否回复基础信息(关闭则回复发送者的信息) |
 
-注：bilichat_basic_info_style 除默认的 bbot_default 使用 PIL 绘图，其他均依赖于 `nonebot-plugin-htmlrender`，其可用的样式如下所示
+注：bilichat_basic_info_style 除默认的 bbot_default 使用 PIL 绘图（未开启浏览器时默认选择），其他均依赖于浏览器进行渲染（需要设置 bilichat_use_browser 为 True 或 Auto），其可用的样式如下所示
 
 <details>
-<summary>bbot_default</summary>
+<summary>bbot_default（无浏览器时默认）</summary>
 
 ![](docs/bbot_default.png)
 </details>
 
 <details>
-<summary>style_blue</summary>
+<summary>style_blue（有浏览器时默认）</summary>
 
 ![](docs/style_blue.png)
 </details>
@@ -189,11 +190,11 @@ _✨ 多功能的B站视频解析工具 ✨_
 
 ### AI视频总结配置项
 
-开启此功能需要安装对应的依赖 `nonebot-plugin-bilichat[openai,newbing]`
+开启此功能需要安装对应的依赖 `nonebot-plugin-bilichat[summary]`
 
 | 配置项 | 类型 | 默认值 | 说明 |
 |:-----:|:----:|:----:|:----:|
-| bilichat_newbing_cookie      | str       | None               | newbing的cookie文件路径, 填写 `no_login` 则不进行登录（可能有次数限制）, 若留空则禁用newbing总结 |
+| bilichat_newbing_cookie      | str       | None               | newbing的cookie文件路径, 填写 `no_login` 则不进行登录（有限制）, 若留空则禁用newbing总结 |
 | bilichat_newbing_token_limit | int       | 0                  | newbing请求的文本量上限, 0为无上限 |
 | bilichat_newbing_preprocess  | bool      | True               | 是否对newbing的返回值进行预处理, 以去除其中不想要的内容 |
 | bilichat_openai_token        | str       | None               | openai的apikey, 若留空则禁用openai总结 |
@@ -251,6 +252,7 @@ BV12v4y1E7NT -r --no-cache # 可以多个参数混用
 - [nonebot-plugin-template](https://github.com/A-kirami/nonebot-plugin-template): 项目的 README 模板
 - [nonebot-plugin-bing-chat](https://github.com/Harry-Jing/nonebot-plugin-bing-chat): newbing解析的代码参考
 - [Misaka-Mikoto-Tech](https://github.com/Misaka-Mikoto-Tech) 为本项目提交了多项BUG修复和代码参考
+- [hamo-reid](https://github.com/hamo-reid) 为 style_blue 绘制了界面
 
 ## ⏳ Star 趋势
 

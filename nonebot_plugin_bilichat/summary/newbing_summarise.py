@@ -7,7 +7,6 @@ from collections import OrderedDict
 from pathlib import Path
 from typing import List, Literal
 
-from EdgeGPT import Chatbot, ConversationStyle
 from nonebot.log import logger
 
 from ..config import plugin_config
@@ -16,6 +15,7 @@ from ..model.cache import Cache
 from ..model.exception import AbortError, BingChatResponseException
 from ..model.newbing import BingChatResponse
 from ..optional import capture_exception  # type: ignore
+from .newbing import Chatbot, ConversationStyle
 from .text_to_image import t2i
 
 cookies = (
