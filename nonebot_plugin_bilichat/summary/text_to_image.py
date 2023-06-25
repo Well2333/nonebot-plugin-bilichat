@@ -81,7 +81,7 @@ async def t2i(data: str, src: str):
     try:
         if len(data) < 30:
             return data
-        if plugin_config.bilichat_basic_info_style != "bbot_default":
+        if plugin_config.bilichat_use_browser:
             return await pw_text2image(data, src)
         return await rich_text2image(data, src)
     except Exception as e:

@@ -6,7 +6,7 @@ from typing import List, Literal, Optional, Union
 
 from nonebot import get_driver, require
 from nonebot.log import logger
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, Field, validator
 
 # get package version
 if sys.version_info < (3, 10):
@@ -33,10 +33,11 @@ class Config(BaseModel):
     bilichat_cd_time: int = 120
     bilichat_neterror_retry: int = 3
     bilichat_show_error_msg: bool = True
+    bilichat_use_browser: bool = Field(default="Auto")
 
     # basic info
     bilichat_basic_info: bool = True
-    bilichat_basic_info_style: Literal["bbot_default", "style_blue"] = "bbot_default"
+    bilichat_basic_info_style: Literal["bbot_default", "style_blue"] = Field(default="default")
     bilichat_basic_info_url: bool = True
     bilichat_reply_to_basic_info: bool = True
 
@@ -64,6 +65,37 @@ class Config(BaseModel):
         "gpt-4-32k-0314",
     ] = "gpt-3.5-turbo-0301"
     bilichat_openai_token_limit: int = 3500
+
+    @validator("bilichat_use_browser", always=True, pre=True)
+    def check_htmlrender(cls, v):
+        if not v:
+            return v
+        try:
+            require("nonebot_plugin_htmlrender")
+            if v == "Auto":
+                logger.info("bilichat_use_browser dependencies have been satisfied, enable bilichat_use_browser")
+            return True
+        except Exception as e:
+            if v == "Auto":
+                logger.info("bilichat_use_browser's dependency is not satisfied, disable bilichat_use_browser")
+                return False
+            raise RuntimeError(
+                "Package(s) of fuction styles not installed, use **pip install nonebot-plugin-bilichat[extra]** to install required dependencies"
+            ) from e
+
+    @validator("bilichat_basic_info_style", always=True,pre=True)
+    def check_use_browser(cls, v, values):
+        if v == "bbot_default":
+            return v
+        # 不包含浏览器
+        if values["bilichat_use_browser"] != True:
+            if v == "default":
+                return "bbot_default"
+            raise RuntimeError(
+                f"style {v} require browser to work, please enable **bilichat_use_browser** or set style to default"
+            )
+        # 包含浏览器
+        return "style_blue" if v == "default" else v
 
     @validator("bilichat_openai_proxy", always=True, pre=True)
     def check_openai_proxy(cls, v, values):
@@ -101,16 +133,16 @@ class Config(BaseModel):
             return v
         else:
             raise RuntimeError(
-                "Package(s) of fuction openai summary not installed, use **pip install nonebot-plugin-bilichat[openai]** to install required dependencies"
+                "Package(s) of fuction openai summary not installed, use **pip install nonebot-plugin-bilichat[summary]** to install required dependencies"
             )
 
     @validator("bilichat_newbing_cookie", always=True)
     def check_pypackage_newbing_and_cookie(cls, v):
         if not v:
             return v
-        if not importlib.util.find_spec("EdgeGPT") or not importlib.util.find_spec("minidynamicrender"):
+        if not importlib.util.find_spec("minidynamicrender"):
             raise RuntimeError(
-                "Package(s) of fuction newbing summary not installed, use **pip install nonebot-plugin-bilichat[newbing]** to install required dependencies"
+                "Package(s) of fuction newbing summary not installed, use **pip install nonebot-plugin-bilichat[summary]** to install required dependencies"
             )
 
         # verify cookie file
@@ -139,19 +171,6 @@ class Config(BaseModel):
             raise RuntimeError(
                 "Package(s) of fuction wordcloud not installed, use **pip install nonebot-plugin-bilichat[wordcloud]** to install required dependencies"
             )
-
-    @validator("bilichat_basic_info_style", always=True)
-    def check_htmlrender(cls, v):
-        if v == "bbot_default":
-            return v
-        else:
-            try:
-                require("nonebot_plugin_htmlrender")
-                return v
-            except Exception as e:
-                raise RuntimeError(
-                    "Package(s) of fuction styles not installed, use **pip install nonebot-plugin-bilichat[extra]** to install required dependencies"
-                ) from e
 
     def verify_permission(self, uid: Union[str, int]):
         if self.bilichat_whitelist:
