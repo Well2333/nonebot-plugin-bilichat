@@ -79,7 +79,7 @@ async def pw_text2image(data: str, src: str):
 
 async def t2i(data: str, src: str):
     try:
-        if len(data) < 30:
+        if len(data.strip()) < 30:
             return data
         if plugin_config.bilichat_use_browser:
             return await pw_text2image(data, src)
