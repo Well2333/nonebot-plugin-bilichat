@@ -12,7 +12,7 @@ from nonebot.log import logger
 from ..config import plugin_config
 from ..lib.store import BING_APOLOGY
 from ..model.cache import Cache
-from ..model.exception import AbortError, BingChatResponseException
+from ..model.exception import AbortError, BingChatResponseException, BingCaptchaException
 from ..model.newbing import BingChatResponse
 from ..optional import capture_exception  # type: ignore
 from .newbing import Chatbot, ConversationStyle
@@ -146,6 +146,9 @@ async def newbing_summarization(cache: Cache, cid: str = "0"):
             logger.info("Using cached newbing summarization")
 
         return await t2i(cache.episodes[cid].newbing or "视频无法总结", "new Bing"), meaning
+    except BingCaptchaException as e:
+        logger.error(f"Video(Column) {cache.id} summary failed: {e}")
+        return "newbing 需要 captcha 验证，请在浏览器中随意提问并解决 captcha 后重新导出cookies.json以解决此问题", True
     except BingChatResponseException as e:
         logger.error(f"Video(Column) {cache.id} summary failed: {e}")
         cache.episodes[cid].newbing = "Refusal to answer"

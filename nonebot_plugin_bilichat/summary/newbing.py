@@ -15,7 +15,7 @@ import aiohttp
 import certifi
 import httpx
 
-from ..model.exception import BaseBingChatException
+from ..model.exception import BaseBingChatException, BingCaptchaException
 
 ssl_context = ssl.create_default_context()
 ssl_context.load_verify_locations(certifi.where())
@@ -595,6 +595,10 @@ class _ChatHub:
                 elif response.get("type") == 2:
                     if response["item"]["result"].get("error"):
                         await self.close()
+                        if response["item"]["result"]["value"] == "CaptchaChallenge":
+                            raise BingCaptchaException(
+                                f"{response['item']['result']['value']}: {response['item']['result']['message']}"
+                            )
                         raise BaseBingChatException(
                             f"{response['item']['result']['value']}: {response['item']['result']['message']}",
                         )
