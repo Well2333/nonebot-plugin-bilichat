@@ -54,7 +54,6 @@ _✨ 多功能的B站视频解析工具 ✨_
 
 <details>
 <summary>手机端视图</summary>
-注: 此图片已过时，预期下个版本就会进行更换
 
 ![](docs/mobile.png)
 </details>

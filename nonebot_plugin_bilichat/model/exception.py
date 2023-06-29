@@ -25,3 +25,7 @@ class BingChatInvalidSessionException(BingChatResponseException):
 
 class BingChatAccountReachLimitException(BingChatResponseException):
     pass
+
+
+class BingCaptchaException(BingChatResponseException):
+    pass
