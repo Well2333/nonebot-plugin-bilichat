@@ -8,7 +8,7 @@
 
 # nonebot-plugin-bilichat
 
-_✨ 多功能的B站视频解析工具 ✨_
+_✨ 多功能的 B 站视频解析工具 ✨_
 
 <a href="./LICENSE">
     <img src="https://img.shields.io/github/license/djkcyl/nonebot-plugin-bilichat.svg" alt="license">
@@ -56,6 +56,7 @@ _✨ 多功能的B站视频解析工具 ✨_
 <summary>手机端视图</summary>
 
 ![](docs/mobile.png)
+
 </details>
 
 <details>
@@ -64,12 +65,14 @@ _✨ 多功能的B站视频解析工具 ✨_
 ![bbot_default](docs/bbot_default.png)
 
 ![style_blue](docs/style_blue.png)
+
 </details>
 
 <details>
 <summary>词云</summary>
 
 ![](docs/wordcloud.png)
+
 </details>
 
 <details>
@@ -87,7 +90,7 @@ _✨ 多功能的B站视频解析工具 ✨_
 
     nb plugin install nonebot-plugin-bilichat
 
-注: 由于 nb-cli 不支持依赖组，因此需要启用词云和AI总结的用户要通过其他的包管理器安装额外的依赖
+注: 由于 nb-cli 不支持依赖组，因此需要启用词云和 AI 总结的用户要通过其他的包管理器安装额外的依赖
 
     pip install nonebot-plugin-bilichat[all]
 
@@ -101,21 +104,25 @@ _✨ 多功能的B站视频解析工具 ✨_
 <summary>pip</summary>
 
     pip install nonebot-plugin-bilichat[all]
+
 </details>
 <details>
 <summary>pdm</summary>
 
     pdm add nonebot-plugin-bilichat[all]
+
 </details>
 <details>
 <summary>poetry</summary>
 
     poetry add nonebot-plugin-bilichat[all]
+
 </details>
 <details>
 <summary>conda</summary>
 
     conda install nonebot-plugin-bilichat[all]
+
 </details>
 
 打开 nonebot2 项目根目录下的 `pyproject.toml` 文件, 在 `[tool.nonebot]` 部分追加写入
@@ -130,38 +137,38 @@ _✨ 多功能的B站视频解析工具 ✨_
 
 ### 通用配置项
 
-| 配置项 | 类型 | 默认值 | 说明 |
-|:-----:|:----:|:----:|:----:|
-| bilichat_block              | bool      | False | 是否拦截事件(防止其他插件二次解析) |
-| bilichat_enable_private     | bool      | True  | 是否允许响应私聊 |
-| bilichat_enable_self        | bool      | False | 是否允许响应自身的消息 |
-| bilichat_only_self          | bool      | False | 是否仅响应自身的消息，开启后会**覆盖全部其他规则**（人机合一特供） |
-| bilichat_enable_channel     | bool      | True  | 是否允许响应频道的消息 |
-| bilichat_enable_unkown_src  | bool      | False | 是否允许响应未知来源的消息 |
-| bilichat_whitelist          | list[str] | []    | **响应**的群聊(频道)名单, 会覆盖黑名单 |
-| bilichat_blacklist          | list[str] | []    | **不响应**的群聊(频道)名单 |
-| bilichat_dynamic_font       | str       | None  | 视频信息及词云图片使用的字体 |
-| bilichat_cd_time            | int       | 120   | 对同一视频的响应冷却时间(防止刷屏) |
-| bilichat_neterror_retry     | int       | 3     | 对部分网络请求错误的尝试次数 |
-| bilichat_use_bcut_asr       | bool      | True  | 是否在**没有字幕时**调用必剪接口生成字幕 |
-| bilichat_show_error_msg     | bool      | True  | 是否在解析失败时发送错误信息 |
-| bilichat_use_browser        | bool      | Auto  | 是否使用浏览器，`Auto` 会根据是否含有相应的依赖进行选择 |
+|           配置项           |   类型    | 默认值 |                                说明                                |
+| :------------------------: | :-------: | :----: | :----------------------------------------------------------------: |
+|       bilichat_block       |   bool    | False  |                 是否拦截事件(防止其他插件二次解析)                 |
+|  bilichat_enable_private   |   bool    |  True  |                          是否允许响应私聊                          |
+|    bilichat_enable_self    |   bool    | False  |                       是否允许响应自身的消息                       |
+|     bilichat_only_self     |   bool    | False  | 是否仅响应自身的消息，开启后会**覆盖全部其他规则**（人机合一特供） |
+|  bilichat_enable_channel   |   bool    |  True  |                       是否允许响应频道的消息                       |
+| bilichat_enable_unkown_src |   bool    | False  |                     是否允许响应未知来源的消息                     |
+|     bilichat_whitelist     | list[str] |   []   |               **响应**的群聊(频道)名单, 会覆盖黑名单               |
+|     bilichat_blacklist     | list[str] |   []   |                     **不响应**的群聊(频道)名单                     |
+|   bilichat_dynamic_font    |    str    |  None  |                    视频信息及词云图片使用的字体                    |
+|      bilichat_cd_time      |    int    |  120   |                 对同一视频的响应冷却时间(防止刷屏)                 |
+|  bilichat_neterror_retry   |    int    |   3    |                    对部分网络请求错误的尝试次数                    |
+|   bilichat_use_bcut_asr    |   bool    |  True  |              是否在**没有字幕时**调用必剪接口生成字幕              |
+|  bilichat_show_error_msg   |   bool    |  True  |                    是否在解析失败时发送错误信息                    |
+|    bilichat_use_browser    |   bool    |  Auto  |      是否使用浏览器，`Auto` 会根据是否含有相应的依赖进行选择       |
 
 注:
 
 1. 由于 OneBot 协议未规定是否应上报自身事件，因此在不同的场景下能否获取自身事件并不一定，`bilichat_enable_self` 实际能否生效也与之相关
 2. 当 `bilichat_whitelist` 存在时，`bilichat_blacklist` 将会被禁用
-3. `bilichat_dynamic_font` 可填写自定义的字体url，但并不推荐修改
-4. 当使用 `bcut_asr` 接口来生成AI字幕时，根据视频时长和网络情况有可能会识别失败，Bot会提示 `BCut-ASR conversion failed due to network error`。可以通过调高 `bilichat_neterror_retry` 次数或几分钟后重试来尝试重新生成字幕
+3. `bilichat_dynamic_font` 可填写自定义的字体 url，但并不推荐修改
+4. 当使用 `bcut_asr` 接口来生成 AI 字幕时，根据视频时长和网络情况有可能会识别失败，Bot 会提示 `BCut-ASR conversion failed due to network error`。可以通过调高 `bilichat_neterror_retry` 次数或几分钟后重试来尝试重新生成字幕
 
 ### 基础信息配置项
 
-| 配置项 | 类型 | 默认值 | 说明 |
-|:-----:|:----:|:----:|:----:|
-| bilichat_basic_info          | bool | True    | 是否开启视频基本信息 |
-| bilichat_basic_info_style    | str  | default | 视频详情的图片样式，可用样式见下方备注 |
-| bilichat_basic_info_url      | bool | True    | 开启视频进本信息的情况下，是否一同回复一个链接 |
-| bilichat_reply_to_basic_info | bool | True    | 后续消息是否回复基础信息(关闭则回复发送者的信息) |
+|            配置项            | 类型 | 默认值  |                       说明                       |
+| :--------------------------: | :--: | :-----: | :----------------------------------------------: |
+|     bilichat_basic_info      | bool |  True   |               是否开启视频基本信息               |
+|  bilichat_basic_info_style   | str  | default |      视频详情的图片样式，可用样式见下方备注      |
+|   bilichat_basic_info_url    | bool |  True   |  开启视频进本信息的情况下，是否一同回复一个链接  |
+| bilichat_reply_to_basic_info | bool |  True   | 后续消息是否回复基础信息(关闭则回复发送者的信息) |
 
 注：bilichat_basic_info_style 除默认的 bbot_default 使用 PIL 绘图（未开启浏览器时默认选择），其他均依赖于浏览器进行渲染（需要设置 bilichat_use_browser 为 True 或 Auto），其可用的样式如下所示
 
@@ -169,37 +176,40 @@ _✨ 多功能的B站视频解析工具 ✨_
 <summary>bbot_default（无浏览器时默认）</summary>
 
 ![](docs/bbot_default.png)
+
 </details>
 
 <details>
 <summary>style_blue（有浏览器时默认）</summary>
 
 ![](docs/style_blue.png)
+
 </details>
 
 ### 词云配置项
 
 开启此功能需要安装对应的依赖 `nonebot-plugin-bilichat[wordcloud]`
 
-| 配置项 | 类型 | 默认值 | 说明 |
-|:-----:|:----:|:----:|:----:|
-| bilichat_word_cloud  | bool | False | 是否开启词云功能 |
+|       配置项        | 类型 | 默认值 |       说明       |
+| :-----------------: | :--: | :----: | :--------------: |
+| bilichat_word_cloud | bool | False  | 是否开启词云功能 |
 
 注：词云功能在 python3.11 中由于 `wordcloud` 包安装失败暂时无法启用，请不要在 3.11 中开启此功能
 
-### AI视频总结配置项
+### AI 视频总结配置项
 
 开启此功能需要安装对应的依赖 `nonebot-plugin-bilichat[summary]`
 
-| 配置项 | 类型 | 默认值 | 说明 |
-|:-----:|:----:|:----:|:----:|
-| bilichat_newbing_cookie      | str       | None               | newbing的cookie文件路径, 填写 `no_login` 则不进行登录（有限制）, 若留空则禁用newbing总结 |
-| bilichat_newbing_token_limit | int       | 0                  | newbing请求的文本量上限, 0为无上限 |
-| bilichat_newbing_preprocess  | bool      | True               | 是否对newbing的返回值进行预处理, 以去除其中不想要的内容 |
-| bilichat_openai_token        | str       | None               | openai的apikey, 若留空则禁用openai总结 |
-| bilichat_openai_proxy        | str       | None               | 访问openai或newbing使用的代理地址 |
-| bilichat_openai_model        | str       | gpt-3.5-turbo-0301 | 使用的语言模型名称 |
-| bilichat_openai_token_limit  | int       | 3500               | 请求的文本量上限, 计算方式可参考[tiktoken](https://github.com/openai/tiktoken) |
+|            配置项            | 类型 |       默认值       |                                                        说明                                                        |
+| :--------------------------: | :--: | :----------------: | :----------------------------------------------------------------------------------------------------------------: |
+|   bilichat_newbing_cookie    | str  |        None        |           newbing 的 cookie 文件路径, 填写 `no_login` 则不进行登录（有限制）, 若留空则禁用 newbing 总结            |
+| bilichat_newbing_cookie_api  | str  |        None        | 在运行时更新 newbing cookie，使用方法参考[这里](./docs/Update%20newBing%20cookie%20via%20tampermonkey%20script.md) |
+| bilichat_newbing_token_limit | int  |         0          |                                        newbing 请求的文本量上限, 0 为无上限                                        |
+| bilichat_newbing_preprocess  | bool |        True        |                             是否对 newbing 的返回值进行预处理, 以去除其中不想要的内容                              |
+|    bilichat_openai_token     | str  |        None        |                                     openai 的 apikey, 若留空则禁用 openai 总结                                     |
+|    bilichat_openai_proxy     | str  |        None        |                                       访问 openai 或 newbing 使用的代理地址                                        |
+|    bilichat_openai_model     | str  | gpt-3.5-turbo-0301 |                                                 使用的语言模型名称                                                 |
+| bilichat_openai_token_limit  | int  |        3500        |                   请求的文本量上限, 计算方式可参考[tiktoken](https://github.com/openai/tiktoken)                   |
 
 注:
 
@@ -225,20 +235,20 @@ BV12v4y1E7NT -r --no-cache # 可以多个参数混用
 -r BV12v4y1E7NT -n # 虽然不建议，但确实可以把参数放前面
 ```
 
-| 指令 | 简写 | 说明 |
-|:-----:|:----:|:----:|
-| --no-cache | -n | 本次总结禁用缓存(不会影响已存在的缓存文件) |
-| --refresh  | -r | 刷新此视频的词云和总结缓存(会覆盖已存在的缓存文件) |
+|    指令    | 简写 |                        说明                        |
+| :--------: | :--: | :------------------------------------------------: |
+| --no-cache |  -n  |     本次总结禁用缓存(不会影响已存在的缓存文件)     |
+| --refresh  |  -r  | 刷新此视频的词云和总结缓存(会覆盖已存在的缓存文件) |
 
 ### 指令表
 
 > 正在开发指令相关，请无视这里的模板
-> 指令设计方案征集中，如果有什么想要实现的功能可以在issue中提出
+> 指令设计方案征集中，如果有什么想要实现的功能可以在 issue 中提出
 
-| 指令 | 权限 | 需要@ | 范围 | 说明 |
-|:-----:|:----:|:----:|:----:|:----:|
-| 指令1 | 主人 | 否 | 私聊 | 指令说明 |
-| 指令2 | 群员 | 是 | 群聊 | 指令说明 |
+|  指令  | 权限 | 需要@ | 范围 |   说明   |
+| :----: | :--: | :---: | :--: | :------: |
+| 指令 1 | 主人 |  否   | 私聊 | 指令说明 |
+| 指令 2 | 群员 |  是   | 群聊 | 指令说明 |
 
 ## 🙏 感谢
 
@@ -249,8 +259,8 @@ BV12v4y1E7NT -r --no-cache # 可以多个参数混用
 - [BBot-Graia](https://github.com/djkcyl/BBot-Graia) 功能来源 ~~(我 牛 我 自 己)~~
 - [ABot-Graia](https://github.com/djkcyl/ABot-Graia) 永远怀念最好的 ABot 🙏
 - [nonebot-plugin-template](https://github.com/A-kirami/nonebot-plugin-template): 项目的 README 模板
-- [nonebot-plugin-bing-chat](https://github.com/Harry-Jing/nonebot-plugin-bing-chat): newbing解析的代码参考
-- [Misaka-Mikoto-Tech](https://github.com/Misaka-Mikoto-Tech) 为本项目提交了多项BUG修复和代码参考
+- [nonebot-plugin-bing-chat](https://github.com/Harry-Jing/nonebot-plugin-bing-chat): newbing 解析的代码参考
+- [Misaka-Mikoto-Tech](https://github.com/Misaka-Mikoto-Tech) 为本项目提交了多项 BUG 修复和代码参考
 - [hamo-reid](https://github.com/hamo-reid) 为 style_blue 绘制了界面
 
 ## ⏳ Star 趋势
