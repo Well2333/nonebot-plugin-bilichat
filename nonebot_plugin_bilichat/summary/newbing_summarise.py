@@ -12,17 +12,19 @@ from nonebot.log import logger
 from ..config import plugin_config
 from ..lib.store import BING_APOLOGY
 from ..model.cache import Cache
-from ..model.exception import AbortError, BingChatResponseException, BingCaptchaException
+from ..model.exception import AbortError, BingCaptchaException, BingChatResponseException
 from ..model.newbing import BingChatResponse
 from ..optional import capture_exception  # type: ignore
 from .newbing import Chatbot, ConversationStyle
 from .text_to_image import t2i
 
-cookies = (
-    {}
-    if plugin_config.bilichat_newbing_cookie == "no_login"
-    else json.loads(Path(plugin_config.bilichat_newbing_cookie).read_text("utf-8"))  # type: ignore
-)
+if (
+    plugin_config.bilichat_newbing_cookie_api
+    and plugin_config.bilichat_newbing_cookie
+    and plugin_config.bilichat_newbing_cookie != "no_login"
+):
+    from . import api
+
 
 bot = None
 
@@ -31,6 +33,11 @@ def init_chatbot(total_count: int = 5):
     global bot
     for count in range(total_count):
         try:
+            cookies = (
+                {}
+                if plugin_config.bilichat_newbing_cookie == "no_login"
+                else json.loads(Path(plugin_config.bilichat_newbing_cookie).read_text("utf-8"))  # type: ignore
+            )
             bot = Chatbot(cookies=cookies, proxy=plugin_config.bilichat_openai_proxy)  # type: ignore
             logger.success("Bing chatbot init success")
             return

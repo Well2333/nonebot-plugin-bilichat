@@ -49,6 +49,7 @@ class Config(BaseModel):
 
     # AI Summary
     bilichat_newbing_cookie: Optional[str]
+    bilichat_newbing_cookie_api: Optional[str]
     bilichat_newbing_token_limit: int = 0
     bilichat_newbing_preprocess: bool = True
     bilichat_openai_token: Optional[str]
