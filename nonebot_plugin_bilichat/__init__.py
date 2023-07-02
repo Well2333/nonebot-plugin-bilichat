@@ -1,8 +1,9 @@
+import asyncio
 import contextlib
 import re
 import shlex
 from itertools import chain
-from typing import Tuple, Union, cast
+from typing import Union, cast
 
 from nonebot.adapters import MessageSegment
 from nonebot.adapters.mirai2 import Bot as Mirai_Bot
@@ -160,6 +161,9 @@ async def get_bili_number(state: T_State):
         raise FinishedException
 
 
+locks = {}
+
+
 @bilichat.handle()
 async def video_info(
     bot: BOT,
@@ -211,46 +215,55 @@ async def video_info(
     if not FUTUER_FUCTIONS:
         raise FinishedException
 
-    # get video cache
-    try:
-        cache = await get_content_cache(info, options)
-    except AbortError as e:
-        logger.exception(e)
-        if plugin_config.bilichat_show_error_msg:
-            await matcher.finish(reply + f"视频字幕获取失败: {str(e)}")
-        raise FinishedException
-    except Exception as e:
-        capture_exception()
-        logger.exception(e)
-        if plugin_config.bilichat_show_error_msg:
-            await matcher.finish(reply + f"未知错误: {e}")
-        raise FinishedException
+    # add lock
+    if info.aid not in locks:
+        locks[info.aid] = asyncio.Lock()
 
-    # wordcloud
-    wc_image = ""
-    if plugin_config.bilichat_word_cloud:
-        if image := await wordcloud(cache=cache, cid=str(info.cid)):
-            wc_image = await SegmentBuilder.image(image=image)
-            if SEND_IMAGE_SEPARATELY:
-                await matcher.send(wc_image)
-        else:
-            if plugin_config.bilichat_show_error_msg:
-                await matcher.finish(reply + "视频无有效字幕")
-            raise FinishedException
+    async with locks[info.aid]:
+        try:
+            # get video cache
+            try:
+                cache = await get_content_cache(info, options)
+            except AbortError as e:
+                logger.exception(e)
+                if plugin_config.bilichat_show_error_msg:
+                    await matcher.finish(reply + f"视频字幕获取失败: {str(e)}")
+                raise FinishedException
+            except Exception as e:
+                capture_exception()
+                logger.exception(e)
+                if plugin_config.bilichat_show_error_msg:
+                    await matcher.finish(reply + f"未知错误: {e}")
+                raise FinishedException
 
-    # summary
-    summary = ""
-    if ENABLE_SUMMARY:
-        if summary := await summarization(cache=cache, cid=str(info.cid)):
-            # if summary is image
-            if isinstance(summary, bytes):
-                summary = await SegmentBuilder.image(image=summary)
-            if SEND_IMAGE_SEPARATELY:
-                await matcher.finish(summary)
-        else:
-            if plugin_config.bilichat_show_error_msg:
-                await matcher.finish(reply + "视频无有效字幕")
-            raise FinishedException
+            # wordcloud
+            wc_image = ""
+            if plugin_config.bilichat_word_cloud:
+                if image := await wordcloud(cache=cache, cid=str(info.cid)):
+                    wc_image = await SegmentBuilder.image(image=image)
+                    if SEND_IMAGE_SEPARATELY:
+                        await matcher.send(wc_image)
+                else:
+                    if plugin_config.bilichat_show_error_msg:
+                        await matcher.finish(reply + "视频无有效字幕")
+                    raise FinishedException
 
-    if (not SEND_IMAGE_SEPARATELY) and (wc_image or summary):
-        await matcher.finish(reply + wc_image + summary)
+            # summary
+            summary = ""
+            if ENABLE_SUMMARY:
+                if summary := await summarization(cache=cache, cid=str(info.cid)):
+                    # if summary is image
+                    if isinstance(summary, bytes):
+                        summary = await SegmentBuilder.image(image=summary)
+                    if SEND_IMAGE_SEPARATELY:
+                        await matcher.finish(summary)
+                else:
+                    if plugin_config.bilichat_show_error_msg:
+                        await matcher.finish(reply + "视频无有效字幕")
+                    raise FinishedException
+
+            if (not SEND_IMAGE_SEPARATELY) and (wc_image or summary):
+                await matcher.finish(reply + wc_image + summary)
+        finally:
+            if info.aid in locks:
+                del locks[info.aid]
