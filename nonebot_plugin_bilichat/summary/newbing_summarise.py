@@ -31,24 +31,20 @@ bot = None
 
 def init_chatbot(total_count: int = 5):
     global bot
+    cookies = (
+        {}
+        if plugin_config.bilichat_newbing_cookie == "no_login"
+        else json.loads(Path(plugin_config.bilichat_newbing_cookie).read_text("utf-8"))  # type: ignore
+    )
+
     for count in range(total_count):
         try:
-            cookies = (
-                {}
-                if plugin_config.bilichat_newbing_cookie == "no_login"
-                else json.loads(Path(plugin_config.bilichat_newbing_cookie).read_text("utf-8"))  # type: ignore
-            )
             bot = Chatbot(cookies=cookies, proxy=plugin_config.bilichat_openai_proxy)  # type: ignore
             logger.success("Bing chatbot init success")
             return
         except Exception as e:
             logger.error(f"Bing chatbot init failed, retrying {count+1}/5: {e}")
     raise RuntimeError("Bing chatbot init failed")
-
-
-logger.info("Try init bing chatbot")
-init_chatbot()
-assert bot, "Bing chatbot init failed"
 
 
 def get_small_size_transcripts(title: str, text_data: List[str], type_: Literal["视频字幕", "专栏文章"] = "视频字幕"):

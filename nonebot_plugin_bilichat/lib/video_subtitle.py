@@ -9,7 +9,6 @@ from ..model.bcut_asr import ResultStateEnum
 from ..model.exception import AbortError
 from .bcut_asr import BcutASR
 from .bilibili_request import get_player, grpc_get_playview, hc
-from ..optional import capture_exception  # type: ignore
 
 
 async def get_subtitle_url(aid: int, cid: int) -> Optional[str]:
@@ -80,8 +79,7 @@ async def get_subtitle(aid: int, cid: int) -> List[str]:
                 await asyncio.sleep(5)
             except Exception as e:
                 logger.exception(f"BCut-ASR conversion failed: {e}")
-                capture_exception()
-                raise AbortError("BCut-ASR conversion failed") from e
+                raise AbortError(f"BCut-ASR conversion failed: {e}") from e
         raise AbortError("BCut-ASR conversion failed due to network error")
     else:
         raise AbortError("Subtitles not found and BCut-ASR is disabled in env")

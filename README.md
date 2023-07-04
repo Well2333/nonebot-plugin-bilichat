@@ -202,7 +202,7 @@ _✨ 多功能的 B 站视频解析工具 ✨_
 
 |            配置项            | 类型 |       默认值       |                                                        说明                                                        |
 | :--------------------------: | :--: | :----------------: | :----------------------------------------------------------------------------------------------------------------: |
-|   bilichat_newbing_cookie    | str  |        None        |           newbing 的 cookie 文件路径, 填写 `no_login` 则不进行登录（有限制）, 若留空则禁用 newbing 总结            |
+|   bilichat_newbing_cookie    | str  |        None        |       newbing 的 cookie 文件路径, 填写 `no_login` 则不登录,`api` 则自动创建空文件, 若留空则禁用 newbing 总结       |
 | bilichat_newbing_cookie_api  | str  |        None        | 在运行时更新 newbing cookie，使用方法参考[这里](./docs/Update%20newBing%20cookie%20via%20tampermonkey%20script.md) |
 | bilichat_newbing_token_limit | int  |         0          |                                        newbing 请求的文本量上限, 0 为无上限                                        |
 | bilichat_newbing_preprocess  | bool |        True        |                             是否对 newbing 的返回值进行预处理, 以去除其中不想要的内容                              |
