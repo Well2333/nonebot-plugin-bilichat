@@ -7,6 +7,7 @@ from typing import List, Literal, Optional, Union
 from nonebot import get_driver, require
 from nonebot.log import logger
 from pydantic import BaseModel, Field, validator
+from .lib.store import cache_dir
 
 # get package version
 if sys.version_info < (3, 10):
@@ -84,7 +85,7 @@ class Config(BaseModel):
                 "Package(s) of fuction styles not installed, use **pip install nonebot-plugin-bilichat[extra]** to install required dependencies"
             ) from e
 
-    @validator("bilichat_basic_info_style", always=True,pre=True)
+    @validator("bilichat_basic_info_style", always=True, pre=True)
     def check_use_browser(cls, v, values):
         if v == "bbot_default":
             return v
@@ -158,6 +159,12 @@ class Config(BaseModel):
 
         elif v == "no_login":
             logger.info("Using newbing summary without a cookie")
+
+        elif v == "api":
+            cookie_file = cache_dir.joinpath("cookies.json").absolute()
+            cookie_file.touch(0o755)
+            logger.info(f"create newbing cookies file at {cookie_file.as_posix()}")
+            return cookie_file.as_posix()
 
         else:
             raise ValueError(f"Path {v} is not recognized")

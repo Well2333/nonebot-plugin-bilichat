@@ -1,30 +1,19 @@
 from typing import Union
 
 import httpx
+from bilireq.auth import Auth
 from bilireq.grpc.dynamic import grpc_get_followed_dynamics
-from bilireq.grpc.protos.bilibili.app.dynamic.v2.dynamic_pb2 import (
-    DynamicType,
-    DynDetailsReply,
-    DynDetailsReq,
-)
+from bilireq.grpc.protos.bilibili.app.dynamic.v2.dynamic_pb2 import DynamicType, DynDetailsReply, DynDetailsReq
 from bilireq.grpc.protos.bilibili.app.dynamic.v2.dynamic_pb2_grpc import DynamicStub
-from bilireq.grpc.protos.bilibili.app.playurl.v1.playurl_pb2 import (
-    PlayViewReply,
-    PlayViewReq,
-)
+from bilireq.grpc.protos.bilibili.app.playurl.v1.playurl_pb2 import PlayViewReply, PlayViewReq
 from bilireq.grpc.protos.bilibili.app.playurl.v1.playurl_pb2_grpc import PlayURLStub
 from bilireq.grpc.protos.bilibili.app.view.v1.view_pb2 import ViewReply, ViewReq
 from bilireq.grpc.protos.bilibili.app.view.v1.view_pb2_grpc import ViewStub
-from bilireq.grpc.protos.bilibili.community.service.dm.v1.dm_pb2 import (
-    DmViewReply,
-    DmViewReq,
-)
+from bilireq.grpc.protos.bilibili.community.service.dm.v1.dm_pb2 import DmViewReply, DmViewReq
 from bilireq.grpc.protos.bilibili.community.service.dm.v1.dm_pb2_grpc import DMStub
 from bilireq.grpc.utils import grpc_request
 from bilireq.utils import get, post
 from loguru import logger
-
-from bilireq.auth import Auth
 
 hc = httpx.AsyncClient(
     headers={

@@ -9,14 +9,13 @@ from nonebot.log import logger
 from ..config import plugin_config
 from ..model.arguments import Options
 from ..model.cache import Cache, Episode
-from ..model.content import Video, Column
+from ..model.content import Column, Video
 from ..model.exception import AbortError
 from ..optional import capture_exception  # type: ignore
 from .bilibili_request import get_b23_url, grpc_get_view_info
+from .column_resolve import get_cv
 from .draw_bili_image import BiliVideoImage
 from .video_subtitle import get_subtitle
-from .column_resolve import get_cv
-
 
 cd: Dict[str, int] = {}
 cd_size_limit = plugin_config.bilichat_cd_time // 2
@@ -84,7 +83,11 @@ async def get_video_basic(bili_number: str, uid: Union[str, int]):
     try:
         b23_url = await get_b23_url(f"https://www.bilibili.com/video/{bvid}")
         data = (
-            (await (await BiliVideoImage.from_view_rely(video_info, b23_url)).render(plugin_config.bilichat_basic_info_style))
+            (
+                await (await BiliVideoImage.from_view_rely(video_info, b23_url)).render(
+                    plugin_config.bilichat_basic_info_style
+                )
+            )
             if plugin_config.bilichat_basic_info
             else "IMG_RENDER_DISABLED"
         )
