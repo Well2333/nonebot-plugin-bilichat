@@ -53,6 +53,7 @@ class Config(BaseModel):
     bilichat_newbing_cookie_api: Optional[str]
     bilichat_newbing_token_limit: int = 0
     bilichat_newbing_preprocess: bool = True
+    bilichat_newbing_wss_link: str = "wss://sydney.bing.com/sydney/ChatHub"
     bilichat_openai_token: Optional[str]
     bilichat_openai_proxy: Optional[str]
     bilichat_openai_model: Literal[

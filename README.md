@@ -206,6 +206,7 @@ _✨ 多功能的 B 站视频解析工具 ✨_
 | bilichat_newbing_cookie_api  | str  |        None        | 在运行时更新 newbing cookie，使用方法参考[这里](./docs/Update%20newBing%20cookie%20via%20tampermonkey%20script.md) |
 | bilichat_newbing_token_limit | int  |         0          |                                        newbing 请求的文本量上限, 0 为无上限                                        |
 | bilichat_newbing_preprocess  | bool |        True        |                             是否对 newbing 的返回值进行预处理, 以去除其中不想要的内容                              |
+|  bilichat_newbing_wss_link   | str  |  see description   |                             默认为 `wss://sydney.bing.com/sydney/ChatHub`，可自行替换                              |
 |    bilichat_openai_token     | str  |        None        |                                     openai 的 apikey, 若留空则禁用 openai 总结                                     |
 |    bilichat_openai_proxy     | str  |        None        |                                       访问 openai 或 newbing 使用的代理地址                                        |
 |    bilichat_openai_model     | str  | gpt-3.5-turbo-0301 |                                                 使用的语言模型名称                                                 |
