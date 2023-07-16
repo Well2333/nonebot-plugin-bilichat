@@ -15,7 +15,7 @@ from ..model.cache import Cache
 from ..model.exception import AbortError, BingCaptchaException, BingChatResponseException
 from ..model.newbing import BingChatResponse
 from ..optional import capture_exception  # type: ignore
-from .newbing import Chatbot, ConversationStyle
+from .EdgeGPT.EdgeGPT import Chatbot, ConversationStyle
 from .text_to_image import t2i
 
 if (
@@ -92,7 +92,8 @@ async def newbing_req(prompt: str, _is_retry: bool = False):
         raw = await bot.ask(
             prompt=prompt,
             conversation_style=ConversationStyle.creative,
-            wss_link="wss://sydney.bing.com/sydney/ChatHub",
+            wss_link=plugin_config.bilichat_newbing_wss_link,
+            locale="en-us",
         )
         await bot.reset()
         res = BingChatResponse(raw=raw)
@@ -114,7 +115,8 @@ async def newbing_req(prompt: str, _is_retry: bool = False):
             executor = concurrent.futures.ThreadPoolExecutor()
             await loop.run_in_executor(executor, init_chatbot)
             assert bot, "Bing chatbot init failed"
-        except Exception:
+        except Exception as e:
+            logger.exception(e)
             return "newbing chatbot 失效，请检查 cookie 文件是否过期"
         return await newbing_req(prompt, _is_retry=True)
 

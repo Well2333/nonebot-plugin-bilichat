@@ -23,7 +23,7 @@ async def summarization(cache: Cache, cid: str = "0"):
     # this will not cause new summarization
     if cache.episodes[cid].openai and plugin_config.bilichat_openai_token:
         return await openai_summarization(cache, cid)
-    
+
     # try newbing
     if plugin_config.bilichat_newbing_cookie:
         summary, newbing_meaning = await newbing_summarization(cache, cid)

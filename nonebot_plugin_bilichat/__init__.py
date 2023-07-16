@@ -255,6 +255,8 @@ async def video_info(
                     # if summary is image
                     if isinstance(summary, bytes):
                         summary = await SegmentBuilder.image(image=summary)
+                    elif not plugin_config.bilichat_show_error_msg:
+                        summary = ""
                     if SEND_IMAGE_SEPARATELY:
                         await matcher.finish(summary)
                 else:
