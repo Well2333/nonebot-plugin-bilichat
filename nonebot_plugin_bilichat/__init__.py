@@ -33,7 +33,7 @@ from .config import __version__, plugin_config
 from .lib.b23_extract import b23_extract
 from .lib.content_resolve import get_column_basic, get_content_cache, get_video_basic
 from .model.arguments import Options, parser
-from .model.exception import AbortError
+from .model.exception import AbortError, SkipProssesException
 from .optional import capture_exception  # type: ignore
 
 require("nonebot_plugin_segbuilder")
@@ -179,40 +179,43 @@ async def video_info(
     reply = "" if DISABLE_REPLY else await SegmentBuilder.reply()
     # basic info
     bili_number, uid = state["bili_number"], state["_uid_"]
-    if bili_number[:2] in ["BV", "bv", "av"]:
-        msg, img, info = await get_video_basic(bili_number, uid)
-        # 检查视频是否包含有效信息
-        if not (msg and info):
-            if msg:
-                await matcher.finish(reply + msg)
-            raise FinishedException
-        # 如果不含图片
-        if not img:
-            await matcher.finish(reply + msg)
-        # 如果包含图片
-        elif img != "IMG_RENDER_DISABLED":
-            image = await SegmentBuilder.image(image=img)
-            msg = "" if DISABLE_LINK else msg
-            if SEND_IMAGE_SEPARATELY:
-                if reply and msg:
-                    await matcher.send(reply + msg)
-                re_msg = await matcher.send(image)
-            else:
-                re_msg = await matcher.send(reply + image + msg)
-            if plugin_config.bilichat_reply_to_basic_info and not DISABLE_REPLY:
-                with contextlib.suppress(Exception):
-                    reply = await SegmentBuilder.reply(message_id=re_msg["message_id"])
-    elif bili_number[:2] == "cv" and FUTUER_FUCTIONS:
-        info = await get_column_basic(bili_number, uid)
-        if not info:
-            raise FinishedException
-        elif isinstance(info, str):
-            await matcher.finish(reply + info)
-    else:
-        raise FinishedException
 
-    # furtuer fuctions
-    if not FUTUER_FUCTIONS:
+    try:
+        ## video handle
+        if str(bili_number[:2]).lower() in {"bv", "av"}:
+            msg, img, info = await get_video_basic(bili_number, uid)
+            # 如果包含图片
+            if isinstance(img, bytes):
+                image = await SegmentBuilder.image(image=img)
+                msg = "" if DISABLE_LINK else msg
+                # 发送基本信息
+                if SEND_IMAGE_SEPARATELY:
+                    if reply and msg:
+                        await matcher.send(reply + msg)
+                    re_msg = await matcher.send(image)
+                else:
+                    re_msg = await matcher.send(reply + image + msg)
+                # 是否切换回复对象
+                if plugin_config.bilichat_reply_to_basic_info and not DISABLE_REPLY:
+                    with contextlib.suppress(Exception):
+                        reply = await SegmentBuilder.reply(message_id=re_msg["message_id"])
+        ## column handle
+        elif bili_number[:2] == "cv" and FUTUER_FUCTIONS:
+            info = await get_column_basic(bili_number, uid)
+            if not info:
+                raise FinishedException
+        else:
+            raise FinishedException
+
+        # furtuer fuctions
+        if not FUTUER_FUCTIONS:
+            raise FinishedException
+    except (SkipProssesException, FinishedException):
+        raise FinishedException
+    except AbortError as e:
+        capture_exception()
+        if plugin_config.bilichat_show_error_msg:
+            await matcher.finish(reply + str(e))
         raise FinishedException
 
     # add lock

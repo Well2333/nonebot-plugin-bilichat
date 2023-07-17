@@ -4,18 +4,20 @@ from typing import Dict, Union
 from bilireq.exceptions import GrpcError
 from grpc.aio import AioRpcError
 from httpx._exceptions import TimeoutException
+from lxml import etree
+from lxml.etree import _Element, _ElementUnicodeResult
 from nonebot.log import logger
 
 from ..config import plugin_config
 from ..model.arguments import Options
 from ..model.cache import Cache, Episode
 from ..model.content import Column, Video
-from ..model.exception import AbortError
-from ..optional import capture_exception  # type: ignore
-from .bilibili_request import get_b23_url, grpc_get_view_info
-from .column_resolve import get_cv
+from ..model.exception import AbortError, SkipProssesException
+from .bilibili_request import get_b23_url, grpc_get_view_info, hc
 from .draw_bili_image import BiliVideoImage
 from .video_subtitle import get_subtitle
+
+XPATH = "//p//text() | //h1/text() | //h2/text() | //h3/text() | //h4/text() | //h5/text() | //h6/text()"
 
 cd: Dict[str, int] = {}
 cd_size_limit = plugin_config.bilichat_cd_time // 2
@@ -29,9 +31,9 @@ def check_cd(uid):
         cd = {k: cd[k] for k in cd if cd[k] < now}
     # check cd
     if cd.get(uid, 0) > now:
-        return False
+        logger.warning(f"Duplicate video(column) {uid}. Skip the video parsing process")
+        raise SkipProssesException(f"Duplicate video(column) {uid}. Skip the video parsing process")
     cd[uid] = now + plugin_config.bilichat_cd_time
-    return True
 
 
 def bv2av(bv):
@@ -52,20 +54,18 @@ async def video_info_get(vid_id: str):
 
 
 async def get_video_basic(bili_number: str, uid: Union[str, int]):
+    # sourcery skip: raise-from-previous-error
     # get video info
     logger.info(f"Parsing video {bili_number}")
     try:
         video_info = await video_info_get(bili_number)
-        if not video_info:  # if av is None
-            return (None, None, None)
-        elif video_info.ecode == 1:
+        if not video_info or video_info.ecode == 1:
             logger.warning(f"Video {bili_number} not found, might deleted by Uploader")
-            return ("未找到此视频，可能已被 UP 主删除。", None, None)
+            raise AbortError("未找到此视频，可能不存在或已被删除。")
     except Exception as e:
-        if isinstance(e, (AioRpcError, GrpcError)):
-            capture_exception()
         logger.exception(f"Video message parsing failed, error message: {type(e)} {e}")
-        return (f"视频信息解析失败: {type(e)} {e}", None, None)
+        raise AbortError(f"视频信息解析失败: {type(e)} {e}") from e
+
     aid = video_info.activity_season.arc.aid or video_info.arc.aid
     cid = (
         video_info.activity_season.pages[0].page.cid
@@ -76,9 +76,7 @@ async def get_video_basic(bili_number: str, uid: Union[str, int]):
     title = video_info.activity_season.arc.title or video_info.arc.title
 
     # check video cd
-    if not check_cd(f"{aid}_{uid}"):
-        logger.warning(f"Duplicate video {aid}. Skip the video parsing process")
-        return (None, None, None)
+    check_cd(f"{aid}_{uid}")
     # generate video information
     try:
         b23_url = await get_b23_url(f"https://www.bilibili.com/video/{bvid}")
@@ -95,31 +93,35 @@ async def get_video_basic(bili_number: str, uid: Union[str, int]):
         return (b23_url, data, Video(aid, cid, title))
     except TimeoutException:
         logger.warning("Video parsing API call timeout")
-        return (f"{bili_number} 视频信息生成超时，请稍后再试。", None, None)
+        raise AbortError(f"{bili_number} 视频信息生成超时，请稍后再试。")
     except Exception as e:  # noqa
-        capture_exception()
         logger.exception(f"Video parsing API call error: {e}")
-        return (f"视频解析 API 调用出错：{e}", None, None)
+        raise AbortError("视频解析 API 调用出错") from e
 
 
 async def get_column_basic(bili_number: str, uid: Union[str, int]):
+    # sourcery skip: raise-from-previous-error
+    check_cd(f"{bili_number}_{uid}")
     try:
-        if not check_cd(f"{bili_number}_{uid}"):
-            logger.warning(f"Duplicate column {bili_number}. Skip the video parsing process")
-            return None
         cvid = bili_number[2:]
-        cv_title, cv_text = await get_cv(cvid)
+        cv = await hc.get(f"https://www.bilibili.com/read/cv{cvid}")
+        if cv.status_code != 200:
+            raise AbortError("未找到此专栏，可能已被 UP 主删除。")
+        cv.encoding = "utf-8"
+        cv = cv.text
+        http_parser: _Element = etree.fromstring(cv, etree.HTMLParser(encoding="utf-8"))
+        cv_title: str = http_parser.xpath('//h1[@class="title"]/text()')[0]
+        main_article: _Element = http_parser.xpath('//div[@id="read-article-holder"]')[0]
+        plist: _ElementUnicodeResult = main_article.xpath(XPATH)
+        cv_text = [text.strip() for text in plist if text.strip()]
+
         return Column(int(cvid), cv_title, cv_text)
-    except AbortError:
-        logger.warning("Column not found, might deleted by Uploader")
-        return "未找到此专栏，可能已被 UP 主删除。"
     except TimeoutException:
         logger.warning("Column parsing API call timeout")
-        return f"{bili_number} 专栏信息生成超时，请稍后再试。"
+        raise AbortError(f"{bili_number} 专栏信息生成超时，请稍后再试。")
     except Exception as e:  # noqa
-        capture_exception()
         logger.exception(f"Column parsing API call error: {e}")
-        return f"专栏解析 API 调用出错：{e}"
+        raise AbortError(f"专栏解析 API 调用出错：{e}") from e
 
 
 async def get_content_cache(info: Union[Video, Column], options: Options):
