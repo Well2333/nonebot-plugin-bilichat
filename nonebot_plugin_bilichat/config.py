@@ -68,6 +68,7 @@ class Config(BaseModel):
         "gpt-4-32k-0314",
     ] = "gpt-3.5-turbo-0301"
     bilichat_openai_token_limit: int = 3500
+    bilichat_openai_api_base: str = "https://api.openai.com"
 
     @validator("bilichat_use_browser", always=True, pre=True)
     def check_htmlrender(cls, v):
