@@ -91,6 +91,7 @@ async def openai_req(
     token: Optional[str] = plugin_config.bilichat_openai_token,
     model: str = plugin_config.bilichat_openai_model,
     temperature: Optional[float] = None,
+    api_base: str = plugin_config.bilichat_openai_api_base,
 ):
     if not token:
         return OpenAI(error=True, message="未配置 OpenAI API Token")
@@ -109,7 +110,7 @@ async def openai_req(
         }
         if temperature:
             data["temperature"] = temperature
-        req = await client.post("https://api.openai.com/v1/chat/completions", json=data)
+        req = await client.post(f"{api_base}/v1/chat/completions", json=data)
         if req.status_code != 200:
             return OpenAI(error=True, message=req.text, raw=req.json())
         logger.info(f"[OpenAI] Response:\n{req.json()['choices'][0]['message']['content']}")
