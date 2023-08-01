@@ -3,7 +3,7 @@
 [project]
 name = "nonebot-plugin-bilichat"
 
-version = "2.11.5"
+version = "2.11.6"
 
 description = "一个通过 OpenAI 来对b站视频进行总结插件"
 authors = [
@@ -11,7 +11,7 @@ authors = [
     {name = "Well404", email = "well_404@outlook.com"},
 ]
 dependencies = [
-    "bilireq>=0.2.4",
+    "bilireq>=0.2.8",
     "qrcode>=7.4.2",
     "pillow>=9.5.0",
     "lxml>=4.9.2",
