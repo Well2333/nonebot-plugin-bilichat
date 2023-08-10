@@ -2,8 +2,9 @@ class AbortError(Exception):
     def __init__(self, message):
         self.message = message
 
-class SkipProssesException(Exception):
-    pass
+
+# ===== BING EXCEPTION =====
+
 
 class BaseBingChatException(Exception):
     pass

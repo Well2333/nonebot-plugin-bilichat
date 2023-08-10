@@ -363,7 +363,7 @@ class BiliVideoImage:
         import jinja2
         from nonebot_plugin_htmlrender.browser import get_new_page
 
-        from ..lib.browser import pw_font_injecter
+        from .browser import pw_font_injecter
 
         style_bule = Path(__file__).parent.parent.joinpath("static", "style_blue")
         video_time = (

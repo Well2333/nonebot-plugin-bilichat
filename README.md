@@ -137,22 +137,22 @@ _✨ 多功能的 B 站视频解析工具 ✨_
 
 ### 通用配置项
 
-|           配置项           |   类型    | 默认值 |                                说明                                |
-| :------------------------: | :-------: | :----: | :----------------------------------------------------------------: |
-|       bilichat_block       |   bool    | False  |                 是否拦截事件(防止其他插件二次解析)                 |
-|  bilichat_enable_private   |   bool    |  True  |                          是否允许响应私聊                          |
-|    bilichat_enable_self    |   bool    | False  |                       是否允许响应自身的消息                       |
-|     bilichat_only_self     |   bool    | False  | 是否仅响应自身的消息，开启后会**覆盖全部其他规则**（人机合一特供） |
-|  bilichat_enable_channel   |   bool    |  True  |                       是否允许响应频道的消息                       |
-| bilichat_enable_unkown_src |   bool    | False  |                     是否允许响应未知来源的消息                     |
-|     bilichat_whitelist     | list[str] |   []   |               **响应**的群聊(频道)名单, 会覆盖黑名单               |
-|     bilichat_blacklist     | list[str] |   []   |                     **不响应**的群聊(频道)名单                     |
-|   bilichat_dynamic_font    |    str    |  None  |                    视频信息及词云图片使用的字体                    |
-|      bilichat_cd_time      |    int    |  120   |                 对同一视频的响应冷却时间(防止刷屏)                 |
-|  bilichat_neterror_retry   |    int    |   3    |                    对部分网络请求错误的尝试次数                    |
-|   bilichat_use_bcut_asr    |   bool    |  True  |              是否在**没有字幕时**调用必剪接口生成字幕              |
-|  bilichat_show_error_msg   |   bool    |  True  |                    是否在解析失败时发送错误信息                    |
-|    bilichat_use_browser    |   bool    |  Auto  |      是否使用浏览器，`Auto` 会根据是否含有相应的依赖进行选择       |
+|           配置项           |   类型    | 默认值 |                               说明                               |
+| :------------------------: | :-------: | :----: | :--------------------------------------------------------------: |
+|       bilichat_block       |   bool    | False  |                是否拦截事件(防止其他插件二次解析)                |
+|  bilichat_enable_private   |   bool    |  True  |                         是否允许响应私聊                         |
+|    bilichat_enable_self    |   bool    | False  |                      是否允许响应自身的消息                      |
+|     bilichat_only_self     |   bool    | False  | 是否仅响应自身的消息，开启后会**覆盖全部其他规则**(人机合一特供) |
+|  bilichat_enable_channel   |   bool    |  True  |                      是否允许响应频道的消息                      |
+| bilichat_enable_unkown_src |   bool    | False  |                    是否允许响应未知来源的消息                    |
+|     bilichat_whitelist     | list[str] |   []   |              **响应**的群聊(频道)名单, 会覆盖黑名单              |
+|     bilichat_blacklist     | list[str] |   []   |                    **不响应**的群聊(频道)名单                    |
+|   bilichat_dynamic_font    |    str    |  None  |                   视频信息及词云图片使用的字体                   |
+|      bilichat_cd_time      |    int    |  120   |                对同一视频的响应冷却时间(防止刷屏)                |
+|  bilichat_neterror_retry   |    int    |   3    |                   对部分网络请求错误的尝试次数                   |
+|   bilichat_use_bcut_asr    |   bool    |  True  |             是否在**没有字幕时**调用必剪接口生成字幕             |
+|  bilichat_show_error_msg   |   bool    |  True  |                   是否在解析失败时发送错误信息                   |
+|    bilichat_use_browser    |   bool    |  Auto  |     是否使用浏览器，`Auto` 会根据是否含有相应的依赖进行选择      |
 
 注:
 
@@ -204,14 +204,14 @@ _✨ 多功能的 B 站视频解析工具 ✨_
 | :--------------------------: | :--: | :----------------: | :----------------------------------------------------------------------------------------------------------------: |
 |   bilichat_newbing_cookie    | str  |        None        |       newbing 的 cookie 文件路径, 填写 `no_login` 则不登录,`api` 则自动创建空文件, 若留空则禁用 newbing 总结       |
 | bilichat_newbing_cookie_api  | str  |        None        | 在运行时更新 newbing cookie，使用方法参考[这里](./docs/Update%20newBing%20cookie%20via%20tampermonkey%20script.md) |
-| bilichat_newbing_token_limit | int  |         0          |                                      newbing 请求的文本量上限, 0 为无上限                                       |
-| bilichat_newbing_preprocess  | bool |        True        |                                 是否对 newbing 的返回值进行预处理, 以去除其中不想要的内容                                  |
-|  bilichat_newbing_wss_link   | str  |  see description   |                          默认为 `wss://sydney.bing.com/sydney/ChatHub`，可自行替换                           |
-|    bilichat_openai_token     | str  |        None        |                                  openai 的 apikey, 若留空则禁用 openai 总结                                  |
-|    bilichat_openai_proxy     | str  |        None        |                                     访问 openai 或 newbing 使用的代理地址                                     |
-|    bilichat_openai_model     | str  | gpt-3.5-turbo-0301 |                                              使用的语言模型名称                                              |
+| bilichat_newbing_token_limit | int  |         0          |                                        newbing 请求的文本量上限, 0 为无上限                                        |
+| bilichat_newbing_preprocess  | bool |        True        |                             是否对 newbing 的返回值进行预处理, 以去除其中不想要的内容                              |
+|  bilichat_newbing_wss_link   | str  |  see description   |                             默认为 `wss://sydney.bing.com/sydney/ChatHub`，可自行替换                              |
+|    bilichat_openai_token     | str  |        None        |                                     openai 的 apikey, 若留空则禁用 openai 总结                                     |
+|    bilichat_openai_proxy     | str  |        None        |                                       访问 openai 或 newbing 使用的代理地址                                        |
+|    bilichat_openai_model     | str  | gpt-3.5-turbo-0301 |                                                 使用的语言模型名称                                                 |
 | bilichat_openai_token_limit  | int  |        3500        |                   请求的文本量上限, 计算方式可参考[tiktoken](https://github.com/openai/tiktoken)                   |
-|   bilichat_openai_api_base   | str  |  see description   |                                 默认为 `https://api.openai.com`，可自行替换                                  |
+|   bilichat_openai_api_base   | str  |  see description   |                                    默认为 `https://api.openai.com`，可自行替换                                     |
 
 注:
 
