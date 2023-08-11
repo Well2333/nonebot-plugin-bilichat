@@ -7,6 +7,7 @@ from typing import List, Literal, Optional, Union
 from nonebot import get_driver, require
 from nonebot.log import logger
 from pydantic import BaseModel, Field, validator
+
 from .lib.store import cache_dir
 
 # get package version
@@ -89,7 +90,7 @@ class Config(BaseModel):
         if v == "bbot_default":
             return v
         # 不包含浏览器
-        if values["bilichat_use_browser"] != True:
+        if values["bilichat_use_browser"] is not True:
             if v == "default":
                 return "bbot_default"
             raise RuntimeError(

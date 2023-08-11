@@ -1,29 +1,27 @@
 import re
 import shlex
 from itertools import chain
-from typing import cast, Union
+from typing import Union, cast
 
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GroupMessageEvent,
+    Message,
     MessageEvent,
     MessageSegment,
     PrivateMessageEvent,
-    Message,
 )
-from nonebot.matcher import Matcher
 from nonebot.params import Depends
 from nonebot.plugin import on_message
 from nonebot.rule import Rule
 from nonebot.typing import T_State
 
 from ..config import plugin_config
+from ..content import Column, Video
 from ..lib.b23_extract import b23_extract
 from ..model.arguments import Options, parser
 from ..model.exception import AbortError
-from . import get_content_info_from_state
-from . import get_futuer_fuctions
-from ..content import Video, Column
+from . import get_content_info_from_state, get_futuer_fuctions
 
 
 async def _bili_check(event: MessageEvent, state: T_State):
@@ -98,16 +96,16 @@ async def video_info(
     event: MessageEvent,
     content: Union[Column, Video] = Depends(get_content_info_from_state),
 ):
-    video_image = await content.get_image(plugin_config.bilichat_basic_info_style)
+    messag_id = event.message_id
+    if plugin_config.bilichat_basic_info:
+        video_image = await content.get_image(plugin_config.bilichat_basic_info_style)
 
-    msgs = Message(MessageSegment.reply(event.message_id))
-    if video_image:
-        msgs.append(MessageSegment.image(video_image))
-    msgs.append(content.url)
-    messag_id = await bilichat.send(msgs)
-
-    if not plugin_config.bilichat_reply_to_basic_info:
-        messag_id = event.message_id
+        msgs = Message(MessageSegment.reply(event.message_id))
+        if video_image:
+            msgs.append(MessageSegment.image(video_image))
+        msgs.append(content.url)
+        id_ = await bilichat.send(msgs)
+        messag_id = id_ if plugin_config.bilichat_reply_to_basic_info else messag_id
 
     try:
         msgs = Message(MessageSegment.reply(messag_id))

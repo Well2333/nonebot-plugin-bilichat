@@ -10,6 +10,7 @@ import nonebot_plugin_localstore as store  # noqa: E402
 
 cache_dir = store.get_cache_dir("nonebot_plugin_bilichat")
 data_dir = store.get_data_dir("nonebot_plugin_bilichat")
+static_dir = Path(__file__).parent.parent.joinpath("static")
 
 logger.info(f"Cache folder for nonebot_plugin_bilichat is located at {cache_dir.absolute()}")
 logger.info(f"Data folder for nonebot_plugin_bilichat is located at {data_dir.absolute()}")

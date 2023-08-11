@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from ..lib.bilibili_request import get_b23_url, grpc_get_view_info
 from ..lib.cache import BaseCache, Cache
-from ..lib.draw_video_image import BiliVideoImage
+from ..lib.draw import VideoImage
 from ..lib.video_subtitle import get_subtitle
 from ..model.arguments import Options
 from ..model.exception import AbortError
@@ -75,4 +75,4 @@ class Video(BaseModel):
         return self.cache.content
 
     async def get_image(self, style: str):
-        return await (await BiliVideoImage.from_view_rely(self.raw, self.url)).render(style)
+        return await (await VideoImage.from_view_rely(self.raw, self.url)).render(style)
