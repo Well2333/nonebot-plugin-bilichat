@@ -55,6 +55,9 @@ async def _permission_check(bot: Bot, event: MessageEvent, state: T_State):
             return False
     elif plugin_config.bilichat_only_self:
         return False
+    # 是否 to me
+    if plugin_config.bilichat_only_to_me and not event.is_tome():
+        return False
     # 其他消息
     if isinstance(event, MessageEvent):
         state["_uid_"] = f"{event.guild_id}_{event.channel_id}"

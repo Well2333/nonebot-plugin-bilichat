@@ -166,6 +166,7 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 |     bilichat_block      |   bool    | False  |                是否拦截事件(防止其他插件二次解析)                |
 |  bilichat_enable_self   |   bool    | False  |                      是否允许响应自身的消息                      |
 |   bilichat_only_self    |   bool    | False  | 是否仅响应自身的消息，开启后会**覆盖全部其他规则**(人机合一特供) |
+|   bilichat_only_to_me   |   bool    | False  |      非自身消息是否需要 `@机器人` 或使用机器人的昵称才响应       |
 |   bilichat_whitelist    | list[str] |   []   |                 **响应**的会话名单, 会覆盖黑名单                 |
 |   bilichat_blacklist    | list[str] |   []   |                       **不响应**的会话名单                       |
 |  bilichat_dynamic_font  |    str    |  None  |                   视频信息及词云图片使用的字体                   |

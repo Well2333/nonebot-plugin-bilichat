@@ -27,6 +27,7 @@ class Config(BaseModel):
     bilichat_block: bool = False
     bilichat_enable_self: bool = False
     bilichat_only_self: bool = False
+    bilichat_only_to_me: bool = False
     bilichat_whitelist: List[str] = []
     bilichat_blacklist: List[str] = []
     bilichat_cd_time: int = 120
