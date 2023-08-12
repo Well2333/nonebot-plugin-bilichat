@@ -9,6 +9,7 @@ from nonebot.adapters.qqguild import (
     MessageEvent,
     MessageSegment,
 )
+from nonebot.log import logger
 from nonebot.params import Depends
 from nonebot.plugin import on_message
 from nonebot.rule import Rule
@@ -19,6 +20,7 @@ from ..content import Column, Video
 from ..lib.b23_extract import b23_extract
 from ..model.arguments import Options, parser
 from ..model.exception import AbortError
+from ..optional import capture_exception
 from . import get_content_info_from_state, get_futuer_fuctions
 
 
@@ -46,7 +48,7 @@ async def _bili_check(event: MessageEvent, state: T_State):
 async def _permission_check(bot: Bot, event: MessageEvent, state: T_State):
     # 自身消息
     if str(event.get_user_id()) == str(bot.self_id):
-        if plugin_config.bilichat_only_self:
+        if plugin_config.bilichat_only_self or plugin_config.bilichat_enable_self:
             state["_uid_"] = event.channel_id
             return True
         elif not plugin_config.bilichat_enable_self:
@@ -101,5 +103,10 @@ async def video_info(
         if msgs:
             await bilichat.finish(Message(msgs))
     except AbortError as e:
+        if plugin_config.bilichat_show_error_msg:
+            await bilichat.finish(str(e))
+    except Exception as e:
+        capture_exception()
+        logger.exception(e)
         if plugin_config.bilichat_show_error_msg:
             await bilichat.finish(str(e))

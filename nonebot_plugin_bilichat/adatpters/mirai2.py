@@ -2,10 +2,11 @@ import base64
 import re
 import shlex
 from itertools import chain
-from typing import Union, cast
+from typing import Any, Optional, Union, cast
 
 from nonebot.adapters.mirai2 import Bot, MessageChain, MessageSegment
-from nonebot.adapters.mirai2.event import FriendMessage, GroupMessage, MessageEvent
+from nonebot.adapters.mirai2.event import FriendMessage, FriendSyncMessage, GroupMessage, GroupSyncMessage, MessageEvent
+from nonebot.log import logger
 from nonebot.params import Depends
 from nonebot.plugin import on_message
 from nonebot.rule import Rule
@@ -16,6 +17,7 @@ from ..content import Column, Video
 from ..lib.b23_extract import b23_extract
 from ..model.arguments import Options, parser
 from ..model.exception import AbortError
+from ..optional import capture_exception
 from . import get_content_info_from_state, get_futuer_fuctions
 
 
@@ -49,7 +51,7 @@ async def _bili_check(bot: Bot, event: MessageEvent, state: T_State):
 async def _permission_check(bot: Bot, event: MessageEvent, state: T_State):
     # 自身消息
     if str(event.get_user_id()) == str(bot.self_id):
-        if plugin_config.bilichat_only_self:
+        if plugin_config.bilichat_only_self or plugin_config.bilichat_enable_self:
             state["_uid_"] = event.get_session_id()
             return True
         elif not plugin_config.bilichat_enable_self:
@@ -86,8 +88,25 @@ def set_options(state: T_State, event: MessageEvent):
     )[0]
 
 
+async def send_msg(
+    bot: Bot,
+    event: MessageEvent,
+    message: Union[str, MessageChain, MessageSegment],
+    quote: Optional[int] = None,
+) -> Any:
+    if not isinstance(message, MessageChain):
+        message = MessageChain(message)
+    if isinstance(event, (FriendMessage, FriendSyncMessage)):
+        return await bot.send_friend_message(target=event.sender.id, message_chain=message, quote=quote)
+    elif isinstance(event, GroupMessage):
+        return await bot.send_group_message(target=event.sender.group.id, message_chain=message, quote=quote)
+    elif isinstance(event, GroupSyncMessage):
+        return await bot.send_group_message(target=event.sender.id, message_chain=message, quote=quote)
+
+
 @bilichat.handle()
 async def video_info(
+    bot: Bot,
     event: MessageEvent,
     content: Union[Column, Video] = Depends(get_content_info_from_state),
 ):
@@ -99,7 +118,7 @@ async def video_info(
             msgs.append(content.url)
         else:
             msgs = MessageChain(content.url)
-        id_ = await bilichat.send(msgs, quote=messag_id)
+        id_ = await send_msg(bot, event, msgs, quote=messag_id)
         messag_id = id_["messageId"] if plugin_config.bilichat_reply_to_basic_info else messag_id
 
     try:
@@ -111,7 +130,12 @@ async def video_info(
                 elif isinstance(msg, bytes):
                     msgs.append(MessageSegment.image(base64=base64.b64encode(msg).decode("utf-8")))
         if msgs:
-            await bilichat.finish(MessageChain(msgs), quote=messag_id)
+            await send_msg(bot, event, MessageChain(msgs), quote=messag_id)
     except AbortError as e:
         if plugin_config.bilichat_show_error_msg:
-            await bilichat.finish(str(e), quote=messag_id)
+            await send_msg(bot, event, str(e), quote=messag_id)
+    except Exception as e:
+        capture_exception()
+        logger.exception(e)
+        if plugin_config.bilichat_show_error_msg:
+            await send_msg(bot, event, str(e), quote=messag_id)
