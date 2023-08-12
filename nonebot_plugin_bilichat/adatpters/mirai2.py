@@ -1,16 +1,11 @@
+import base64
 import re
 import shlex
 from itertools import chain
 from typing import Union, cast
 
-from nonebot.adapters.onebot.v11 import (
-    Bot,
-    GroupMessageEvent,
-    Message,
-    MessageEvent,
-    MessageSegment,
-    PrivateMessageEvent,
-)
+from nonebot.adapters.mirai2 import Bot, MessageChain, MessageSegment
+from nonebot.adapters.mirai2.event import FriendMessage, GroupMessage, MessageEvent
 from nonebot.params import Depends
 from nonebot.plugin import on_message
 from nonebot.rule import Rule
@@ -26,9 +21,9 @@ from . import get_content_info_from_state, get_futuer_fuctions
 
 async def _bili_check(bot: Bot, event: MessageEvent, state: T_State):
     # 检查并提取 raw_bililink
-    if plugin_config.bilichat_enable_self and str(event.get_user_id()) == str(bot.self_id) and event.reply:
+    if plugin_config.bilichat_enable_self and str(event.get_user_id()) == str(bot.self_id) and event.quote:
         # 是自身消息的情况下，检查是否是回复，是的话则取被回复的消息
-        _msgs = event.reply.message
+        _msgs = event.quote.origin
     else:
         # 其余情况取该条消息
         _msgs = event.get_message()
@@ -50,6 +45,7 @@ async def _bili_check(bot: Bot, event: MessageEvent, state: T_State):
                 return True
     return False
 
+
 async def _permission_check(bot: Bot, event: MessageEvent, state: T_State):
     # 自身消息
     if str(event.get_user_id()) == str(bot.self_id):
@@ -61,13 +57,13 @@ async def _permission_check(bot: Bot, event: MessageEvent, state: T_State):
     elif plugin_config.bilichat_only_self:
         return False
     # 私聊消息
-    if isinstance(event, PrivateMessageEvent):
+    if isinstance(event, FriendMessage):
         state["_uid_"] = event.get_user_id()
         return plugin_config.verify_permission(event.get_user_id())
     # 群聊消息
-    elif isinstance(event, GroupMessageEvent):
-        state["_uid_"] = event.group_id
-        return plugin_config.verify_permission(event.group_id)
+    elif isinstance(event, GroupMessage):
+        state["_uid_"] = event.sender.group.id
+        return plugin_config.verify_permission(event.sender.group.id)
     return False
 
 
@@ -95,27 +91,27 @@ async def video_info(
     event: MessageEvent,
     content: Union[Column, Video] = Depends(get_content_info_from_state),
 ):
-    messag_id = event.message_id
+    messag_id = event.source.id if event.source else None
     if plugin_config.bilichat_basic_info:
         video_image = await content.get_image(plugin_config.bilichat_basic_info_style)
-
-        msgs = Message(MessageSegment.reply(event.message_id))
         if video_image:
-            msgs.append(MessageSegment.image(video_image))
-        msgs.append(content.url)
-        id_ = await bilichat.send(msgs)
-        messag_id = id_ if plugin_config.bilichat_reply_to_basic_info else messag_id
+            msgs = MessageChain(MessageSegment.image(base64=base64.b64encode(video_image).decode("utf-8")))
+            msgs.append(content.url)
+        else:
+            msgs = MessageChain(content.url)
+        id_ = await bilichat.send(msgs, quote=messag_id)
+        messag_id = id_["messageId"] if plugin_config.bilichat_reply_to_basic_info else messag_id
 
     try:
-        msgs = Message(MessageSegment.reply(messag_id))
+        msgs = []
         for msg in await get_futuer_fuctions(content):
             if msg:
                 if isinstance(msg, str):
                     msgs.append(msg)
                 elif isinstance(msg, bytes):
-                    msgs.append(MessageSegment.image(msg))
-        if len(msgs) > 1:
-            await bilichat.finish(msgs)
+                    msgs.append(MessageSegment.image(base64=base64.b64encode(msg).decode("utf-8")))
+        if msgs:
+            await bilichat.finish(MessageChain(msgs), quote=messag_id)
     except AbortError as e:
         if plugin_config.bilichat_show_error_msg:
-            await bilichat.finish(MessageSegment.reply(messag_id) + str(e))
+            await bilichat.finish(str(e), quote=messag_id)

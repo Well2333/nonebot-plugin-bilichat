@@ -1,7 +1,6 @@
 import base64
 import re
 from io import BytesIO
-from pathlib import Path
 
 import jinja2
 from nonebot_plugin_htmlrender.browser import get_new_page

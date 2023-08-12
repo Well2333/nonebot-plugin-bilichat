@@ -1,4 +1,3 @@
-import asyncio
 from datetime import datetime
 from io import BytesIO
 from typing import List, Optional, Union
@@ -209,7 +208,7 @@ class VideoImage:
 
         return decorator
 
-    async def render(self, style: str = "bbot_default")->bytes:
+    async def render(self, style: str = "bbot_default") -> bytes:
         """
         根据方法名调用已注册的渲染方法
         """

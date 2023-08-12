@@ -1,13 +1,14 @@
 import asyncio
+import re
 import time
 from typing import Dict, Union
-import re
 
 from nonebot.exception import FinishedException
 from nonebot.log import logger
 from nonebot.typing import T_State
+
 from ..config import plugin_config
-from ..content import Video, Column
+from ..content import Column, Video
 from ..model.exception import AbortError
 
 INGNORE_TYPE = ("image",)
@@ -39,7 +40,8 @@ def check_cd(uid: str):
         cd = {k: cd[k] for k in cd if cd[k] < now}
     # check cd
     if cd.get(uid, 0) > now:
-        logger.warning(f"Duplicate video(column) {uid}. Skip the video parsing process")
+        session, id_ = uid.split("_-_")
+        logger.warning(f"Duplicate video(column) {id_} from session {session}. Skip the video parsing process")
         raise FinishedException
     cd[uid] = now + plugin_config.bilichat_cd_time
 
@@ -56,7 +58,7 @@ async def get_content_info_from_state(state: T_State):
             content = await Column.from_id(matched.group(), state["_options_"])
 
         if content:
-            check_cd(f"{state['_uid_']}_{content.id}")
+            check_cd(f"{state['_uid_']}_-_{content.id}")
             return content
         else:
             raise AbortError("返回内容为空")
