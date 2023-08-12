@@ -11,9 +11,6 @@ from ..config import plugin_config
 from ..content import Column, Video
 from ..model.exception import AbortError
 
-INGNORE_TYPE = ("image",)
-
-
 if plugin_config.bilichat_openai_token or plugin_config.bilichat_newbing_cookie:
     ENABLE_SUMMARY = True
     from ..summary import summarization
@@ -23,7 +20,6 @@ else:
 if plugin_config.bilichat_word_cloud:
     from ..wordcloud.wordcloud import wordcloud
 
-INGNORE_TYPE = ("image",)
 FUTUER_FUCTIONS = ENABLE_SUMMARY or plugin_config.bilichat_word_cloud
 
 
