@@ -11,6 +11,7 @@ from nonebot.adapters.onebot.v11 import (
     MessageSegment,
     PrivateMessageEvent,
 )
+from nonebot.exception import FinishedException
 from nonebot.log import logger
 from nonebot.params import Depends
 from nonebot.plugin import on_message
@@ -52,11 +53,12 @@ async def _bili_check(bot: Bot, event: MessageEvent, state: T_State):
                 return True
     return False
 
+
 async def _permission_check(bot: Bot, event: MessageEvent, state: T_State):
     # 自身消息
     if str(event.get_user_id()) == str(bot.self_id):
         if plugin_config.bilichat_only_self or plugin_config.bilichat_enable_self:
-            state["_uid_"] = event.get_session_id()
+            state["_uid_"] = event.group_id if isinstance(event, GroupMessageEvent) else event.user_id
             return True
         elif not plugin_config.bilichat_enable_self:
             return False
@@ -121,6 +123,8 @@ async def video_info(
                     msgs.append(MessageSegment.image(msg))
         if len(msgs) > 1:
             await bilichat.finish(msgs)
+    except FinishedException:
+        raise
     except AbortError as e:
         if plugin_config.bilichat_show_error_msg:
             await bilichat.finish(MessageSegment.reply(messag_id) + str(e))
