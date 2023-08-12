@@ -93,9 +93,9 @@ async def video_info(
 ):
     messag_id = event.source.id if event.source else None
     if plugin_config.bilichat_basic_info:
-        video_image = await content.get_image(plugin_config.bilichat_basic_info_style)
-        if video_image:
-            msgs = MessageChain(MessageSegment.image(base64=base64.b64encode(video_image).decode("utf-8")))
+        content_image = await content.get_image(plugin_config.bilichat_basic_info_style)
+        if content_image:
+            msgs = MessageChain(MessageSegment.image(base64=base64.b64encode(content_image).decode("utf-8")))
             msgs.append(content.url)
         else:
             msgs = MessageChain(content.url)

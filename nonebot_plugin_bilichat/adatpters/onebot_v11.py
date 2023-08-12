@@ -97,11 +97,11 @@ async def video_info(
 ):
     messag_id = event.message_id
     if plugin_config.bilichat_basic_info:
-        video_image = await content.get_image(plugin_config.bilichat_basic_info_style)
+        content_image = await content.get_image(plugin_config.bilichat_basic_info_style)
 
         msgs = Message(MessageSegment.reply(event.message_id))
-        if video_image:
-            msgs.append(MessageSegment.image(video_image))
+        if content_image:
+            msgs.append(MessageSegment.image(content_image))
         msgs.append(content.url)
         id_ = await bilichat.send(msgs)
         messag_id = id_ if plugin_config.bilichat_reply_to_basic_info else messag_id

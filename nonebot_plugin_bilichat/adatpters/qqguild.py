@@ -87,8 +87,8 @@ async def video_info(
     content: Union[Column, Video] = Depends(get_content_info_from_state),
 ):
     if plugin_config.bilichat_basic_info:
-        if video_image := await content.get_image(plugin_config.bilichat_basic_info_style):
-            await bilichat.send(MessageSegment.file_image(video_image))
+        if content_image := await content.get_image(plugin_config.bilichat_basic_info_style):
+            await bilichat.send(MessageSegment.file_image(content_image))
 
     try:
         msgs = []
