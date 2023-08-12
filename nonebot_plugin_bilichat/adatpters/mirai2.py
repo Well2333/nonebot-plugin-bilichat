@@ -6,6 +6,7 @@ from typing import Any, Optional, Union, cast
 
 from nonebot.adapters.mirai2 import Bot, MessageChain, MessageSegment
 from nonebot.adapters.mirai2.event import FriendMessage, FriendSyncMessage, GroupMessage, GroupSyncMessage, MessageEvent
+from nonebot.exception import FinishedException
 from nonebot.log import logger
 from nonebot.params import Depends
 from nonebot.plugin import on_message
@@ -52,7 +53,7 @@ async def _permission_check(bot: Bot, event: MessageEvent, state: T_State):
     # 自身消息
     if str(event.get_user_id()) == str(bot.self_id):
         if plugin_config.bilichat_only_self or plugin_config.bilichat_enable_self:
-            state["_uid_"] = event.get_session_id()
+            state["_uid_"] = event.sender.group.id if isinstance(event, GroupMessage) else event.sender.id
             return True
         elif not plugin_config.bilichat_enable_self:
             return False
@@ -134,6 +135,8 @@ async def video_info(
                     msgs.append(MessageSegment.image(base64=base64.b64encode(msg).decode("utf-8")))
         if msgs:
             await send_msg(bot, event, MessageChain(msgs), quote=messag_id)
+    except FinishedException:
+        raise
     except AbortError as e:
         if plugin_config.bilichat_show_error_msg:
             await send_msg(bot, event, str(e), quote=messag_id)

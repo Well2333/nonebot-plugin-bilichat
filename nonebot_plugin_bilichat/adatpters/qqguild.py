@@ -9,6 +9,7 @@ from nonebot.adapters.qqguild import (
     MessageEvent,
     MessageSegment,
 )
+from nonebot.exception import FinishedException
 from nonebot.log import logger
 from nonebot.params import Depends
 from nonebot.plugin import on_message
@@ -105,6 +106,8 @@ async def video_info(
                     msgs.append(MessageSegment.file_image(msg))
         if msgs:
             await bilichat.finish(Message(msgs))
+    except FinishedException:
+        raise
     except AbortError as e:
         if plugin_config.bilichat_show_error_msg:
             await bilichat.finish(str(e))
