@@ -7,23 +7,23 @@ from nonebot.log import logger
 from wordcloud import WordCloud
 
 from ..lib.fonts_provider import get_font
-from ..model.cache import Cache
+from ..lib.cache import BaseCache
 from ..model.exception import AbortError
 from ..optional import capture_exception  # type: ignore
 
 tfidf = TFIDF()
 
 
-async def wordcloud(cache: Cache, cid: str = "0"):
+async def wordcloud(cache: BaseCache):
     try:
         logger.info(f"Generation wordcloud of Video(Column) {cache.id}")
-        if not cache.episodes[cid] or not cache.episodes[cid].content:
+        if not cache.content:
             return None
-        elif not cache.episodes[cid].jieba:
+        elif not cache.jieba:
             loop = asyncio.get_running_loop()
-            cache.episodes[cid].jieba = await loop.run_in_executor(None, get_frequencies, cache.episodes[cid].content)
-            cache.save()
-        return await get_worldcloud_image(cache.episodes[cid].jieba)
+            cache.jieba = await loop.run_in_executor(None, get_frequencies, cache.content)
+            await cache.save()
+        return await get_worldcloud_image(cache.jieba)
     except AbortError as e:
         logger.exception(f"Video(Column) {cache.id} wordcloud generation aborted: {e}")
         return None

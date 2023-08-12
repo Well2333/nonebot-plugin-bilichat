@@ -1,7 +1,7 @@
 import time
 from os import PathLike
 from pathlib import Path
-from typing import List, Literal, Optional, Union, Tuple
+from typing import List, Literal, Optional, Union
 
 import httpx
 from loguru import logger

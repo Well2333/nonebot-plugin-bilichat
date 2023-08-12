@@ -59,21 +59,3 @@ def get_cut_str(str_in, cut):
         non_wrap_str.append(p)
         i += 1
     return non_wrap_str
-
-
-def getCutStr(str_in, cut):
-    cut_str = str_in
-    si = 0
-    i = 0
-    for s in str_in:
-        si += 2 if "\u4e00" <= s <= "\u9fff" else 1
-        i += 1
-        if si > cut:
-            cut_str = f"{str_in[:i]}...."
-            break
-
-    return cut_str
-
-
-def generate_verify_code():
-    return str(random.randint(100000, 999999))

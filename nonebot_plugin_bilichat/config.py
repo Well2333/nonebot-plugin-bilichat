@@ -7,6 +7,7 @@ from typing import List, Literal, Optional, Union
 from nonebot import get_driver, require
 from nonebot.log import logger
 from pydantic import BaseModel, Field, validator
+
 from .lib.store import cache_dir
 
 # get package version
@@ -24,21 +25,19 @@ except Exception:
 class Config(BaseModel):
     # general
     bilichat_block: bool = False
-    bilichat_enable_private: bool = True
     bilichat_enable_self: bool = False
     bilichat_only_self: bool = False
-    bilichat_enable_channel: bool = True
-    bilichat_enable_unkown_src: bool = False
     bilichat_whitelist: List[str] = []
     bilichat_blacklist: List[str] = []
     bilichat_cd_time: int = 120
     bilichat_neterror_retry: int = 3
     bilichat_show_error_msg: bool = True
     bilichat_use_browser: bool = Field(default="Auto")
+    bilichat_cache_serive: Literal["json", "mongodb"] = Field(default="Auto")
 
     # basic info
     bilichat_basic_info: bool = True
-    bilichat_basic_info_style: Literal["bbot_default", "style_blue"] = Field(default="default")
+    bilichat_basic_info_style: Literal["bbot_default", "style_blue"] = Field(default="Auto")
     bilichat_basic_info_url: bool = True
     bilichat_reply_to_basic_info: bool = True
 
@@ -70,6 +69,23 @@ class Config(BaseModel):
     bilichat_openai_token_limit: int = 3500
     bilichat_openai_api_base: str = "https://api.openai.com"
 
+    @validator("bilichat_cache_serive", always=True, pre=True)
+    def check_cache_serive(cls, v):
+        if v == "json":
+            return v
+        try:
+            require("nonebot_plugin_mongodb")
+            if v == "Auto":
+                logger.info("bilichat_cache_serive can use MongoDB as cache serive")
+            return "mongodb"
+        except Exception as e:
+            if v == "Auto":
+                logger.info("bilichat_cache_serive can't use MongoDB as cache serive, using JsonFile")
+                return "json"
+            raise RuntimeError(
+                "Package(s) of MongoDB not installed, use **pip install nonebot-plugin-bilichat[all]** to install required dependencies"
+            ) from e
+
     @validator("bilichat_use_browser", always=True, pre=True)
     def check_htmlrender(cls, v):
         if not v:
@@ -84,7 +100,7 @@ class Config(BaseModel):
                 logger.info("bilichat_use_browser's dependency is not satisfied, disable bilichat_use_browser")
                 return False
             raise RuntimeError(
-                "Package(s) of fuction styles not installed, use **pip install nonebot-plugin-bilichat[extra]** to install required dependencies"
+                "Package(s) of fuction styles not installed, use **pip install nonebot-plugin-bilichat[all]** to install required dependencies"
             ) from e
 
     @validator("bilichat_basic_info_style", always=True, pre=True)
@@ -92,14 +108,14 @@ class Config(BaseModel):
         if v == "bbot_default":
             return v
         # 不包含浏览器
-        if values["bilichat_use_browser"] != True:
-            if v == "default":
+        if values["bilichat_use_browser"] is not True:
+            if v == "Auto":
                 return "bbot_default"
             raise RuntimeError(
-                f"style {v} require browser to work, please enable **bilichat_use_browser** or set style to default"
+                f"style {v} require browser to work, please enable **bilichat_use_browser** or set style to Auto"
             )
         # 包含浏览器
-        return "style_blue" if v == "default" else v
+        return "style_blue" if v == "Auto" else v
 
     @validator("bilichat_openai_proxy", always=True, pre=True)
     def check_openai_proxy(cls, v, values):

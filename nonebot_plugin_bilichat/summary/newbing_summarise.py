@@ -11,7 +11,7 @@ from nonebot.log import logger
 
 from ..config import plugin_config
 from ..lib.store import BING_APOLOGY
-from ..model.cache import Cache
+from ..lib.cache import BaseCache
 from ..model.exception import AbortError, BingCaptchaException, BingChatResponseException
 from ..model.newbing import BingChatResponse
 from ..optional import capture_exception  # type: ignore
@@ -121,43 +121,43 @@ async def newbing_req(prompt: str, _is_retry: bool = False):
         return await newbing_req(prompt, _is_retry=True)
 
 
-async def newbing_summarization(cache: Cache, cid: str = "0"):
+async def newbing_summarization(cache: BaseCache):
     meaning = False
     try:
-        if not cache.episodes[cid].newbing:
+        if not cache.newbing:
             if cache.id[:2].lower() in ["bv", "av"]:
-                ai_summary = await newbing_req(get_small_size_transcripts(cache.title, cache.episodes[cid].content))
+                ai_summary = await newbing_req(get_small_size_transcripts(cache.title, cache.content))  # type: ignore
             elif cache.id[:2].lower() == "cv":
                 ai_summary = await newbing_req(
-                    get_small_size_transcripts(cache.title, cache.episodes[cid].content, type_="专栏文章")
+                    get_small_size_transcripts(cache.title, cache.content, type_="专栏文章")  # type: ignore
                 )
             else:
                 raise ValueError(f"Illegal Video(Column) types {cache.id}")
 
             # 大于 50 认为有意义
             if len(ai_summary) > 50:
-                cache.episodes[cid].newbing = ai_summary
-                cache.save()
+                cache.newbing = ai_summary
+                await cache.save()
                 meaning = True
             # 小于 50 认为无意义
             else:
                 logger.warning(f"Video(Column) {cache.id} summary failure")
                 return f"视频(专栏) {cache.id} 总结失败: {ai_summary}", False
 
-        elif cache.episodes[cid].newbing == "Refusal to answer":
+        elif cache.newbing == "Refusal to answer":
             return BING_APOLOGY.read_bytes(), False
         else:
             meaning = True
             logger.info("Using cached newbing summarization")
 
-        return await t2i(cache.episodes[cid].newbing or "视频无法总结", "new Bing"), meaning
+        return await t2i(cache.newbing or "视频无法总结", "new Bing"), meaning
     except BingCaptchaException as e:
         logger.error(f"Video(Column) {cache.id} summary failed: {e}")
         return "newbing 需要 captcha 验证，请在浏览器中随意提问并解决 captcha 后重新导出cookies.json以解决此问题", True
     except BingChatResponseException as e:
         logger.error(f"Video(Column) {cache.id} summary failed: {e}")
-        cache.episodes[cid].newbing = "Refusal to answer"
-        cache.save()
+        cache.newbing = "Refusal to answer"
+        await cache.save()
         return BING_APOLOGY.read_bytes(), False
     except AbortError as e:
         logger.exception(f"Video(Column) {cache.id} summary aborted: {e}")
