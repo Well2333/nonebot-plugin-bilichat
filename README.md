@@ -135,24 +135,46 @@ _✨ 多功能的 B 站视频解析工具 ✨_
 
 在 nonebot2 项目的`.env`文件中添加下表中的配置, 配置均为**非必须项**
 
+### 太长不看版
+
+一般来说，你只需要关注以下几个配置项
+
+```
+# 对同一视频的响应冷却时间(防止刷屏)
+bilichat_cd_time = 120
+# 网络请求重试次数
+bilichat_neterror_retry = 3
+# 是否使用浏览器截图
+bilichat_use_browser = True
+
+# 是否开启词云
+bilichat_word_cloud = True
+
+# === AI 总结相关 ===
+# newbing cookies
+bilichat_newbing_cookie = "cookies.json"
+# openai token
+bilichat_openai_token = sk-xxxxxxx
+# 网络代理
+bilichat_openai_proxy = "http://127.0.0.1:7890/"
+```
+
 ### 通用配置项
 
-|           配置项           |   类型    | 默认值 |                               说明                               |
-| :------------------------: | :-------: | :----: | :--------------------------------------------------------------: |
-|       bilichat_block       |   bool    | False  |                是否拦截事件(防止其他插件二次解析)                |
-|  bilichat_enable_private   |   bool    |  True  |                         是否允许响应私聊                         |
-|    bilichat_enable_self    |   bool    | False  |                      是否允许响应自身的消息                      |
-|     bilichat_only_self     |   bool    | False  | 是否仅响应自身的消息，开启后会**覆盖全部其他规则**(人机合一特供) |
-|  bilichat_enable_channel   |   bool    |  True  |                      是否允许响应频道的消息                      |
-| bilichat_enable_unkown_src |   bool    | False  |                    是否允许响应未知来源的消息                    |
-|     bilichat_whitelist     | list[str] |   []   |              **响应**的群聊(频道)名单, 会覆盖黑名单              |
-|     bilichat_blacklist     | list[str] |   []   |                    **不响应**的群聊(频道)名单                    |
-|   bilichat_dynamic_font    |    str    |  None  |                   视频信息及词云图片使用的字体                   |
-|      bilichat_cd_time      |    int    |  120   |                对同一视频的响应冷却时间(防止刷屏)                |
-|  bilichat_neterror_retry   |    int    |   3    |                   对部分网络请求错误的尝试次数                   |
-|   bilichat_use_bcut_asr    |   bool    |  True  |             是否在**没有字幕时**调用必剪接口生成字幕             |
-|  bilichat_show_error_msg   |   bool    |  True  |                   是否在解析失败时发送错误信息                   |
-|    bilichat_use_browser    |   bool    |  Auto  |     是否使用浏览器，`Auto` 会根据是否含有相应的依赖进行选择      |
+|         配置项          |   类型    | 默认值 |                               说明                               |
+| :---------------------: | :-------: | :----: | :--------------------------------------------------------------: |
+|     bilichat_block      |   bool    | False  |                是否拦截事件(防止其他插件二次解析)                |
+|  bilichat_enable_self   |   bool    | False  |                      是否允许响应自身的消息                      |
+|   bilichat_only_self    |   bool    | False  | 是否仅响应自身的消息，开启后会**覆盖全部其他规则**(人机合一特供) |
+|   bilichat_whitelist    | list[str] |   []   |                 **响应**的会话名单, 会覆盖黑名单                 |
+|   bilichat_blacklist    | list[str] |   []   |                       **不响应**的会话名单                       |
+|  bilichat_dynamic_font  |    str    |  None  |                   视频信息及词云图片使用的字体                   |
+|    bilichat_cd_time     |    int    |  120   |                对同一视频的响应冷却时间(防止刷屏)                |
+| bilichat_neterror_retry |    int    |   3    |                   对部分网络请求错误的尝试次数                   |
+|  bilichat_use_bcut_asr  |   bool    |  True  |             是否在**没有字幕时**调用必剪接口生成字幕             |
+| bilichat_show_error_msg |   bool    |  True  |                   是否在解析失败时发送错误信息                   |
+|  bilichat_use_browser   |   bool    |  Auto  |     是否使用浏览器，`Auto` 会根据是否含有相应的依赖进行选择      |
+|  bilichat_cache_serive  |    str    |  Auto  |         使用的缓存类型，可用类型包含 `json` 和 `mongodb`         |
 
 注:
 
@@ -160,15 +182,16 @@ _✨ 多功能的 B 站视频解析工具 ✨_
 2. 当 `bilichat_whitelist` 存在时，`bilichat_blacklist` 将会被禁用
 3. `bilichat_dynamic_font` 可填写自定义的字体 url，但并不推荐修改
 4. 当使用 `bcut_asr` 接口来生成 AI 字幕时，根据视频时长和网络情况有可能会识别失败，Bot 会提示 `BCut-ASR conversion failed due to network error`。可以通过调高 `bilichat_neterror_retry` 次数或几分钟后重试来尝试重新生成字幕
+5. 当 `bilichat_cache_serive` 为 `mongodb` 时，需要安装并配置 [nonebot-plugin-mongodb](https://github.com/Well2333/nonebot-plugin-mongodb) 才可正常使用
 
 ### 基础信息配置项
 
-|            配置项            | 类型 | 默认值  |                       说明                       |
-| :--------------------------: | :--: | :-----: | :----------------------------------------------: |
-|     bilichat_basic_info      | bool |  True   |               是否开启视频基本信息               |
-|  bilichat_basic_info_style   | str  | default |      视频详情的图片样式，可用样式见下方备注      |
-|   bilichat_basic_info_url    | bool |  True   |  开启视频进本信息的情况下，是否一同回复一个链接  |
-| bilichat_reply_to_basic_info | bool |  True   | 后续消息是否回复基础信息(关闭则回复发送者的信息) |
+|            配置项            | 类型 | 默认值 |                       说明                       |
+| :--------------------------: | :--: | :----: | :----------------------------------------------: |
+|     bilichat_basic_info      | bool |  True  |               是否开启视频基本信息               |
+|  bilichat_basic_info_style   | str  |  Auto  |      视频详情的图片样式，可用样式见下方备注      |
+|   bilichat_basic_info_url    | bool |  True  |  开启视频进本信息的情况下，是否一同回复一个链接  |
+| bilichat_reply_to_basic_info | bool |  True  | 后续消息是否回复基础信息(关闭则回复发送者的信息) |
 
 注：bilichat_basic_info_style 除默认的 bbot_default 使用 PIL 绘图（未开启浏览器时默认选择），其他均依赖于浏览器进行渲染（需要设置 bilichat_use_browser 为 True 或 Auto），其可用的样式如下所示
 
@@ -256,12 +279,14 @@ BV12v4y1E7NT -r --no-cache # 可以多个参数混用
 
 在此感谢以下开发者(项目)对本项目做出的贡献：
 
-- [BibiGPT](https://github.com/JimmyLv/BibiGPT) 项目灵感来源
-- [bilibili-API-collect](https://github.com/SocialSisterYi/bilibili-API-collect) 易姐收集的各种 BiliBili Api 及其提供的 gRPC Api 调用方案
-- [nonebot-plugin-template](https://github.com/A-kirami/nonebot-plugin-template): 项目的 README 模板
-- [nonebot-plugin-bing-chat](https://github.com/Harry-Jing/nonebot-plugin-bing-chat): newbing 解析的代码参考
-- [Misaka-Mikoto-Tech](https://github.com/Misaka-Mikoto-Tech) 为本项目提交了多项 BUG 修复和代码参考
-- [hamo-reid](https://github.com/hamo-reid) 为 style_blue 绘制了界面
+-   [BibiGPT](https://github.com/JimmyLv/BibiGPT) 项目灵感来源
+-   [bilibili-API-collect](https://github.com/SocialSisterYi/bilibili-API-collect) 易姐收集的各种 BiliBili Api 及其提供的 gRPC Api 调用方案
+-   [BBot-Graia](https://github.com/djkcyl/BBot-Graia) 功能来源 ~~(我 牛 我 自 己)~~
+-   [ABot-Graia](https://github.com/djkcyl/ABot-Graia) 永远怀念最好的 ABot 🙏
+-   [nonebot-plugin-template](https://github.com/A-kirami/nonebot-plugin-template): 项目的 README 模板
+-   [nonebot-plugin-bing-chat](https://github.com/Harry-Jing/nonebot-plugin-bing-chat): newbing 解析的代码参考
+-   [Misaka-Mikoto-Tech](https://github.com/Misaka-Mikoto-Tech) 为本项目提交了多项 BUG 修复和代码参考
+-   [hamo-reid](https://github.com/hamo-reid) 为 style_blue 绘制了界面
 
 ## ⏳ Star 趋势
 
