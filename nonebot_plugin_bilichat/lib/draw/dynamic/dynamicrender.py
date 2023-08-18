@@ -2,10 +2,9 @@ import json
 from io import BytesIO
 from pathlib import Path
 from typing import Dict
+from zipfile import ZipFile
 
-from bilireq.grpc.dynamic import grpc_get_dynamic_detail
 from dynamicadaptor.DynamicConversion import formate_message
-from google.protobuf.json_format import MessageToDict
 from httpx import AsyncClient
 from minidynamicrender.Core import DyRender
 from nonebot.log import logger
@@ -13,10 +12,17 @@ from nonebot.log import logger
 from ....config import plugin_config
 from ....model.exception import AbortError
 from ...fonts_provider import get_font
-from ...store import cache_dir
+from ...store import cache_dir, static_dir
+
+# from bilireq.grpc.dynamic import grpc_get_dynamic_detail
+# from google.protobuf.json_format import MessageToDict
+
 
 data_path = cache_dir.joinpath("render")
 data_path.mkdir(parents=True, exist_ok=True)
+if not data_path.joinpath("Static").exists():
+    file = ZipFile(static_dir.joinpath("Static.zip"))
+    file.extractall(data_path)
 browser_cookies_file = Path(plugin_config.bilichat_bilibili_cookie or "")
 
 # async def pil_dynamic(dynid: str):
