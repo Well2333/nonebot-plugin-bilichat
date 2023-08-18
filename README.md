@@ -187,28 +187,62 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 
 ### 基础信息配置项
 
-|            配置项            | 类型 | 默认值 |                       说明                       |
-| :--------------------------: | :--: | :----: | :----------------------------------------------: |
-|     bilichat_basic_info      | bool |  True  |               是否开启视频基本信息               |
-|  bilichat_basic_info_style   | str  |  Auto  |      视频详情的图片样式，可用样式见下方备注      |
-|   bilichat_basic_info_url    | bool |  True  |  开启视频进本信息的情况下，是否一同回复一个链接  |
-| bilichat_reply_to_basic_info | bool |  True  | 后续消息是否回复基础信息(关闭则回复发送者的信息) |
+|            配置项            | 类型 | 默认值 |                                                        说明                                                         |
+| :--------------------------: | :--: | :----: | :-----------------------------------------------------------------------------------------------------------------: |
+|     bilichat_basic_info      | bool |  True  |                                                是否开启视频基本信息                                                 |
+|  bilichat_basic_info_style   | str  |  Auto  |                                       视频详情的图片样式，可用样式见下方备注                                        |
+|   bilichat_basic_info_url    | bool |  True  |                                   开启视频进本信息的情况下，是否一同回复一个链接                                    |
+| bilichat_reply_to_basic_info | bool |  True  |                                  后续消息是否回复基础信息(关闭则回复发送者的信息)                                   |
+|       bilichat_dynamic       | bool |  True  |                                                  是否开启动态解析                                                   |
+|    bilichat_dynamic_style    | str  |  Auto  |                                       动态详情的图片样式，可用样式见下方备注                                        |
+|   bilichat_bilibili_cookie   | bool |  True  |                                 bilibili 的 cookie 文件路径,`api` 则自动创建空文件                                  |
+| bilichat_bilibili_cookie_api | bool |  True  | 在运行时更新 bilibili cookie，使用方法参考[这里](./docs/Update%20newBing%20cookie%20via%20tampermonkey%20script.md) |
 
-注：bilichat_basic_info_style 除默认的 bbot_default 使用 PIL 绘图（未开启浏览器时默认选择），其他均依赖于浏览器进行渲染（需要设置 bilichat_use_browser 为 True 或 Auto），其可用的样式如下所示
+> bilichat_basic_info_style 除默认的 bbot_default 使用 PIL 绘图（未开启浏览器时默认选择），其他均依赖于浏览器进行渲染（需要设置 bilichat_use_browser 为 True 或 Auto），其可用的样式如下所示
 
 <details>
-<summary>bbot_default（无浏览器时默认）</summary>
+<summary>bbot_default （无浏览器时默认）</summary>
 
 ![](docs/bbot_default.png)
 
 </details>
 
 <details>
-<summary>style_blue（有浏览器时默认）</summary>
+<summary>style_blue （有浏览器时默认）</summary>
 
 ![](docs/style_blue.png)
 
 </details>
+
+> bilichat_basic_info_style 除默认的 dynamicrender 使用 PIL 绘图（未开启浏览器时默认选择），其他均依赖于浏览器进行渲染（需要设置 bilichat_use_browser 为 True 或 Auto），其可用的样式如下所示
+
+<details>
+<summary>dynamicrender （无浏览器时默认）</summary>
+
+![](docs/dynamicrender.jpg)
+
+</details>
+
+<details>
+<summary>browser_mobile （有浏览器时默认）</summary>
+
+![](docs/dynamic_mobile.jpg)
+
+</details>
+
+<details>
+<summary>browser_pc</summary>
+
+![](docs/dynamic_pc.jpg)
+
+</details>
+
+### 动态配置项
+
+| 配置项 | 类型 | 默认值 | 说明 |
+| :----: | :--: | :----: | :--: |
+
+"dynamicrender", "browser_mobile", "browser_pc"
 
 ### 词云配置项
 

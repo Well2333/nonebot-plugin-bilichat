@@ -17,7 +17,7 @@ from nonebot.rule import Rule
 from nonebot.typing import T_State
 
 from ..config import plugin_config
-from ..content import Column, Video
+from ..content import Column, Dynamic, Video
 from ..lib.b23_extract import b23_extract
 from ..model.arguments import Options, parser
 from ..model.exception import AbortError
@@ -38,8 +38,8 @@ async def _bili_check(event: MessageEvent, state: T_State):
             if b23 := re.search(r"b23.(tv|wtf)[\\/]+(\w+)", _msg_str):  # type: ignore
                 state["_bililink_"] = await b23_extract(list(b23.groups()))
                 return True
-        # av bv cv 格式的链接
-        for seg in ("av", "bv", "cv"):
+        # av bv cv 格式和动态的链接
+        for seg in ("av", "bv", "cv", "dynamic", "opus", "t.bilibili.com"):
             if seg in _msg_str.lower():
                 state["_bililink_"] = _msg_str
                 return True
@@ -88,9 +88,9 @@ def set_options(state: T_State, event: MessageEvent):
 
 
 @bilichat.handle()
-async def video_info(
+async def content_info(
     event: MessageEvent,
-    content: Union[Column, Video] = Depends(get_content_info_from_state),
+    content: Union[Column, Video, Dynamic] = Depends(get_content_info_from_state),
 ):
     if plugin_config.bilichat_basic_info:
         if content_image := await content.get_image(plugin_config.bilichat_basic_info_style):

@@ -10,8 +10,8 @@ from typing import List, Literal
 from nonebot.log import logger
 
 from ..config import plugin_config
-from ..lib.store import BING_APOLOGY
 from ..lib.cache import BaseCache
+from ..lib.store import BING_APOLOGY
 from ..model.exception import AbortError, BingCaptchaException, BingChatResponseException
 from ..model.newbing import BingChatResponse
 from ..optional import capture_exception  # type: ignore
@@ -23,7 +23,7 @@ if (
     and plugin_config.bilichat_newbing_cookie
     and plugin_config.bilichat_newbing_cookie != "no_login"
 ):
-    from . import api
+    from ..api import newbing_cookies  # noqa: F401
 
 
 bot = None

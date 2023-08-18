@@ -1,7 +1,7 @@
 [project]
 name = "nonebot-plugin-bilichat"
 
-version = "3.1.1"
+version = "3.2.0"
 
 description = "一个通过 OpenAI 来对b站视频进行总结插件"
 authors = [
@@ -15,6 +15,8 @@ dependencies = [
     "lxml>=4.9.2",
     "nonebot-plugin-localstore>=0.4.1",
     "nonebot2[fastapi,websockets]>=2.0.0",
+    "minidynamicrender>=1.1.9",
+    "httpx>=0.24.1",
 ]
 requires-python = ">=3.8,<4.0"
 readme = "README.md"
@@ -26,17 +28,12 @@ extra = [
     "nonebot-plugin-mongodb>=0.1.0",
 ]
 wordcloud = ["jieba>=0.42.1", "wordcloud>=1.8.2.2"]
-summary = [
-    "tiktoken-async>=0.3.2",
-    "minidynamicrender>=1.1.9",
-    "aiohttp>=3.8.4",
-]
+summary = ["tiktoken-async>=0.3.2", "aiohttp>=3.8.4"]
 all = [
     "aiohttp>=3.8.4",
     "jieba>=0.42.1",
     "wordcloud>=1.8.2.2",
     "tiktoken-async>=0.3.2",
-    "minidynamicrender>=1.1.9",
     "nonebot-plugin-htmlrender>=0.2.0.3",
     "nonebot-plugin-mongodb>=0.1.0",
     "nonebot-plugin-sentry>=0.4.1",
@@ -55,6 +52,7 @@ dev = [
     "nonebot-adapter-onebot>=2.2.4",
     "nonebot-adapter-mirai2>=0.0.22",
     "nonebot-adapter-qqguild>=0.2.4",
+    "nonebot-adapter-kaiheila>=0.0.6",
 ]
 
 [build-system]
