@@ -3,7 +3,6 @@ from typing import Any, Dict, List, Literal
 
 from nonebot.log import logger
 from pydantic import BaseModel, validator
-from typing_extensions import Literal
 
 from .exception import (
     BingChatAccountReachLimitException,

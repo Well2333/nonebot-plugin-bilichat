@@ -3,6 +3,16 @@ class AbortError(Exception):
         self.message = message
 
 
+class CaptchaAbortError(AbortError):
+    def __init__(self, message):
+        self.message = message
+
+
+class NotFindAbortError(AbortError):
+    def __init__(self, message):
+        self.message = message
+
+
 # ===== BING EXCEPTION =====
 
 

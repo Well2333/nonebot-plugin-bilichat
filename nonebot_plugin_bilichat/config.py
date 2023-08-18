@@ -42,6 +42,12 @@ class Config(BaseModel):
     bilichat_basic_info_url: bool = True
     bilichat_reply_to_basic_info: bool = True
 
+    # dynamic
+    bilichat_dynamic: bool = True
+    bilichat_dynamic_style: Literal["dynamicrender", "browser_mobile", "browser_pc"] = Field(default="Auto")
+    bilichat_bilibili_cookie: Optional[str]
+    bilichat_bilibili_cookie_api: Optional[str]
+
     # both WC and AI
     bilichat_use_bcut_asr: bool = True
 
@@ -84,7 +90,8 @@ class Config(BaseModel):
                 logger.info("bilichat_cache_serive can't use MongoDB as cache serive, using JsonFile")
                 return "json"
             raise RuntimeError(
-                "Package(s) of MongoDB not installed, use **pip install nonebot-plugin-bilichat[all]** to install required dependencies"
+                "Package(s) of MongoDB not installed, "
+                "use **pip install nonebot-plugin-bilichat[all]** to install required dependencies"
             ) from e
 
     @validator("bilichat_use_browser", always=True, pre=True)
@@ -101,11 +108,12 @@ class Config(BaseModel):
                 logger.info("bilichat_use_browser's dependency is not satisfied, disable bilichat_use_browser")
                 return False
             raise RuntimeError(
-                "Package(s) of fuction styles not installed, use **pip install nonebot-plugin-bilichat[all]** to install required dependencies"
+                "Package(s) of fuction styles not installed, "
+                "use **pip install nonebot-plugin-bilichat[all]** to install required dependencies"
             ) from e
 
     @validator("bilichat_basic_info_style", always=True, pre=True)
-    def check_use_browser(cls, v, values):
+    def check_use_browser_basic(cls, v, values):
         if v == "bbot_default":
             return v
         # 不包含浏览器
@@ -117,6 +125,45 @@ class Config(BaseModel):
             )
         # 包含浏览器
         return "style_blue" if v == "Auto" else v
+
+    @validator("bilichat_dynamic_style", always=True, pre=True)
+    def check_use_browser_dynamic(cls, v, values):
+        if v == "dynamicrender":
+            return v
+        # 不包含浏览器
+        if values["bilichat_use_browser"] is not True:
+            if v == "Auto":
+                return "dynamicrender"
+            raise RuntimeError(
+                f"style {v} require browser to work, please enable **bilichat_use_browser** or set style to Auto"
+            )
+        # 包含浏览器
+        return "browser_mobile" if v == "Auto" else v
+
+    @validator("bilichat_bilibili_cookie", always=True)
+    def check_bilibili_cookie(cls, v):
+        if not v:
+            return v
+        # verify cookie file
+        if Path(v).is_file():
+            try:
+                json.loads(Path(v).read_text("utf-8"))
+            except Exception as e:
+                raise ValueError("Config bilichat_browser_cookie got a problem occurred") from e
+
+        elif Path(v).is_dir():
+            raise ValueError(f"Config bilichat_browser_cookie requires a file, but {v} is a folder")
+
+        elif v == "api":
+            cookie_file = cache_dir.joinpath("bilibili_browser_cookies.json").absolute()
+            cookie_file.touch(0o755)
+            logger.info(f"create newbing cookies file at {cookie_file.as_posix()}")
+            return cookie_file.as_posix()
+
+        else:
+            raise ValueError(f"Path {v} is not recognized")
+
+        return v
 
     @validator("bilichat_openai_proxy", always=True, pre=True)
     def check_openai_proxy(cls, v, values):
@@ -154,18 +201,14 @@ class Config(BaseModel):
             return v
         else:
             raise RuntimeError(
-                "Package(s) of fuction openai summary not installed, use **pip install nonebot-plugin-bilichat[summary]** to install required dependencies"
+                "Package(s) of fuction openai summary not installed, "
+                "use **pip install nonebot-plugin-bilichat[summary]** to install required dependencies"
             )
 
     @validator("bilichat_newbing_cookie", always=True)
-    def check_pypackage_newbing_and_cookie(cls, v):
+    def check_newbing_cookie(cls, v):
         if not v:
             return v
-        if not importlib.util.find_spec("minidynamicrender"):
-            raise RuntimeError(
-                "Package(s) of fuction newbing summary not installed, use **pip install nonebot-plugin-bilichat[summary]** to install required dependencies"
-            )
-
         # verify cookie file
         if Path(v).is_file():
             try:
@@ -196,7 +239,8 @@ class Config(BaseModel):
             return v
         else:
             raise RuntimeError(
-                "Package(s) of fuction wordcloud not installed, use **pip install nonebot-plugin-bilichat[wordcloud]** to install required dependencies"
+                "Package(s) of fuction wordcloud not installed, "
+                "use **pip install nonebot-plugin-bilichat[wordcloud]** to install required dependencies"
             )
 
     def verify_permission(self, uid: Union[str, int]):
