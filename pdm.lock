@@ -6,7 +6,7 @@ groups = ["default", "dev", "all"]
 cross_platform = true
 static_urls = false
 lock_version = "4.3"
-content_hash = "sha256:e008548b23195c16537ec35ad0420f9d3c4e86fe2359ae5d193efdcb6e4d5414"
+content_hash = "sha256:53e20c105592c8898eeac21321b5017f68d99ac6a4bb2d6002949d50d9b66c44"
 
 [[package]]
 name = "aiofiles"
@@ -415,6 +415,22 @@ dependencies = [
 files = [
     {file = "dynamicadaptor-0.4.9-py3-none-any.whl", hash = "sha256:c9be006dc69eb7cc0270a8399507030c3d645989e53cfce0cbbcba6467d88909"},
     {file = "dynamicadaptor-0.4.9.tar.gz", hash = "sha256:d2164abb235cbc2691e03d0b16d0acb36cc7fc309ad0d99d8b679ed820a4b4d9"},
+]
+
+[[package]]
+name = "dynrender-skia"
+version = "0.2.0"
+requires_python = ">=3.8,<4.0"
+summary = "使用skia-python将BiliBili动态渲染为图片"
+dependencies = [
+    "dynamicadaptor<0.5.0,>=0.4.5",
+    "emoji<3.0.0,>=2.6.0",
+    "httpx<0.25.0,>=0.24.1",
+    "skia-python<88.0,>=87.5",
+]
+files = [
+    {file = "dynrender_skia-0.2.0-py3-none-any.whl", hash = "sha256:066dfc1f3f506a572a96a2a84356cb7cfbf4c28423115b7d87bb0c4479752c0b"},
+    {file = "dynrender_skia-0.2.0.tar.gz", hash = "sha256:e6a32244fc9c59d071737cae120248901cc8753c7c8e176cf9f7ba9f05791d0a"},
 ]
 
 [[package]]
@@ -1071,26 +1087,6 @@ files = [
 ]
 
 [[package]]
-name = "minidynamicrender"
-version = "1.2.6"
-requires_python = ">=3.8,<4.0"
-summary = "A package that transform bilibili's dynamic data to image"
-dependencies = [
-    "dynamicadaptor<0.5.0,>=0.4.3",
-    "emoji<3.0.0,>=2.2.0",
-    "fonttools<5.0.0,>=4.38.0",
-    "httpx<0.25.0,>=0.24.0",
-    "loguru<0.7.0,>=0.6.0",
-    "numpy<2.0.0,>=1.24.1",
-    "pillow<10.0.0,>=9.4.0",
-    "qrcode<8.0.0,>=7.3.1",
-]
-files = [
-    {file = "minidynamicrender-1.2.6-py3-none-any.whl", hash = "sha256:5d95e7facf7fb8e055d42c05262214b2a83a4091767e048eb5d2575dc5f1dc44"},
-    {file = "minidynamicrender-1.2.6.tar.gz", hash = "sha256:6145112200e496aa3d26b41c7f3a3b79bd3d6afe7ebc870143f73c4cead68660"},
-]
-
-[[package]]
 name = "motor"
 version = "3.2.0"
 requires_python = ">=3.7"
@@ -1586,6 +1582,16 @@ files = [
 ]
 
 [[package]]
+name = "pybind11"
+version = "2.11.1"
+requires_python = ">=3.6"
+summary = "Seamless operability between C++11 and Python"
+files = [
+    {file = "pybind11-2.11.1-py3-none-any.whl", hash = "sha256:33cdd02a6453380dd71cc70357ce388ad1ee8d32bd0e38fc22b273d050aa29b3"},
+    {file = "pybind11-2.11.1.tar.gz", hash = "sha256:00cd59116a6e8155aecd9174f37ba299d1d397ed4a6b86ac1dfe01b3e40f2cc4"},
+]
+
+[[package]]
 name = "pydantic"
 version = "1.10.12"
 requires_python = ">=3.7"
@@ -1990,6 +1996,37 @@ summary = "Python 2 and 3 compatibility utilities"
 files = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
     {file = "six-1.16.0.tar.gz", hash = "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926"},
+]
+
+[[package]]
+name = "skia-python"
+version = "87.5"
+summary = "Skia python binding"
+dependencies = [
+    "numpy",
+    "pybind11>=2.6",
+]
+files = [
+    {file = "skia_python-87.5-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:f10c610cee43964d5d972c8a95a05a94e014ccf522b78d4548551365bc52460c"},
+    {file = "skia_python-87.5-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:f2525ed407be09a49ddf8ba9b01e5c3b7ce1499c71bfd2dd110da9b74a4daf46"},
+    {file = "skia_python-87.5-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:bb81c2ae262218788ff2658ce7559c6fd0e2890ef660ed24c8b991d02614eaf0"},
+    {file = "skia_python-87.5-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:674d0fe04f141c6e84fd60fbba6672ac048b0894006ffca673479ea2836bf6b7"},
+    {file = "skia_python-87.5-cp310-cp310-win_amd64.whl", hash = "sha256:b489da7f8c164b93ca0bae7694dd167e5c8529cf49580d369a6b55f606961d2f"},
+    {file = "skia_python-87.5-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:947c8b1292a0e56e0726a508e9f29d3f29bda9e48beff3c7e33dda0e8729fc19"},
+    {file = "skia_python-87.5-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:d370ab1dca44a4f8c21ae9e9ef52aa12a72045f43f36c8936f128e7f13edfc9e"},
+    {file = "skia_python-87.5-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:fe041ff1d14ea3801a0444ed86336c24a4a94e4c390f7214cf9b2791caf5298c"},
+    {file = "skia_python-87.5-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:573734ca3f331758633133230c7bf906a2a316a526ac1081245b920912600ccc"},
+    {file = "skia_python-87.5-cp311-cp311-win_amd64.whl", hash = "sha256:6ece2b3aa44b5f65fec3a5e5e3ca63fca7b402912ea88370a45a3882d4f5a41b"},
+    {file = "skia_python-87.5-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:e2bb2e1f332fcc864573888419e3f1702505168e1bde7822500138a25302bd93"},
+    {file = "skia_python-87.5-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:b773bd56c96d841536ed0a9e52afa46d3dfe6aeb1ad37e0ab0bb956989989c34"},
+    {file = "skia_python-87.5-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:62744780def2fa3c0bd4266466160ac67c2b2dde52bb9abbcfec2011bde3ee10"},
+    {file = "skia_python-87.5-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:08761ed47bf969425a014513188b3b9ca8b1a2602e3c95a9f32a9170043cf870"},
+    {file = "skia_python-87.5-cp38-cp38-win_amd64.whl", hash = "sha256:24fa6cea0b85d9b8c17fea4222dff07593dfcd517e8a2b424b980d42e8b3d613"},
+    {file = "skia_python-87.5-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:d1ce93efef0dbabdc8b332522aa203ca63de97cf0ef68b3da1169be340ad442d"},
+    {file = "skia_python-87.5-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:ac621c4850fee0a17ed430ab4fc8de5fea37be69dca55d4d0bd26ac8108afc40"},
+    {file = "skia_python-87.5-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:2c7ae8daeb70dd2a5b347cefe969fe15111128a9ad55b27349147d63e85ffd17"},
+    {file = "skia_python-87.5-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4c8b440cb92a52249893b5968d9eff4f44f4070195ed7ea406ee44651305bee5"},
+    {file = "skia_python-87.5-cp39-cp39-win_amd64.whl", hash = "sha256:4bfd6fa011a2b2e1501615414a429dca2b08baaa69c60d52c491300bb30e10c3"},
 ]
 
 [[package]]

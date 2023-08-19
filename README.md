@@ -84,6 +84,8 @@ _✨ 多功能的 B 站视频解析工具 ✨_
 
 ## 💿 安装
 
+> Linux 用户在安装时如果出现 `libGL.so.1: cannot open shared object file: No such file or directory` 错误，说明缺少 OpenGL 的运行环境，可以参考 [dynamicrender](https://pypi.org/project/dynrender-skia/) 中的 README 安装对应的依赖后重试
+
 <details>
 <summary>使用 nb-cli 安装</summary>
 在 nonebot2 项目的根目录下打开命令行, 输入以下指令即可安装
@@ -214,7 +216,7 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 
 </details>
 
-> bilichat_dynamic_style 除默认的 dynamicrender 使用 PIL 绘图（未开启浏览器时默认选择），其他均依赖于浏览器进行渲染（需要设置 bilichat_use_browser 为 True 或 Auto），其可用的样式如下所示
+> bilichat_dynamic_style 除默认的 dynamicrender 使用 Skia 绘图（未开启浏览器时默认选择），其他均依赖于浏览器进行渲染（需要设置 bilichat_use_browser 为 True 或 Auto），其可用的样式如下所示
 
 <details>
 <summary>dynamicrender （无浏览器时默认）</summary>
@@ -322,6 +324,7 @@ BV12v4y1E7NT -r --no-cache # 可以多个参数混用
 -   [nonebot-plugin-bing-chat](https://github.com/Harry-Jing/nonebot-plugin-bing-chat): newbing 解析的代码参考
 -   [Misaka-Mikoto-Tech](https://github.com/Misaka-Mikoto-Tech) 为本项目提交了多项 BUG 修复和代码参考
 -   [hamo-reid](https://github.com/hamo-reid) 为 style_blue 绘制了界面
+-   [dynamicrender](https://pypi.org/project/dynrender-skia/) 提供 t2i 和动态渲染
 
 ## ⏳ Star 趋势
 
