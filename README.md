@@ -216,6 +216,7 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 
 </details>
 
+
 > bilichat_dynamic_style 除默认的 dynamicrender 使用 Skia 绘图（未开启浏览器时默认选择），其他均依赖于浏览器进行渲染（需要设置 bilichat_use_browser 为 True 或 Auto），其可用的样式如下所示
 
 <details>
