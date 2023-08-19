@@ -195,8 +195,8 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 | bilichat_reply_to_basic_info | bool |  True  |                                  后续消息是否回复基础信息(关闭则回复发送者的信息)                                   |
 |       bilichat_dynamic       | bool |  True  |                                                  是否开启动态解析                                                   |
 |    bilichat_dynamic_style    | str  |  Auto  |                                       动态详情的图片样式，可用样式见下方备注                                        |
-|   bilichat_bilibili_cookie   | bool |  True  |                                 bilibili 的 cookie 文件路径,`api` 则自动创建空文件                                  |
-| bilichat_bilibili_cookie_api | bool |  True  | 在运行时更新 bilibili cookie，使用方法参考[这里](./docs/Update%20newBing%20cookie%20via%20tampermonkey%20script.md) |
+|   bilichat_bilibili_cookie   | str  |  None  |                                 bilibili 的 cookie 文件路径,`api` 则自动创建空文件                                  |
+| bilichat_bilibili_cookie_api | str  |  None  | 在运行时更新 bilibili cookie，使用方法参考[这里](./docs/Update%20newBing%20cookie%20via%20tampermonkey%20script.md) |
 
 > bilichat_basic_info_style 除默认的 bbot_default 使用 PIL 绘图（未开启浏览器时默认选择），其他均依赖于浏览器进行渲染（需要设置 bilichat_use_browser 为 True 或 Auto），其可用的样式如下所示
 
@@ -214,7 +214,7 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 
 </details>
 
-> bilichat_basic_info_style 除默认的 dynamicrender 使用 PIL 绘图（未开启浏览器时默认选择），其他均依赖于浏览器进行渲染（需要设置 bilichat_use_browser 为 True 或 Auto），其可用的样式如下所示
+> bilichat_dynamic_style 除默认的 dynamicrender 使用 PIL 绘图（未开启浏览器时默认选择），其他均依赖于浏览器进行渲染（需要设置 bilichat_use_browser 为 True 或 Auto），其可用的样式如下所示
 
 <details>
 <summary>dynamicrender （无浏览器时默认）</summary>

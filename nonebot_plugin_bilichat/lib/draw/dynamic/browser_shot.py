@@ -16,9 +16,6 @@ from ....optional import capture_exception
 from ...browser import pw_font_injecter
 from ...store import static_dir
 
-if plugin_config.bilichat_bilibili_cookie_api and plugin_config.bilichat_bilibili_cookie:
-    from ....api import bilibili_cookies  # noqa: F401
-
 browser_cookies_file = Path(plugin_config.bilichat_bilibili_cookie or "")
 mobile_style_js = static_dir.joinpath("browser", "mobile_style.js")
 

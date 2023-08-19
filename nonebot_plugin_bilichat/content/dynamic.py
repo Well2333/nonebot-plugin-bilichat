@@ -16,7 +16,6 @@ class Dynamic(BaseModel):
     async def from_id(cls, bili_number: str):
         if not bili_number.isdigit():
             bili_number = bili_number.lstrip("qwertyuiopasdfghjklzxcvbnm/.")
-        print(bili_number)
         return cls(id=bili_number, url=await get_b23_url(f"https://www.bilibili.com/dynamic/{bili_number}"))
 
     async def get_image(self, style: str):
