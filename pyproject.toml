@@ -1,7 +1,7 @@
 [project]
 name = "nonebot-plugin-bilichat"
 
-version = "3.3.0"
+version = "3.3.1"
 
 description = "一个通过 OpenAI 来对b站视频进行总结插件"
 authors = [
@@ -16,7 +16,7 @@ dependencies = [
     "nonebot-plugin-localstore>=0.4.1",
     "nonebot2[fastapi,websockets]>=2.0.0",
     "httpx>=0.24.1",
-    "dynrender-skia>=0.2.0",
+    "dynrender-skia-opt>=0.3.3",
 ]
 requires-python = ">=3.8,<4.0"
 readme = "README.md"
