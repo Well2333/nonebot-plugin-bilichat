@@ -6,7 +6,7 @@
 HOST=0.0.0.0
 PORT=8080
 
-# newbing
+# bilibili
 bilichat_bilibili_cookie=bilibili_cookies.json
 bilichat_bilibili_cookie_api="/bilibili_cookie/"
 
@@ -31,7 +31,7 @@ bilichat_newbing_cookie_api="/newbing_cookie/"
 // @version      1.0
 // @description  Extracts cookies and sends them to 127.0.0.1:8080
 // @match        " === 匹配的站点 === "
-// @grant        none
+// @grant        GM_xmlhttpRequest
 // ==/UserScript==
 
 // Bing的站点替换为
@@ -57,10 +57,14 @@ bilichat_newbing_cookie_api="/newbing_cookie/"
 
   // 发送 cookies 到指定的地址
   function sendCookies(cookies) {
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", " === 填入你的发送地址 ===", true); 
-    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    xhr.send(JSON.stringify(cookies));
+    GM_xmlhttpRequest({
+      method: "POST",
+      url: "=== 填入你的发送地址 ===",
+      headers: {
+        "Content-Type": "application/json;charset=UTF-8"
+      },
+      data: JSON.stringify(cookies),
+    });
   }
 
   // 主函数
@@ -74,9 +78,9 @@ bilichat_newbing_cookie_api="/newbing_cookie/"
 })();
 ```
 
+第一次使用打开对应的主页时，tampermonkey会弹出xhr安全请求的界面，点击总是允许即可，如想删除该xhr请求域白名单，需要进入油猴管理器找到该插件，点击设置，往下找到xhr安全，可以在用户域名白名单中找到你设置的ip/域名
 
-
-打开对应的主页后，如果一切顺利的话，你应该可以看到以下日志
+在一切配置完成，打开对应的主页后，如果一切顺利的话，你应该可以看到以下日志
 
 ```log
 06-30 22:49:02 [INFO] nonebot_plugin_bilichat | Successfully updated newbing cookies
