@@ -5,7 +5,7 @@ import pkgutil
 from nonebot.log import logger
 from nonebot.plugin import PluginMetadata
 
-from . import adatpters
+from . import adatpters, auth  # noqa: F401
 from .config import __version__
 
 __plugin_meta__ = PluginMetadata(
@@ -22,6 +22,7 @@ __plugin_meta__ = PluginMetadata(
     },
 )
 
+# load adapters
 modules = []
 for _, module_name, _ in pkgutil.iter_modules(adatpters.__path__):
     full_module_name = f"{adatpters.__name__}.{module_name}"
