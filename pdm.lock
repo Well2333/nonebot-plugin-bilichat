@@ -6,7 +6,7 @@ groups = ["default", "dev", "all"]
 cross_platform = true
 static_urls = false
 lock_version = "4.3"
-content_hash = "sha256:ba57ff1fdb92a310d0aa651a096138f2a1267bc2c40e4300cb5d32f384439867"
+content_hash = "sha256:99a4cae99aabb534be6cd9f72ab4d340b8e6868668c82defe3ce137a168e3cfd"
 
 [[package]]
 name = "aiofiles"
@@ -434,7 +434,7 @@ files = [
 
 [[package]]
 name = "dynrender-skia-opt"
-version = "0.3.3"
+version = "0.3.6"
 requires_python = "<4.0,>=3.8"
 summary = "使用skia-python将BiliBili动态渲染为图片"
 dependencies = [
@@ -445,8 +445,8 @@ dependencies = [
     "skia-python<88.0,>=87.5",
 ]
 files = [
-    {file = "dynrender_skia_opt-0.3.3-py3-none-any.whl", hash = "sha256:5254ee031b0ba283d814590aa223375b40b3704b142f4aa88cbdb80ca6030c55"},
-    {file = "dynrender_skia_opt-0.3.3.tar.gz", hash = "sha256:2ba32a51fc0d6c889f1ae6cd8fa150482354cd70c9ae99b4fbb9a364059b40fa"},
+    {file = "dynrender_skia_opt-0.3.6-py3-none-any.whl", hash = "sha256:7bba578def1a8e204568ad4d8dd5cfacd5bb28ded45b3937ac858e8865174ecc"},
+    {file = "dynrender_skia_opt-0.3.6.tar.gz", hash = "sha256:3d155bf20e2476fda0b5c97085f118ebf68917298df547a28c0305f1d89a5f07"},
 ]
 
 [[package]]
