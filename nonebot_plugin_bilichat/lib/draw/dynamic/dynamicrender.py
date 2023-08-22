@@ -1,7 +1,7 @@
 import json
 from io import BytesIO
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Optional
 
 import skia
 from dynamicadaptor.DynamicConversion import formate_message
@@ -25,29 +25,32 @@ render = DynRender(
 )
 
 
-async def skia_dynamic(dynid: str):
-    url = f"https://api.bilibili.com/x/polymer/web-dynamic/v1/detail?timezone_offset=-480&id={dynid}"
-    headers = {
-        "Referer": f"https://t.bilibili.com/{dynid}",
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36 uacq"
-        ),
-    }
+async def skia_dynamic(dynid: str, raw: Optional[Dict] = None, **kwargs):
+    if raw:
+        dynamic_formate = await formate_message("grpc", raw)
+    else:
+        logger.debug("正在使用 RestAPI 获取动态信息")
+        url = f"https://api.bilibili.com/x/polymer/web-dynamic/v1/detail?timezone_offset=-480&id={dynid}"
+        headers = {
+            "Referer": f"https://t.bilibili.com/{dynid}",
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36 uacq"
+            ),
+        }
 
-    cookies = {}
-    if browser_cookies_file.exists() and browser_cookies_file.is_file():
-        if browser_cookies := json.loads(browser_cookies_file.read_bytes()):
-            logger.debug("正在为添加cookies")
-            for cookie in browser_cookies:
-                cookies[cookie["name"]] = cookie["value"]
-    async with AsyncClient(cookies=cookies) as client:
-        resp: Dict = (await client.get(url, headers=headers)).json()
-    result = resp.get("data", {}).get("item")
-    if not result:
-        logger.error(f"Dynamic {dynid} content not correct: {resp}")
-        raise AbortError("动态查询信息异常，请查看控制台获取更多信息")
-    dynamic_formate = await formate_message("web", result)
+        cookies = {}
+        if browser_cookies_file.exists() and browser_cookies_file.is_file():
+            if browser_cookies := json.loads(browser_cookies_file.read_bytes()):
+                for cookie in browser_cookies:
+                    cookies[cookie["name"]] = cookie["value"]
+        async with AsyncClient(cookies=cookies) as client:
+            resp: Dict = (await client.get(url, headers=headers)).json()
+        result = resp.get("data", {}).get("item")
+        if not result:
+            logger.error(f"Dynamic {dynid} content not correct: {resp}")
+            raise AbortError("动态查询信息异常，请查看控制台获取更多信息")
+        dynamic_formate = await formate_message("web", result)
     if dynamic_formate:
         img_bio = BytesIO()
         image_array = await render.run(dynamic_formate)

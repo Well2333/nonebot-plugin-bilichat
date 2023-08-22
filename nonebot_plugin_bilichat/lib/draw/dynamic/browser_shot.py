@@ -145,7 +145,7 @@ async def get_pc_screenshot(page: Page, dynid: str):
     return page, clip
 
 
-async def screenshot(dynid: str, retry: bool = True):
+async def screenshot(dynid: str, retry: bool = True, **kwargs):
     logger.info(f"正在截图动态：{dynid}")
     async with get_new_page() as page:
         await page.route(re.compile("^https://fonts.bbot/(.+)$"), pw_font_injecter)
@@ -165,24 +165,24 @@ async def screenshot(dynid: str, retry: bool = True):
         except TimeoutError:
             if retry:
                 logger.error(f"Dynamic {dynid} screenshot timed out, retrying...")
-                return await screenshot(dynid, False)
+                return await screenshot(dynid, retry=False)
             raise AbortError(f"{dynid} 动态截图超时")
         except NotFindAbortError:
             if retry:
                 logger.error(f"Dynamic {dynid} screenshot not found, retry in 3 secs...")
                 await asyncio.sleep(3)
-                return await screenshot(dynid, False)
+                return await screenshot(dynid, retry=False)
             raise
         except Exception as e:  # noqa
             if "waiting until" in str(e):
                 if retry:
                     logger.error(f"Dynamic {dynid} screenshot timed out, retrying...")
                     await asyncio.sleep(3)
-                    return await screenshot(dynid, False)
+                    return await screenshot(dynid, retry=False)
                 raise AbortError(f"{dynid} 动态截图超时")
             else:
                 capture_exception()
                 if retry:
                     logger.exception(f"Dynamic {dynid} screenshot not found, retrying...")
-                    return await screenshot(dynid, False)
+                    return await screenshot(dynid, retry=False)
                 raise AbortError(f"{dynid} 动态截图失败")
