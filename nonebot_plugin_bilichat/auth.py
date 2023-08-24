@@ -11,13 +11,7 @@ from nonebot.plugin import on_command
 from nonebot.rule import to_me
 from nonebot.typing import T_State
 
-from .lib.store import cache_dir
-
-gRPC_Auth: Auth = Auth()
-
-
-bili_grpc_auth = cache_dir.joinpath("bili_grpc_auth.json")
-bili_grpc_auth.touch(0o700, exist_ok=True)
+from .lib.bilibili_request.auth import bili_grpc_auth, gRPC_Auth  # noqa: F401
 
 
 async def login_from_cache() -> bool:
@@ -29,6 +23,7 @@ async def login_from_cache() -> bool:
         logger.debug(gRPC_Auth.data)
     except Exception as e:
         logger.error(f"缓存登录失败，请使用验证码登录: {e}")
+        gRPC_Auth = Auth()
         return False
     else:
         logger.success("缓存登录成功")
