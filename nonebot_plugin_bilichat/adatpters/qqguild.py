@@ -88,10 +88,14 @@ def set_options(state: T_State, event: MessageEvent):
 
 
 @bilichat.handle()
-async def content_info(
-    event: MessageEvent,
-    content: Union[Column, Video, Dynamic] = Depends(get_content_info_from_state),
-):
+async def content_info(event: MessageEvent, state: T_State):
+    try:
+        content: Union[Column, Video, Dynamic] = await get_content_info_from_state(state)
+    except AbortError as e:
+        if plugin_config.bilichat_show_error_msg:
+            await bilichat.finish(str(e))
+        raise FinishedException
+
     if plugin_config.bilichat_basic_info:
         if content_image := await content.get_image(plugin_config.bilichat_basic_info_style):
             await bilichat.send(MessageSegment.file_image(content_image))

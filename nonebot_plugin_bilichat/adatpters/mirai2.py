@@ -109,12 +109,14 @@ async def send_msg(
 
 
 @bilichat.handle()
-async def content_info(
-    bot: Bot,
-    event: MessageEvent,
-    content: Union[Column, Video, Dynamic] = Depends(get_content_info_from_state),
-):
+async def content_info(bot: Bot, event: MessageEvent, state: T_State):
     messag_id = event.source.id if event.source else None
+    try:
+        content: Union[Column, Video, Dynamic] = await get_content_info_from_state(state)
+    except AbortError as e:
+        if plugin_config.bilichat_show_error_msg:
+            await send_msg(bot, event, str(e), quote=messag_id)
+        raise FinishedException
     if plugin_config.bilichat_basic_info:
         content_image = await content.get_image(plugin_config.bilichat_basic_info_style)
         if content_image:
