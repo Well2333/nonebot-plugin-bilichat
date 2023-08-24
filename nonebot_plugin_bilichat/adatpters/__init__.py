@@ -44,29 +44,25 @@ def check_cd(uid: str):
 
 async def get_content_info_from_state(state: T_State):
     content: Union[Column, Video, Dynamic, None] = None
-    try:
-        ## video handle
-        if matched := re.search(r"av(\d{1,15})|BV(1[A-Za-z0-9]{2}4.1.7[A-Za-z0-9]{2})", state["_bililink_"]):
-            content = await Video.from_id(matched.group(), state["_options_"])
+    ## video handle
+    if matched := re.search(r"av(\d{1,15})|BV(1[A-Za-z0-9]{2}4.1.7[A-Za-z0-9]{2})", state["_bililink_"]):
+        content = await Video.from_id(matched.group(), state["_options_"])
 
-        ## column handle
-        elif matched := re.search(r"cv(\d{1,16})", state["_bililink_"]):
-            content = await Column.from_id(matched.group(), state["_options_"])
+    ## column handle
+    elif matched := re.search(r"cv(\d{1,16})", state["_bililink_"]):
+        content = await Column.from_id(matched.group(), state["_options_"])
 
-        ## dynamic handle
-        elif plugin_config.bilichat_dynamic and (
-            matched := re.search(r"(dynamic|opus|t.bilibili.com)/(\d{1,128})", state["_bililink_"])
-        ):
-            content = await Dynamic.from_id(matched.group())
+    ## dynamic handle
+    elif plugin_config.bilichat_dynamic and (
+        matched := re.search(r"(dynamic|opus|t.bilibili.com)/(\d{1,128})", state["_bililink_"])
+    ):
+        content = await Dynamic.from_id(matched.group())
 
-        if content:
-            check_cd(f"{state['_uid_']}_-_{content.id}")
-            return content
-        else:
-            raise AbortError("返回内容为空")
-    except AbortError as e:
-        logger.error(e)
-        raise FinishedException
+    if content:
+        check_cd(f"{state['_uid_']}_-_{content.id}")
+        return content
+    else:
+        raise AbortError("返回内容为空")
 
 
 async def get_futuer_fuctions(content: Union[Video, Column, Any]):
