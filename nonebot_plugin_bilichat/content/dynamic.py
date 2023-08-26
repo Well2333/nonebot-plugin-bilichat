@@ -1,13 +1,14 @@
-from typing import Dict, Literal, Optional
+from typing import Dict, Literal
 
 from bilireq.exceptions import GrpcError, ResponseCodeError
 from bilireq.grpc.dynamic import grpc_get_dynamic_detail
+from bilireq.grpc.protos.bilibili.app.dynamic.v2.dynamic_pb2 import DynamicType, DynModuleType
 from google.protobuf.json_format import MessageToDict
 from nonebot.log import logger
 from pydantic import BaseModel
 
-from ..auth import gRPC_Auth
 from ..lib.bilibili_request import get_b23_url, get_dynamic
+from ..lib.bilibili_request.auth import gRPC_Auth
 from ..lib.draw.dynamic import draw_dynamic
 from ..model.exception import AbortError
 from ..optional import capture_exception
@@ -18,6 +19,8 @@ class Dynamic(BaseModel):
     """动态编号"""
     url: str
     """b23 链接"""
+    dynamic_type: DynamicType.ValueType = DynamicType.dyn_none
+    "动态类型"
     raw: Dict = {}
     """动态的原始信息"""
     raw_type: Literal["web", "grpc", None] = None
@@ -25,23 +28,19 @@ class Dynamic(BaseModel):
     async def _grpc(self):
         logger.debug("正在使用 gRPC 获取动态信息")
         _dyn = await grpc_get_dynamic_detail(dynamic_id=self.id, auth=gRPC_Auth)
-        dyn = MessageToDict(_dyn.item)
-        self.raw = dyn
+        dyn = _dyn.item
+        self.raw = MessageToDict(dyn)
         self.raw_type = "grpc"
-        # 获取动态内容信息
-        # with open("test.json", "w", encoding="utf-8") as f:
-        #     # json.dump(dyn.item.__dict__, f, ensure_ascii=False, indent=4)
-        #     f.write(json.dumps(dyn, ensure_ascii=False))
-        # 如果是内容类型的
-        if dyn["cardType"] == "av":
-            for module in dyn["modules"]:
-                if module["moduleType"] == "module_dynamic":
-                    aid = module["moduleDynamic"]["dynArchive"]["avid"]
+        self.dynamic_type = dyn.card_type
+        if dyn.card_type == DynamicType.av:
+            for module in dyn.modules:
+                if module.module_type == DynModuleType.module_dynamic:
+                    aid = module.module_dynamic.dyn_archive.avid
                     self.url = await get_b23_url(f"https://www.bilibili.com/video/av{aid}")
-        elif dyn["cardType"] == "article":
-            for module in dyn["modules"]:
-                if module["moduleType"] == "module_dynamic":
-                    cvid = module["moduleDynamic"]["dynArticle"]["id"]
+        elif dyn.card_type == DynamicType.article:
+            for module in dyn.modules:
+                if module.module_type == DynModuleType.module_dynamic:
+                    cvid = module.module_dynamic.dyn_article.id
                     self.url = await get_b23_url(f"https://www.bilibili.com/read/cv{cvid}")
 
     async def _web(self):
@@ -51,9 +50,11 @@ class Dynamic(BaseModel):
         self.raw_type = "web"
 
         if dyn["type"] == "DYNAMIC_TYPE_AV":
+            self.dynamic_type = DynamicType.av
             aid = dyn["modules"]["module_dynamic"]["major"]["archive"]["aid"]
             self.url = await get_b23_url(f"https://www.bilibili.com/video/av{aid}")
         elif dyn["type"] == "DYNAMIC_TYPE_ARTICLE":
+            self.dynamic_type = DynamicType.article
             cvid = dyn["modules"]["module_dynamic"]["major"]["article"]["id"]
             self.url = await get_b23_url(f"https://www.bilibili.com/read/cv{cvid}")
 
@@ -92,4 +93,4 @@ class Dynamic(BaseModel):
         return dynamic
 
     async def get_image(self, style: str):
-        return await draw_dynamic(self.id, raw=self.raw, raw_type=self.raw_type)
+        return await draw_dynamic(dynid=self.id, raw=self.raw, raw_type=self.raw_type)

@@ -21,6 +21,7 @@ try:
 except Exception:
     __version__ = None
 
+require("nonebot_plugin_apscheduler")
 
 class Config(BaseModel):
     # general
@@ -35,6 +36,12 @@ class Config(BaseModel):
     bilichat_show_error_msg: bool = True
     bilichat_use_browser: bool = Field(default="Auto")
     bilichat_cache_serive: Literal["json", "mongodb"] = Field(default="Auto")
+
+    # command and subscribe
+    bilichat_command_start: str = "bilichat"
+    bilichat_command_to_me: bool = True
+    bilichat_subs_limit: int = Field(5, ge=1, le=50)
+    bilichat_subs_interval: int = Field(30, ge=30, le=120)
 
     # basic info
     bilichat_basic_info: bool = True

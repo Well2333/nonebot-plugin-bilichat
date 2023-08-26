@@ -64,3 +64,13 @@ async def get_dynamic(dyn_id: str):
         ),
     }
     return await get(url=url, headers=headers, cookies=gRPC_Auth.cookies)
+
+async def search_user(keyword: str):
+    """
+    搜索用户
+    """
+    url = "https://app.bilibili.com/x/v2/search/type"
+    data = {"build": "6840300", "keyword": keyword, "type": "2", "ps": 5}
+
+    resp = await get(url, params=data, cookies=gRPC_Auth.cookies)
+    return resp

@@ -1,8 +1,9 @@
 import re
 import shlex
 from itertools import chain
-from typing import Union, cast
+from typing import TYPE_CHECKING, Optional, Union, cast
 
+from nonebot import get_bots
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GroupMessageEvent,
@@ -13,7 +14,6 @@ from nonebot.adapters.onebot.v11 import (
 )
 from nonebot.exception import FinishedException
 from nonebot.log import logger
-from nonebot.params import Depends
 from nonebot.plugin import on_message
 from nonebot.rule import Rule
 from nonebot.typing import T_State
@@ -24,7 +24,36 @@ from ..lib.b23_extract import b23_extract
 from ..model.arguments import Options, parser
 from ..model.exception import AbortError
 from ..optional import capture_exception
-from . import get_content_info_from_state, get_futuer_fuctions
+from .base import get_content_info_from_state, get_futuer_fuctions
+
+if TYPE_CHECKING:
+    from ..subscribe.manager import User
+
+
+async def push(user: "User", text: str = "", url: str = "", image: Optional[bytes] = None, **data):
+    if image:
+        ms_image = MessageSegment.image(file=image)
+    else:
+        ms_image = ""
+    message = Message(text + ms_image + url)
+    if user.at_all:
+        message = MessageSegment.at("all") + message
+
+    for bot in get_bots().values():
+        if isinstance(bot, Bot):
+            for group in await bot.get_group_list():
+                if int(user.user_id) == group["group_id"]:
+                    try:
+                        await bot.send_group_msg(group_id=int(user.user_id), message=message)
+                        return
+                    except Exception as e:
+                        logger.exception(e)
+
+
+async def get_user_id(event: MessageEvent):
+    if isinstance(event, GroupMessageEvent):
+        return event.group_id
+    return None
 
 
 async def _bili_check(bot: Bot, event: MessageEvent, state: T_State):

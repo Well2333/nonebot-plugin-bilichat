@@ -17,6 +17,7 @@ dependencies = [
     "nonebot2[fastapi,websockets]>=2.0.0",
     "httpx>=0.24.1",
     "dynrender-skia-opt>=0.3.8",
+    "nonebot-plugin-apscheduler>=0.3.0",
 ]
 requires-python = ">=3.8,<4.0"
 readme = "README.md"

@@ -8,7 +8,6 @@ from nonebot.adapters.mirai2 import Bot, MessageChain, MessageSegment
 from nonebot.adapters.mirai2.event import FriendMessage, FriendSyncMessage, GroupMessage, GroupSyncMessage, MessageEvent
 from nonebot.exception import FinishedException
 from nonebot.log import logger
-from nonebot.params import Depends
 from nonebot.plugin import on_message
 from nonebot.rule import Rule
 from nonebot.typing import T_State
@@ -19,7 +18,7 @@ from ..lib.b23_extract import b23_extract
 from ..model.arguments import Options, parser
 from ..model.exception import AbortError
 from ..optional import capture_exception
-from . import get_content_info_from_state, get_futuer_fuctions
+from .base import get_content_info_from_state, get_futuer_fuctions
 
 
 async def _bili_check(bot: Bot, event: MessageEvent, state: T_State):

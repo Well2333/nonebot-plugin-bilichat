@@ -1,7 +1,7 @@
 import httpx
 
 from .gRPC import grpc_get_playview, grpc_get_view_info  # noqa: F401
-from .restAPI import get_b23_url, get_dynamic, get_player, get_user_space_info  # noqa: F401
+from .restAPI import get_b23_url, get_dynamic, get_player, get_user_space_info, search_user  # noqa: F401
 
 hc = httpx.AsyncClient(
     headers={
