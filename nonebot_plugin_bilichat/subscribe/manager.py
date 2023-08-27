@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+import time
 from typing import Any, Dict, List, Union
 
 from nonebot import get_bots, get_driver
@@ -8,6 +8,7 @@ from nonebot.log import logger
 from ..adapters import PUSH_HANDLER
 from ..config import plugin_config
 from ..lib.store import data_dir
+from ..lib.tools import calc_time_total
 
 subscribe_file = data_dir.joinpath("subscribe.json")
 subscribe_file.touch(0o755, True)
@@ -21,7 +22,7 @@ class Uploader:
     def __init__(self, nickname: str, uid: int):
         self.nickname: str = nickname
         self.uid: int = uid
-        self.living: Union[datetime, None] = None
+        self.living: int = 0
         self.dyn_offset: int = 0
 
     @property
@@ -34,14 +35,15 @@ class Uploader:
         return {"nickname": self.nickname, "uid": self.uid}
 
     def __str__(self) -> str:
-        return f"{self.nickname}({self.uid})"
+        live = f" 🔴直播中: {calc_time_total(time.time() - self.living)}" if self.living > 100000 else ""
+        return f"{self.nickname}({self.uid}){live}"
 
 
 class User:
     """Represents a user in the system."""
 
     def __init__(self, user_id: str, platfrom: str, at_all: bool = False, subscriptions: List[int] = []):
-        self.user_id: str = user_id
+        self.user_id: str = str(user_id)
         self.platfrom: str = platfrom
         self.at_all: bool = at_all
         self.subscriptions: List[int] = subscriptions
@@ -65,24 +67,19 @@ class User:
                 self.subscriptions.remove(uid)
         return uplist
 
-    async def push_dynamic(self, text: str, url: str, image: bytes):
+    async def push_to_user(self, text: str, url: str, image: bytes):
         handler = PUSH_HANDLER.get(self.platfrom)
         if handler:
             await handler(user=self, text=text, url=url, image=image)
-
-    def get_sub_prompt(self):
-        if not self.subscriptions:
-            return "本群并未订阅任何UP主呢...\n`(*>﹏<*)′"
-        ups = self.subscribe_ups
-        return f"本群共订阅 {len(ups)} 个 UP:\n" + "\n".join(
-            [f"{index+1}. {up.nickname}({up.uid})" for index, up in enumerate(ups)]
-        )
 
     def add_subscription(self, uploader: Uploader) -> Union[None, str]:
         """Add a subscription for a user to an uploader."""
 
         if len(self.subscriptions) > plugin_config.bilichat_subs_limit:
             return "本群的订阅已经满啦\n删除无用的订阅再试吧\n`(*>﹏<*)′"
+
+        if uploader.uid in self.subscriptions:
+            return "本群已经订阅了此UP主呢...\n`(*>﹏<*)′"
 
         self.subscriptions.append(uploader.uid)
 
@@ -95,12 +92,11 @@ class User:
 
     def remove_subscription(self, uploader: Uploader) -> Union[None, str]:
         """Remove a subscription for a user from an uploader."""
-        SubscriptionSystem.users[self.user_id] = self
-
         if uploader.uid not in self.subscriptions:
             return "本群并未订阅此UP主呢...\n`(*>﹏<*)′"
 
         self.subscriptions.remove(uploader.uid)
+        SubscriptionSystem.users[self.user_id] = self
         if not self.subscriptions:
             del SubscriptionSystem.users[self.user_id]
 
@@ -135,6 +131,7 @@ class SubscriptionSystem:
     @classmethod
     def save_to_file(cls):
         """Save data to the JSON file."""
+        print(cls.dict())
         subscribe_file.write_text(
             json.dumps(
                 cls.dict(),
@@ -143,23 +140,6 @@ class SubscriptionSystem:
                 sort_keys=True,
             )
         )
-
-    # @classmethod
-    # def get_up_groups(cls) -> Set[Tuple[Uploader]]:
-    #     elements = tuple(cls.activate_uploaders.values())
-    #     st = set()
-    #     if len(elements) < 4:
-    #         return {
-    #             elements,
-    #         }
-    #     t = len(elements)  # 总长度
-    #     g = math.ceil(math.sqrt(t))  # 每组的长度
-    #     i = 0
-    #     for i in range(t // g):
-    #         st.add(elements[g * i : g * (i + 1)])
-    #     if t % g != 0:
-    #         st.add(elements[g * (i + 1) :])
-    #     return st
 
     @classmethod
     def get_activate_uploaders(cls):

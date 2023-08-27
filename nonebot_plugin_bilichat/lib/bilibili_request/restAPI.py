@@ -1,7 +1,7 @@
-from bilireq.utils import get, post
+from bilireq.utils import DEFAULT_HEADERS, get, post
 from loguru import logger
 
-from .auth import gRPC_Auth
+from .auth import get_cookies, gRPC_Auth
 
 
 async def get_b23_url(burl: str) -> str:
@@ -36,7 +36,7 @@ async def get_user_space_info(uid: int):
         "build": 6840300,
         "ps": 1,
     }
-    return await get(url, params=params, cookies=gRPC_Auth.cookies)
+    return await get(url, params=params, cookies=get_cookies())
 
 
 async def get_player(aid: int, cid: int):
@@ -48,7 +48,7 @@ async def get_player(aid: int, cid: int):
         "aid": aid,
         "cid": cid,
     }
-    return await get(url, params=params, cookies=gRPC_Auth.cookies)
+    return await get(url, params=params, cookies=get_cookies())
 
 
 async def get_dynamic(dyn_id: str):
@@ -63,7 +63,8 @@ async def get_dynamic(dyn_id: str):
             "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36 uacq"
         ),
     }
-    return await get(url=url, headers=headers, cookies=gRPC_Auth.cookies)
+    return await get(url=url, headers=headers, cookies=get_cookies())
+
 
 async def search_user(keyword: str):
     """
@@ -72,5 +73,22 @@ async def search_user(keyword: str):
     url = "https://app.bilibili.com/x/v2/search/type"
     data = {"build": "6840300", "keyword": keyword, "type": "2", "ps": 5}
 
-    resp = await get(url, params=data, cookies=gRPC_Auth.cookies)
-    return resp
+    return await get(url, params=data, cookies=get_cookies())
+
+
+async def get_user_dynamics(uid: int):
+    """根据 UID 批量获取直播间信息"""
+    url = "https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space"
+    data = {"host_mid": uid}
+    headers = {
+        **DEFAULT_HEADERS,
+        **{
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36 uacq"
+            ),
+            "Origin": "https://space.bilibili.com",
+            "Referer": f"https://space.bilibili.com/{uid}/dynamic",
+        },
+    }
+    return await get(url, params=data, headers=headers, cookies=get_cookies())

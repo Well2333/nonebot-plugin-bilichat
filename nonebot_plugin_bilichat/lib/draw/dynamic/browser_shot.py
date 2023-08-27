@@ -11,7 +11,7 @@ from playwright.async_api import Page, Request, Response
 from ....config import plugin_config
 from ....model.exception import AbortError, CaptchaAbortError, NotFindAbortError
 from ....optional import capture_exception
-from ...bilibili_request.auth import gRPC_Auth
+from ...bilibili_request.auth import get_cookies, gRPC_Auth
 from ...browser import pw_font_injecter
 from ...store import static_dir
 
@@ -29,13 +29,13 @@ async def get_new_page(device_scale_factor: float = 2, **kwargs) -> AsyncIterato
     page = await browser.new_page(device_scale_factor=device_scale_factor, **kwargs)
     if gRPC_Auth:
         logger.debug("正在为浏览器添加cookies")
-        await page.context.add_cookies( # type: ignore
+        await page.context.add_cookies(  # type: ignore
             [
                 {
-                    "name": cookie["name"],
-                    "value": cookie["value"],
+                    "name": name,
+                    "value": value,
                 }
-                for cookie in gRPC_Auth.cookies
+                for name, value in get_cookies().items()
             ]
         )
     try:

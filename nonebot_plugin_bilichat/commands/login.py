@@ -18,16 +18,16 @@ bili_login_sms = bilichat.command(
     expire_time=timedelta(seconds=120),
 )
 
-# bili_login_qrcode = bilichat.command(
-#     "qrlogin",
-#     aliases={
-#         "扫码登录",
-#     },
-#     expire_time=timedelta(seconds=120),
-# )
+bili_login_qrcode = bilichat.command(
+    "qrlogin",
+    aliases={
+        "扫码登录",
+    },
+    expire_time=timedelta(seconds=120),
+)
 
 
-# @bili_login_qrcode.handle()
+@bili_login_qrcode.handle()
 @bili_login_sms.handle()
 async def bili_login_from_cache():
     if await login_from_cache():
@@ -40,6 +40,7 @@ async def bili_login_from_cache():
 async def bili_send_sms(state: T_State, username: str = ArgPlainText()):
     login = Login()
     state["_username_"] = username
+    state["_login_"] = login
     try:
         state["_captcha_key_"] = await login.send_sms(username)
     except Exception as e:
@@ -49,7 +50,7 @@ async def bili_send_sms(state: T_State, username: str = ArgPlainText()):
 @bili_login_sms.got("sms", prompt="验证码已发送，请在120秒内输入验证码")
 async def bili_handle_login(state: T_State, sms: str = ArgPlainText()):
     global gRPC_Auth
-    login = Login()
+    login: Login = state["_login_"]
     try:
         gRPC_Auth = await login.sms_login(code=sms, tel=state["_username_"], cid=86, captcha_key=state["_captcha_key_"])
         logger.debug(gRPC_Auth.data)
@@ -59,19 +60,19 @@ async def bili_handle_login(state: T_State, sms: str = ArgPlainText()):
     await bili_login_sms.finish("登录成功，已将验证信息缓存至文件")
 
 
-# from nonebot.adapters.onebot.v11 import MessageEvent, MessageSegment
-#
-#
-# @bili_login_qrcode.handle()
-# async def bili_qrcode_login(event: MessageEvent):
-#     login = Login()
-#     qr_url = await login.get_qrcode_url()
-#     data = await login.get_qrcode(qr_url,base64=True)
-#     await bili_login_qrcode.send(MessageSegment.image(data))
-#     try:
-#         gRPC_Auth = await login.qrcode_login(interval=5)
-#         logger.debug(gRPC_Auth.data)
-#         bili_grpc_auth.write_text(json.dumps(gRPC_Auth.data, indent=2, ensure_ascii=False), encoding="utf-8")
-#     except Exception as e:
-#         await bili_login_sms.finish(f"登录失败: {e}")
-#     await bili_login_sms.finish("登录成功，已将验证信息缓存至文件")
+from nonebot.adapters.onebot.v11 import MessageEvent, MessageSegment
+
+
+@bili_login_qrcode.handle()
+async def bili_qrcode_login(event: MessageEvent):
+    login = Login()
+    qr_url = await login.get_qrcode_url()
+    data = await login.get_qrcode(qr_url,base64=True)
+    await bili_login_qrcode.send(MessageSegment.image(data))
+    try:
+        gRPC_Auth = await login.qrcode_login(interval=5)
+        logger.debug(gRPC_Auth.data)
+        bili_grpc_auth.write_text(json.dumps(gRPC_Auth.data, indent=2, ensure_ascii=False), encoding="utf-8")
+    except Exception as e:
+        await bili_login_sms.finish(f"登录失败: {e}")
+    await bili_login_sms.finish("登录成功，已将验证信息缓存至文件")

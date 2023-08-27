@@ -193,7 +193,7 @@ files = [
 
 [[package]]
 name = "bilireq"
-version = "0.2.9"
+version = "0.2.10"
 requires_python = "<4.0,>=3.8"
 summary = "又一个哔哩哔哩请求库"
 dependencies = [
@@ -203,8 +203,8 @@ dependencies = [
     "rsa>=4.9",
 ]
 files = [
-    {file = "bilireq-0.2.9-py3-none-any.whl", hash = "sha256:55c6288b8ce1989252b6214a9e5d4e9fb3ed518d3b9e45c7d1d89c4fed89c731"},
-    {file = "bilireq-0.2.9.tar.gz", hash = "sha256:c10e6d3223811cfe6d613c8d5834a8c479e40ba8576b71efb2d60874858bb1fb"},
+    {file = "bilireq-0.2.10-py3-none-any.whl", hash = "sha256:685da236c2c3b0416a9172f81193180b43a4bcc259e88b27a68c0cde9ccee2c0"},
+    {file = "bilireq-0.2.10.tar.gz", hash = "sha256:b5a4e825bb9b415792453d29861f0f0908b583f55a7c31ddca3c39e792ccc154"},
 ]
 
 [[package]]
