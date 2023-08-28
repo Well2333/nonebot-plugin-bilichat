@@ -10,10 +10,15 @@ from .dynamic import fetch_dynamics_grpc, fetch_dynamics_rest
 from .live import fetch_live
 from .manager import SubscriptionSystem
 
+LOCK = asyncio.Lock()
+
 
 @scheduler.scheduled_job("interval", seconds=plugin_config.bilichat_subs_interval, id="subscribe_update")
 async def run_subscribe_update():
-    async with asyncio.Lock():
+    async with LOCK:
+        if not SubscriptionSystem.activate_uploaders:
+            logger.debug("no activate uploaders to check, skip...")
+            return
         # 动态
         logger.debug("[Dynamic] Updating start")
         up_groups = SubscriptionSystem.activate_uploaders.values()
