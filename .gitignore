@@ -11,7 +11,8 @@ venv
 .pdm.toml
 
 .env
-log
+logs
+bot.py
 qrcode.png
 
 cookies.json

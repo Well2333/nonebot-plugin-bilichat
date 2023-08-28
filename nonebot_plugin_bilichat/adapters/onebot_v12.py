@@ -1,10 +1,12 @@
 import re
 import shlex
 from itertools import chain
+from random import randint
 from typing import Union, cast
 
-from nonebot.adapters.onebot.v11 import (
+from nonebot.adapters.onebot.v12 import (
     Bot,
+    ChannelMessageEvent,
     GroupMessageEvent,
     Message,
     MessageEvent,
@@ -13,7 +15,6 @@ from nonebot.adapters.onebot.v11 import (
 )
 from nonebot.exception import FinishedException
 from nonebot.log import logger
-from nonebot.params import Depends
 from nonebot.plugin import on_message
 from nonebot.rule import Rule
 from nonebot.typing import T_State
@@ -24,17 +25,11 @@ from ..lib.b23_extract import b23_extract
 from ..model.arguments import Options, parser
 from ..model.exception import AbortError
 from ..optional import capture_exception
-from . import get_content_info_from_state, get_futuer_fuctions
+from .base import get_content_info_from_state, get_futuer_fuctions
 
 
-async def _bili_check(bot: Bot, event: MessageEvent, state: T_State):
-    # 检查并提取 raw_bililink
-    if plugin_config.bilichat_enable_self and str(event.get_user_id()) == str(bot.self_id) and event.reply:
-        # 是自身消息的情况下，检查是否是回复，是的话则取被回复的消息
-        _msgs = event.reply.message
-    else:
-        # 其余情况取该条消息
-        _msgs = event.get_message()
+async def _bili_check(event: MessageEvent, state: T_State):
+    _msgs = event.get_message()
 
     for _msg in _msgs:
         # 如果是图片格式则忽略
@@ -75,6 +70,10 @@ async def _permission_check(bot: Bot, event: MessageEvent, state: T_State):
     elif isinstance(event, GroupMessageEvent):
         state["_uid_"] = event.group_id
         return plugin_config.verify_permission(event.group_id)
+    # channel 消息
+    elif isinstance(event, ChannelMessageEvent):
+        state["_uid_"] = f"{event.guild_id}_{event.channel_id}"
+        return plugin_config.verify_permission(event.guild_id) and plugin_config.verify_permission(event.channel_id)
     return False
 
 
@@ -98,7 +97,7 @@ def set_options(state: T_State, event: MessageEvent):
 
 
 @bilichat.handle()
-async def content_info(event: MessageEvent, state: T_State):
+async def content_info(bot: Bot, event: MessageEvent, state: T_State):
     messag_id = event.message_id
     try:
         content: Union[Column, Video, Dynamic] = await get_content_info_from_state(state)
@@ -106,12 +105,14 @@ async def content_info(event: MessageEvent, state: T_State):
         if plugin_config.bilichat_show_error_msg:
             await bilichat.finish(MessageSegment.reply(messag_id) + str(e))
         raise FinishedException
+
     if plugin_config.bilichat_basic_info:
         content_image = await content.get_image(plugin_config.bilichat_basic_info_style)
 
         msgs = Message(MessageSegment.reply(event.message_id))
         if content_image:
-            msgs.append(MessageSegment.image(content_image))
+            file_ = await bot.upload_file(type="data", name=f"{randint(0,999999)}.image", data=content_image)
+            msgs.append(MessageSegment.image(file_["file_id"]))
         msgs.append(content.url)
         id_ = await bilichat.send(msgs)
         messag_id = id_["message_id"] if plugin_config.bilichat_reply_to_basic_info else messag_id
@@ -123,7 +124,8 @@ async def content_info(event: MessageEvent, state: T_State):
                 if isinstance(msg, str):
                     msgs.append(msg)
                 elif isinstance(msg, bytes):
-                    msgs.append(MessageSegment.image(msg))
+                    file_ = await bot.upload_file(type="data", name=f"{randint(0,999999)}.image", data=msg)
+                    msgs.append(MessageSegment.image(file_["file_id"]))
         if len(msgs) > 1:
             await bilichat.finish(msgs)
     except FinishedException:

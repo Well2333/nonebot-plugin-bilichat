@@ -14,7 +14,6 @@ from ..lib.store import cache_dir
 
 data_path = cache_dir.joinpath("render")
 data_path.mkdir(parents=True, exist_ok=True)
-browser_cookies_file = Path(plugin_config.bilichat_bilibili_cookie or "")
 
 
 render = BiliText(
@@ -31,7 +30,9 @@ cache = str(cache.absolute())
 
 
 async def rich_text2image(data: str, src: str):
-    data = f"AI Summarization, Powered by A60 & Well404 \nNLP Model: {src}\n====================================\n{data}"
+    data = (
+        f"AI Summarization, Powered by A60 & Well404 \nNLP Model: {src}\n====================================\n{data}"
+    )
     image_array = await render.run(
         Text(
             text=data,

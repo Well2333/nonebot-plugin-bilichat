@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from typing import Dict
 
 import nonebot
 from fastapi import FastAPI, HTTPException
@@ -28,13 +29,9 @@ if (
     )
 
     @app.post(plugin_config.bilichat_bilibili_cookie_api)
-    async def receive_cookies(raw_cookies: dict):
+    async def receive_cookies(raw_cookies: Dict):
         try:
-            cookies = [
-                {"domain": ".bilibili.com", "name": name, "path": "/", "value": value}
-                for name, value in raw_cookies.items()
-            ]
-            cookies_file.write_text(json.dumps(cookies))
+            cookies_file.write_text(json.dumps(raw_cookies))
             logger.info("Successfully updated bilibili cookies")
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e)) from e

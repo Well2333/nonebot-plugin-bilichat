@@ -1,7 +1,7 @@
 from nonebot.log import logger
 
 try:
-    from sentry_sdk import capture_exception
+    from sentry_sdk import capture_exception  # type: ignore
 except ImportError:
     logger.warning("sentry_sdk is not installed")
 

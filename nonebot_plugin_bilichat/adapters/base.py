@@ -28,18 +28,27 @@ cd_size_limit = plugin_config.bilichat_cd_time // 2
 locks = {}
 
 
-def check_cd(uid: str):
+def check_cd(uid: Union[int,str], check: bool = True):
     global cd
     now = int(time.time())
+    uid = str(uid)
     # gc
     if len(cd) > cd_size_limit:
         cd = {k: cd[k] for k in cd if cd[k] < now}
+    # not check cd
+    if not check:
+        cd[uid] = now + plugin_config.bilichat_cd_time
+        return
     # check cd
+    session, id_ = uid.split("_-_")
     if cd.get(uid, 0) > now:
-        session, id_ = uid.split("_-_")
-        logger.warning(f"Duplicate video(column) {id_} from session {session}. Skip the video parsing process")
+        logger.warning(f"Duplicate content {id_} from session {session}. Skip the video parsing process")
         raise FinishedException
-    cd[uid] = now + plugin_config.bilichat_cd_time
+    elif cd.get(id_, 0) > now:
+        logger.warning(f"Duplicate content {id_} from global. Skip the video parsing process")
+        raise FinishedException
+    else:
+        cd[uid] = now + plugin_config.bilichat_cd_time
 
 
 async def get_content_info_from_state(state: T_State):

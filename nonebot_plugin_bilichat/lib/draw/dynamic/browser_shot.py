@@ -1,8 +1,6 @@
 import asyncio
-import json
 import re
 from contextlib import asynccontextmanager
-from pathlib import Path
 from typing import AsyncIterator
 
 from loguru import logger
@@ -13,10 +11,10 @@ from playwright.async_api import Page, Request, Response
 from ....config import plugin_config
 from ....model.exception import AbortError, CaptchaAbortError, NotFindAbortError
 from ....optional import capture_exception
+from ...bilibili_request.auth import get_cookies, gRPC_Auth
 from ...browser import pw_font_injecter
 from ...store import static_dir
 
-browser_cookies_file = Path(plugin_config.bilichat_bilibili_cookie or "")
 mobile_style_js = static_dir.joinpath("browser", "mobile_style.js")
 
 
@@ -29,30 +27,21 @@ async def get_new_page(device_scale_factor: float = 2, **kwargs) -> AsyncIterato
             "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Mobile Safari/537.36  uacq"
         )
     page = await browser.new_page(device_scale_factor=device_scale_factor, **kwargs)
-    if browser_cookies_file.exists() and browser_cookies_file.is_file():
-        if browser_cookies := json.loads(browser_cookies_file.read_bytes()):
-            logger.debug("正在为浏览器添加cookies")
-            await page.context.add_cookies(
-                [
-                    {
-                        "domain": cookie["domain"],
-                        "name": cookie["name"],
-                        "path": cookie["path"],
-                        "value": cookie["value"],
-                    }
-                    for cookie in browser_cookies
-                ]
-            )
+    if gRPC_Auth:
+        logger.debug("正在为浏览器添加cookies")
+        await page.context.add_cookies(  # type: ignore
+            [
+                {
+                    "name": name,
+                    "value": value,
+                }
+                for name, value in get_cookies().items()
+            ]
+        )
     try:
         yield page
     finally:
         await page.close()
-
-
-async def refresh_cookies(page: Page):
-    storage_state = await page.context.storage_state()
-    if cookies := storage_state.get("cookies"):
-        browser_cookies_file.write_text(json.dumps(cookies))
 
 
 async def network_request(request: Request):
@@ -158,7 +147,6 @@ async def screenshot(dynid: str, retry: bool = True, **kwargs):
                 page, clip = await get_pc_screenshot(page, dynid)
             clip["height"] = min(clip["height"], 32766)  # 限制高度
             if picture := await page.screenshot(clip=clip, full_page=True, type="jpeg", quality=98):
-                await refresh_cookies(page)
                 return picture
         except CaptchaAbortError:
             raise

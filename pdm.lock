@@ -6,7 +6,7 @@ groups = ["default", "dev", "all"]
 cross_platform = true
 static_urls = false
 lock_version = "4.3"
-content_hash = "sha256:99a4cae99aabb534be6cd9f72ab4d340b8e6868668c82defe3ce137a168e3cfd"
+content_hash = "sha256:77c771e62d3292f98a357e8eebb02ea510a5f66fb0929cf1bde31aad1df4f237"
 
 [[package]]
 name = "aiofiles"
@@ -125,6 +125,21 @@ files = [
 ]
 
 [[package]]
+name = "apscheduler"
+version = "3.10.4"
+requires_python = ">=3.6"
+summary = "In-process task scheduler with Cron-like capabilities"
+dependencies = [
+    "pytz",
+    "six>=1.4.0",
+    "tzlocal!=3.*,>=2.0",
+]
+files = [
+    {file = "APScheduler-3.10.4-py3-none-any.whl", hash = "sha256:fb91e8a768632a4756a585f79ec834e0e27aad5860bac7eaa523d9ccefd87661"},
+    {file = "APScheduler-3.10.4.tar.gz", hash = "sha256:e6df071b27d9be898e486bc7940a7be50b4af2e9da7c08f0744a96d4bd4cef4a"},
+]
+
+[[package]]
 name = "async-timeout"
 version = "4.0.3"
 requires_python = ">=3.7"
@@ -142,6 +157,20 @@ summary = "Classes Without Boilerplate"
 files = [
     {file = "attrs-23.1.0-py3-none-any.whl", hash = "sha256:1f28b4522cdc2fb4256ac1a020c78acf9cba2c6b461ccd2c126f3aa8e8335d04"},
     {file = "attrs-23.1.0.tar.gz", hash = "sha256:6279836d581513a26f1bf235f9acd333bc9115683f14f7e8fae46c98fc50e015"},
+]
+
+[[package]]
+name = "backports-zoneinfo"
+version = "0.2.1"
+requires_python = ">=3.6"
+summary = "Backport of the standard library zoneinfo module"
+files = [
+    {file = "backports.zoneinfo-0.2.1-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:8961c0f32cd0336fb8e8ead11a1f8cd99ec07145ec2931122faaac1c8f7fd987"},
+    {file = "backports.zoneinfo-0.2.1-cp38-cp38-manylinux1_i686.whl", hash = "sha256:e81b76cace8eda1fca50e345242ba977f9be6ae3945af8d46326d776b4cf78d1"},
+    {file = "backports.zoneinfo-0.2.1-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:7b0a64cda4145548fed9efc10322770f929b944ce5cee6c0dfe0c87bf4c0c8c9"},
+    {file = "backports.zoneinfo-0.2.1-cp38-cp38-win32.whl", hash = "sha256:1b13e654a55cd45672cb54ed12148cd33628f672548f373963b0bff67b217328"},
+    {file = "backports.zoneinfo-0.2.1-cp38-cp38-win_amd64.whl", hash = "sha256:4a0f800587060bf8880f954dbef70de6c11bbe59c673c3d818921f042f9954a6"},
+    {file = "backports.zoneinfo-0.2.1.tar.gz", hash = "sha256:fadbfe37f74051d024037f223b8e001611eac868b5c5b06144ef4d8b799862f2"},
 ]
 
 [[package]]
@@ -164,9 +193,9 @@ files = [
 
 [[package]]
 name = "bilireq"
-version = "0.2.8"
+version = "0.2.10"
 requires_python = "<4.0,>=3.8"
-summary = ""
+summary = "又一个哔哩哔哩请求库"
 dependencies = [
     "grpcio>=1.56.2",
     "httpx",
@@ -174,8 +203,8 @@ dependencies = [
     "rsa>=4.9",
 ]
 files = [
-    {file = "bilireq-0.2.8-py3-none-any.whl", hash = "sha256:62090ed7227704502dddcd21228a14faaf07b8ab4ab87d1d5d6f0d6b4c92291b"},
-    {file = "bilireq-0.2.8.tar.gz", hash = "sha256:6ae39dd07e6ba00a78681c034d168f6b6301b05838d5f97cba084ac9dcd7f713"},
+    {file = "bilireq-0.2.10-py3-none-any.whl", hash = "sha256:685da236c2c3b0416a9172f81193180b43a4bcc259e88b27a68c0cde9ccee2c0"},
+    {file = "bilireq-0.2.10.tar.gz", hash = "sha256:b5a4e825bb9b415792453d29861f0f0908b583f55a7c31ddca3c39e792ccc154"},
 ]
 
 [[package]]
@@ -434,7 +463,7 @@ files = [
 
 [[package]]
 name = "dynrender-skia-opt"
-version = "0.3.6"
+version = "0.3.8"
 requires_python = "<4.0,>=3.8"
 summary = "使用skia-python将BiliBili动态渲染为图片"
 dependencies = [
@@ -445,8 +474,8 @@ dependencies = [
     "skia-python<88.0,>=87.5",
 ]
 files = [
-    {file = "dynrender_skia_opt-0.3.6-py3-none-any.whl", hash = "sha256:7bba578def1a8e204568ad4d8dd5cfacd5bb28ded45b3937ac858e8865174ecc"},
-    {file = "dynrender_skia_opt-0.3.6.tar.gz", hash = "sha256:3d155bf20e2476fda0b5c97085f118ebf68917298df547a28c0305f1d89a5f07"},
+    {file = "dynrender_skia_opt-0.3.8-py3-none-any.whl", hash = "sha256:6bb3417b0a504642e36e130fb0e0ed9fc4da6e13ab54adba0da0f46d19422bbf"},
+    {file = "dynrender_skia_opt-0.3.8.tar.gz", hash = "sha256:bf403100175ba2347d185e1ecb5c4a216cfcc27d4b291e01026851e45535470e"},
 ]
 
 [[package]]
@@ -1355,6 +1384,20 @@ files = [
 ]
 
 [[package]]
+name = "nonebot-plugin-apscheduler"
+version = "0.3.0"
+requires_python = ">=3.8,<4.0"
+summary = "APScheduler Support for NoneBot2"
+dependencies = [
+    "apscheduler<4.0.0,>=3.7.0",
+    "nonebot2<3.0.0,>=2.0.0",
+]
+files = [
+    {file = "nonebot_plugin_apscheduler-0.3.0-py3-none-any.whl", hash = "sha256:ec5e0267293fc9803e543c6086d3e109ac87bf6dccea5473d219cad826238aae"},
+    {file = "nonebot_plugin_apscheduler-0.3.0.tar.gz", hash = "sha256:7c41cc1d49ea6af7c4518c72cd15f8c2f549071b8bc8bfc4b21fbdd0a4875cfd"},
+]
+
+[[package]]
 name = "nonebot-plugin-htmlrender"
 version = "0.2.1"
 requires_python = "<4.0,>=3.8"
@@ -1909,6 +1952,15 @@ files = [
 ]
 
 [[package]]
+name = "pytz"
+version = "2023.3"
+summary = "World timezone definitions, modern and historical"
+files = [
+    {file = "pytz-2023.3-py2.py3-none-any.whl", hash = "sha256:a151b3abb88eda1d4e34a9814df37de2a80e301e68ba0fd856fb9b46bfbbbffb"},
+    {file = "pytz-2023.3.tar.gz", hash = "sha256:1d8ce29db189191fb55338ee6d0387d82ab59f3d00eac103412d64e0ebd0c588"},
+]
+
+[[package]]
 name = "pyyaml"
 version = "6.0.1"
 requires_python = ">=3.6"
@@ -2197,6 +2249,30 @@ summary = "Backported and Experimental Type Hints for Python 3.7+"
 files = [
     {file = "typing_extensions-4.7.1-py3-none-any.whl", hash = "sha256:440d5dd3af93b060174bf433bccd69b0babc3b15b1a8dca43789fd7f61514b36"},
     {file = "typing_extensions-4.7.1.tar.gz", hash = "sha256:b75ddc264f0ba5615db7ba217daeb99701ad295353c45f9e95963337ceeeffb2"},
+]
+
+[[package]]
+name = "tzdata"
+version = "2023.3"
+requires_python = ">=2"
+summary = "Provider of IANA time zone data"
+files = [
+    {file = "tzdata-2023.3-py2.py3-none-any.whl", hash = "sha256:7e65763eef3120314099b6939b5546db7adce1e7d6f2e179e3df563c70511eda"},
+    {file = "tzdata-2023.3.tar.gz", hash = "sha256:11ef1e08e54acb0d4f95bdb1be05da659673de4acbd21bf9c69e94cc5e907a3a"},
+]
+
+[[package]]
+name = "tzlocal"
+version = "5.0.1"
+requires_python = ">=3.7"
+summary = "tzinfo object for the local timezone"
+dependencies = [
+    "backports-zoneinfo; python_version < \"3.9\"",
+    "tzdata; platform_system == \"Windows\"",
+]
+files = [
+    {file = "tzlocal-5.0.1-py3-none-any.whl", hash = "sha256:f3596e180296aaf2dbd97d124fe76ae3a0e3d32b258447de7b939b3fd4be992f"},
+    {file = "tzlocal-5.0.1.tar.gz", hash = "sha256:46eb99ad4bdb71f3f72b7d24f4267753e240944ecfc16f25d2719ba89827a803"},
 ]
 
 [[package]]
