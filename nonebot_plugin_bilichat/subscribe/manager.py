@@ -1,6 +1,6 @@
 import json
 import time
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, TypedDict, Union
 
 from nonebot import get_bots, get_driver
 from nonebot.log import logger
@@ -44,14 +44,18 @@ class Uploader:
         return f"{self.nickname}({self.uid}){live}"
 
 
+class UserSubConfig(TypedDict):
+    at_all: bool
+
+
 class User:
     """Represents a user in the system."""
 
-    def __init__(self, user_id: str, platfrom: str, at_all: bool = False, subscriptions: List[int] = []):
+    def __init__(self, user_id: str, platfrom: str, at_all: bool = False, subscriptions: Dict[str, UserSubConfig] = {}):
         self.user_id: str = str(user_id)
         self.platfrom: str = platfrom
         self.at_all: bool = at_all
-        self.subscriptions: List[int] = subscriptions
+        self.subscriptions: Dict[int, UserSubConfig] = {int(k): v for k, v in subscriptions.items()}
 
     def dict(self) -> Dict[str, Any]:
         """Return a dictionary representation of the User."""
@@ -65,11 +69,11 @@ class User:
     @property
     def subscribe_ups(self) -> List[Uploader]:
         uplist = []
-        for uid in self.subscriptions.copy():
+        for uid in self.subscriptions.keys():
             if up := SubscriptionSystem.uploaders.get(uid):
                 uplist.append(up)
             else:
-                self.subscriptions.remove(uid)
+                del self.subscriptions[uid]
         return uplist
 
     async def push_to_user(self, text: str, url: str = "", image: bytes = b""):
@@ -86,7 +90,7 @@ class User:
         if uploader.uid in self.subscriptions:
             return "本群已经订阅了此UP主呢...\n`(*>﹏<*)′"
 
-        self.subscriptions.append(uploader.uid)
+        self.subscriptions[uploader.uid] = {"at_all": False}
 
         SubscriptionSystem.uploaders[uploader.uid] = uploader
         SubscriptionSystem.activate_uploaders[uploader.uid] = uploader
@@ -100,7 +104,7 @@ class User:
         if uploader.uid not in self.subscriptions:
             return "本群并未订阅此UP主呢...\n`(*>﹏<*)′"
 
-        self.subscriptions.remove(uploader.uid)
+        del self.subscriptions[uploader.uid]
         SubscriptionSystem.users[self.user_id] = self
         if not self.subscriptions:
             del SubscriptionSystem.users[self.user_id]

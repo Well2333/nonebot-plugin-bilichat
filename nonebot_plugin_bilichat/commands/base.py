@@ -1,7 +1,6 @@
 from nonebot.adapters import Bot, Event
 from nonebot.exception import FinishedException
 from nonebot.matcher import Matcher
-from nonebot.permission import SUPERUSER
 from nonebot.plugin import CommandGroup
 from nonebot.rule import to_me
 
@@ -10,8 +9,7 @@ from ..config import plugin_config
 from ..subscribe.manager import SubscriptionSystem, User
 
 bilichat = CommandGroup(
-    plugin_config.bilichat_command_start,
-    permission=SUPERUSER,
+    plugin_config.bilichat_cmd_start,
     rule=to_me() if plugin_config.bilichat_command_to_me else None,
 )
 

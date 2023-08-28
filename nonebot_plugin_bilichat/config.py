@@ -2,7 +2,7 @@ import importlib.util
 import json
 import sys
 from pathlib import Path
-from typing import List, Literal, Optional, Union
+from typing import List, Literal, Optional, Set, Tuple, Union
 
 from nonebot import get_driver, require
 from nonebot.log import logger
@@ -23,6 +23,7 @@ except Exception:
 
 require("nonebot_plugin_apscheduler")
 
+
 class Config(BaseModel):
     # general
     bilichat_block: bool = False
@@ -38,11 +39,15 @@ class Config(BaseModel):
     bilichat_cache_serive: Literal["json", "mongodb"] = Field(default="Auto")
 
     # command and subscribe
-    bilichat_command_start: str = "bilichat"
-    bilichat_command_to_me: bool = True
     bilichat_subs_limit: int = Field(5, ge=0, le=50)
     bilichat_subs_interval: int = Field(30, ge=30, le=600)
     bilichat_dynamic_grpc: bool = False
+    bilichat_command_to_me: bool = True
+    bilichat_cmd_start: str = "bilichat"
+    bilichat_cmd_add_sub: Set[Union[str, Tuple[str]]] = {"订阅", "关注"}
+    bilichat_cmd_remove_sub: Set[Union[str, Tuple[str]]] = {"退订", "取关"}
+    bilichat_cmd_check_sub: Set[Union[str, Tuple[str]]] = {"查看", "查看订阅"}
+    bilichat_cmd_at_all: Set[Union[str, Tuple[str]]] = {"全体成员", "at全体"}
 
     # basic info
     bilichat_basic_info: bool = True
@@ -259,5 +264,5 @@ class Config(BaseModel):
         else:
             return True
 
-
-plugin_config = Config.parse_obj(get_driver().config)
+raw_config = get_driver().config
+plugin_config = Config.parse_obj(raw_config)

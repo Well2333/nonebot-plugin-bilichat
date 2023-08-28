@@ -187,6 +187,20 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 4. 当使用 `bcut_asr` 接口来生成 AI 字幕时，根据视频时长和网络情况有可能会识别失败，Bot 会提示 `BCut-ASR conversion failed due to network error`。可以通过调高 `bilichat_neterror_retry` 次数或几分钟后重试来尝试重新生成字幕
 5. 当 `bilichat_cache_serive` 为 `mongodb` 时，需要安装并配置 [nonebot-plugin-mongodb](https://github.com/Well2333/nonebot-plugin-mongodb) 才可正常使用
 
+### 指令及订阅配置项
+
+|         配置项          |   类型   |         默认值          |           说明            |
+| :---------------------: | :------: | :---------------------: | :-----------------------: |
+|   bilichat_subs_limit   |   int    |            5            |  允许的最大订阅数(0-50)   |
+| bilichat_subs_interval  |   int    |           30            | 允许的订阅间隔(30-600 秒) |
+|  bilichat_dynamic_grpc  |   bool   |          False          |  是否使用 gRPC 刷取动态   |
+| bilichat_command_to_me  |   bool   |          True           |    命令是否需要@机器人    |
+|   bilichat_cmd_start    |   str    |       "bilichat"        | 命令的起始词，可设置为空  |
+|  bilichat_cmd_add_sub   | Set[str] |    {"订阅", "关注"}     |      "sub"命令的别名      |
+| bilichat_cmd_remove_sub | Set[str] |    {"退订", "取关"}     |     "unsub"命令的别名     |
+| bilichat_cmd_check_sub  | Set[str] |  {"查看", "查看订阅"}   |     "check"命令的别名     |
+|   bilichat_cmd_at_all   | Set[str] | {"全体成员", "at 全体"} |     "atall"命令的别名     |
+
 ### 基础信息配置项
 
 |            配置项            | 类型 | 默认值 |                                                        说明                                                         |
@@ -215,7 +229,6 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 ![](docs/style_blue.png)
 
 </details>
-
 
 > bilichat_dynamic_style 除默认的 dynamicrender 使用 Skia 绘图（未开启浏览器时默认选择），其他均依赖于浏览器进行渲染（需要设置 bilichat_use_browser 为 True 或 Auto），其可用的样式如下所示
 
@@ -305,13 +318,28 @@ BV12v4y1E7NT -r --no-cache # 可以多个参数混用
 
 ### 指令表
 
-> 正在开发指令相关，请无视这里的模板
-> 指令设计方案征集中，如果有什么想要实现的功能可以在 issue 中提出
+> 此部分当前仅适配了 OneBot 11 ，如果有其他适配器的需求可以新建 issue 来提出
 
-|  指令  | 权限 | 需要@ | 范围 |   说明   |
-| :----: | :--: | :---: | :--: | :------: |
-| 指令 1 | 主人 |  否   | 私聊 | 指令说明 |
-| 指令 2 | 群员 |  是   | 群聊 | 指令说明 |
+指令部分由 `指令前缀` 和 `指令名` 组成，其中 `指令前缀` 包含 `COMMAND_START` `bilichat_cmd_start` `COMMAND_SEP` 三部分，默认的 `指令前缀` 为 `/bilichat.` ，即完整的指令为 `/bilichat.xxx`
+
+`指令前缀` 部分也是可以修改的，例如 .env 中填入如下设置即可实现无 `指令前缀`
+
+```dotenv
+COMMAND_SEP=[""]
+COMMAND_START=[""]
+bilichat_cmd_start=""
+```
+
+`指令名` 如下表所示，其中除登录相关的指令均可自定义，可参考上文的 [指令及订阅配置项](#指令及订阅配置项)
+
+|   指令   |  权限  |  范围  |             参数             |                说明                |
+| :------: | :----: | :----: | :--------------------------: | :--------------------------------: |
+|   sub    |  主人  |  群聊  |      UP 主的昵称或 UID       |              添加订阅              |
+|  unsub   |  主人  |  群聊  |      UP 主的昵称或 UID       |              移除订阅              |
+|  check   | 无限制 |  群聊  |              无              |            查看本群订阅            |
+|  atall   |  主人  |  群聊  | UP 主的昵称或 UID，或 `全局` | 设置是否 at 全体成员，仅 OB11 有效 |
+| smslogin |  主人  | 无限制 |              无              |   使用验证码登录 B 站，防止风控    |
+| qrlogin  |  主人  | 无限制 |              无              |   使用二维码登录 B 站，防止风控    |
 
 ## 🙏 感谢
 

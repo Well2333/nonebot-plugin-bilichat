@@ -1,39 +1,35 @@
 import json
-from datetime import timedelta
 
 from bilireq.auth import Auth
 from bilireq.login import Login
 from nonebot.log import logger
+from nonebot.matcher import Matcher
 from nonebot.params import ArgPlainText
+from nonebot.permission import SUPERUSER
 from nonebot.typing import T_State
 
 from ..lib.bilibili_request.auth import bili_grpc_auth, gRPC_Auth, login_from_cache
 from .base import bilichat
 
 bili_login_sms = bilichat.command(
-    "login",
-    aliases={
-        "登录",
-    },
-    expire_time=timedelta(seconds=120),
+    "smslogin",
+    permission=SUPERUSER,
 )
 
 bili_login_qrcode = bilichat.command(
     "qrlogin",
-    aliases={
-        "扫码登录",
-    },
-    expire_time=timedelta(seconds=120),
+    permission=SUPERUSER,
 )
 
 
 @bili_login_qrcode.handle()
 @bili_login_sms.handle()
-async def bili_login_from_cache():
+async def bili_login_from_cache(matcher: Matcher):
+    logger.info("尝试刷新登录")
     if await login_from_cache():
-        await bili_login_sms.finish(f"账号 uid:{gRPC_Auth.uid} 已登录")
+        await matcher.finish(f"账号 uid:{gRPC_Auth.uid} 已登录")
     else:
-        await bili_login_sms.send("当前登录已失效，尝试重新登陆")
+        await matcher.send("当前登录已失效，尝试重新登陆")
 
 
 @bili_login_sms.got("username", prompt="请输入B站账号(电话号码)")
