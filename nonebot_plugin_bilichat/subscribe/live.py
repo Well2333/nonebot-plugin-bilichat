@@ -57,6 +57,7 @@ async def fetch_live(ups: Dict[int, Uploader]):
                     )
                     url = await get_b23_url(f"https://live.bilibili.com/{room.room_id}")
                     live_image = (await hc.get(room.cover_from_user)).content
+                    logger.info(f"{live_prompt}")
                     for user in up.subscribed_users:
                         await user.push_to_user(text=live_prompt, url=url, image=live_image)
                 # 如果记录值大于 0 则是正在直播，不进行开播推送
@@ -67,6 +68,7 @@ async def fetch_live(ups: Dict[int, Uploader]):
                 livetime = calc_time_total(time.time() - up.living)
                 up.living = 0
                 live_prompt = f"UP {room.uname}({room.uid}) 已下播啦\n本次直播时长 {livetime}"
+                logger.info(f"{live_prompt}")
                 for user in up.subscribed_users:
                     await user.push_to_user(text=live_prompt)
         finally:
