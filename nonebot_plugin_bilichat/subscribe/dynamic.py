@@ -10,7 +10,6 @@ from google.protobuf.json_format import MessageToDict
 from grpc.aio import AioRpcError
 from httpx import TimeoutException
 from loguru import logger
-from nonebot.log import logger
 
 from ..adapters.base import check_cd
 from ..config import plugin_config
