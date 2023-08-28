@@ -63,8 +63,9 @@ try:
     async def bili_qrcode_login(event: MessageEvent):
         login = Login()
         qr_url = await login.get_qrcode_url()
-        data = await login.get_qrcode(qr_url, base64=True)
-        await bili_login_qrcode.send(MessageSegment.image(data))  # type: ignore
+        logger.debug(f"qrcode login url: {qr_url}")
+        data = "base64://" + await login.get_qrcode(qr_url, base64=True)  # type: ignore
+        await bili_login_qrcode.send(MessageSegment.image(data))
         try:
             gRPC_Auth: Auth = await login.qrcode_login(interval=5)  # type: ignore
             logger.debug(gRPC_Auth.data)

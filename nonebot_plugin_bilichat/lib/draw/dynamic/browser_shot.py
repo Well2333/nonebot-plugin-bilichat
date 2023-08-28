@@ -32,7 +32,9 @@ async def get_new_page(device_scale_factor: float = 2, **kwargs) -> AsyncIterato
         await page.context.add_cookies(  # type: ignore
             [
                 {
+                    "domain": ".bilibili.com",
                     "name": name,
+                    "path": "/",
                     "value": value,
                 }
                 for name, value in get_cookies().items()
