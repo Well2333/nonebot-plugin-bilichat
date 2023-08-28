@@ -58,8 +58,8 @@ class Config(BaseModel):
     # dynamic
     bilichat_dynamic: bool = True
     bilichat_dynamic_style: Literal["dynamicrender", "browser_mobile", "browser_pc"] = Field(default="Auto")
-    bilichat_bilibili_cookie: Optional[str]
-    bilichat_bilibili_cookie_api: Optional[str]
+    bilichat_bilibili_cookie: Optional[str] = None
+    bilichat_bilibili_cookie_api: Optional[str] = None
 
     # both WC and AI
     bilichat_use_bcut_asr: bool = True
@@ -68,13 +68,13 @@ class Config(BaseModel):
     bilichat_word_cloud: bool = False
 
     # AI Summary
-    bilichat_newbing_cookie: Optional[str]
-    bilichat_newbing_cookie_api: Optional[str]
+    bilichat_newbing_cookie: Optional[str] = None
+    bilichat_newbing_cookie_api: Optional[str] = None
     bilichat_newbing_token_limit: int = 0
     bilichat_newbing_preprocess: bool = True
     bilichat_newbing_wss_link: str = "wss://sydney.bing.com/sydney/ChatHub"
-    bilichat_openai_token: Optional[str]
-    bilichat_openai_proxy: Optional[str]
+    bilichat_openai_token: Optional[str] = None
+    bilichat_openai_proxy: Optional[str] = None
     bilichat_openai_model: Literal[
         "gpt-3.5-turbo",
         "gpt-3.5-turbo-0301",
