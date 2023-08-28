@@ -10,6 +10,7 @@ from .base import bilichat, get_user
 bili_add_sub = bilichat.command("sub", aliases={"订阅", "关注"})
 bili_remove_sub = bilichat.command("unsub", aliases={"退订", "取关"})
 bili_check_sub = bilichat.command("check", aliases={"查看", "查看订阅"})
+bili_at_all = bilichat.command("atall", aliases={"全体成员", "at全体"})
 
 
 @bili_add_sub.handle()
@@ -48,3 +49,15 @@ async def check_sub(user: User = Depends(get_user)):
     await bili_check_sub.finish(
         f"本群共订阅 {len(ups)} 个 UP:\n" + "\n".join([f"{index+1}. {str(up)}" for index, up in enumerate(ups)])
     )
+
+
+@bili_at_all.handle()
+async def at_all(user: User = Depends(get_user)):
+    if user.at_all:
+        user.at_all = False
+        SubscriptionSystem.save_to_file()
+        await bili_at_all.finish("已关闭@全体成员了~\n(*^▽^*)")
+    else:
+        user.at_all = True
+        SubscriptionSystem.save_to_file()
+        await bili_at_all.finish("已开启@全体成员了~\n(*^▽^*)")

@@ -22,7 +22,7 @@ async def get_user(matcher: Matcher, bot: Bot, event: Event) -> User:
     if not handler:
         await matcher.finish("暂时还不支持当前平台呢\n`(*>﹏<*)′")
         raise FinishedException
-    user_id = await handler(event)
+    user_id = str(await handler(event))
     if not user_id:
         await matcher.finish("暂时还不支持当前会话呢\n`(*>﹏<*)′")
         raise FinishedException

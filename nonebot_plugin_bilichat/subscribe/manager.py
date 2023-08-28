@@ -22,7 +22,7 @@ class Uploader:
     def __init__(self, nickname: str, uid: int):
         self.nickname: str = nickname
         self.uid: int = uid
-        self.living: int = 0
+        self.living: int = -1
         self.dyn_offset: int = 0
 
     @property
@@ -35,7 +35,12 @@ class Uploader:
         return {"nickname": self.nickname, "uid": self.uid}
 
     def __str__(self) -> str:
-        live = f" 🔴直播中: {calc_time_total(time.time() - self.living)}" if self.living > 100000 else ""
+        if self.living > 100000:
+            live = f" 🔴直播中: {calc_time_total(time.time() - self.living)}"
+        elif self.living > 0:
+            live = " 🔴直播中"
+        else:
+            live = ""
         return f"{self.nickname}({self.uid}){live}"
 
 
@@ -67,7 +72,7 @@ class User:
                 self.subscriptions.remove(uid)
         return uplist
 
-    async def push_to_user(self, text: str, url: str, image: bytes):
+    async def push_to_user(self, text: str, url: str = "", image: bytes = b""):
         handler = PUSH_HANDLER.get(self.platfrom)
         if handler:
             await handler(user=self, text=text, url=url, image=image)
@@ -131,7 +136,6 @@ class SubscriptionSystem:
     @classmethod
     def save_to_file(cls):
         """Save data to the JSON file."""
-        print(cls.dict())
         subscribe_file.write_text(
             json.dumps(
                 cls.dict(),

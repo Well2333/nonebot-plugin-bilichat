@@ -31,17 +31,16 @@ if TYPE_CHECKING:
 
 
 async def push(user: "User", text: str = "", url: str = "", image: Optional[bytes] = None, **data):
-    if image:
-        ms_image = MessageSegment.image(file=image)
-    else:
-        ms_image = ""
+    ms_image = MessageSegment.image(file=image) if image else ""
     message = Message(text + ms_image + url)
     if user.at_all:
         message = MessageSegment.at("all") + message
 
-    for bot in get_bots().values():
+    bots = get_bots().values()
+    for bot in bots:
         if isinstance(bot, Bot):
-            for group in await bot.get_group_list():
+            groups = await bot.get_group_list()
+            for group in groups:
                 if int(user.user_id) == group["group_id"]:
                     try:
                         await bot.send_group_msg(group_id=int(user.user_id), message=message)

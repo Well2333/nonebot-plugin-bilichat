@@ -1,12 +1,12 @@
 import json
 from datetime import timedelta
 
+from bilireq.auth import Auth
 from bilireq.login import Login
 from nonebot.log import logger
 from nonebot.params import ArgPlainText
 from nonebot.typing import T_State
 
-from ..adapters import PUSH_HANDLER
 from ..lib.bilibili_request.auth import bili_grpc_auth, gRPC_Auth, login_from_cache
 from .base import bilichat
 
@@ -60,19 +60,22 @@ async def bili_handle_login(state: T_State, sms: str = ArgPlainText()):
     await bili_login_sms.finish("登录成功，已将验证信息缓存至文件")
 
 
-from nonebot.adapters.onebot.v11 import MessageEvent, MessageSegment
+try:
+    from nonebot.adapters.onebot.v11 import MessageEvent, MessageSegment
 
+    @bili_login_qrcode.handle()
+    async def bili_qrcode_login(event: MessageEvent):
+        login = Login()
+        qr_url = await login.get_qrcode_url()
+        data = await login.get_qrcode(qr_url, base64=True)
+        await bili_login_qrcode.send(MessageSegment.image(data))  # type: ignore
+        try:
+            gRPC_Auth: Auth = await login.qrcode_login(interval=5)  # type: ignore
+            logger.debug(gRPC_Auth.data)
+            bili_grpc_auth.write_text(json.dumps(gRPC_Auth.data, indent=2, ensure_ascii=False), encoding="utf-8")
+        except Exception as e:
+            await bili_login_sms.finish(f"登录失败: {e}")
+        await bili_login_sms.finish("登录成功，已将验证信息缓存至文件")
 
-@bili_login_qrcode.handle()
-async def bili_qrcode_login(event: MessageEvent):
-    login = Login()
-    qr_url = await login.get_qrcode_url()
-    data = await login.get_qrcode(qr_url,base64=True)
-    await bili_login_qrcode.send(MessageSegment.image(data))
-    try:
-        gRPC_Auth = await login.qrcode_login(interval=5)
-        logger.debug(gRPC_Auth.data)
-        bili_grpc_auth.write_text(json.dumps(gRPC_Auth.data, indent=2, ensure_ascii=False), encoding="utf-8")
-    except Exception as e:
-        await bili_login_sms.finish(f"登录失败: {e}")
-    await bili_login_sms.finish("登录成功，已将验证信息缓存至文件")
+except Exception:
+    pass
