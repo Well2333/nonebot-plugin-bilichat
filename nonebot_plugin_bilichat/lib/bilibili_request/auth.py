@@ -31,15 +31,21 @@ async def login_from_cache() -> bool:
 
 
 browser_cookies: Dict = {}
-browser_cookies_file = Path(plugin_config.bilichat_bilibili_cookie or "")
+if plugin_config.bilichat_bilibili_cookie:
+    browser_cookies_file = Path(plugin_config.bilichat_bilibili_cookie)
+else:
+    browser_cookies_file = cache_dir.joinpath("bilibili_browser_cookies.json")
 
 
 def load_browser_cookies():
     global browser_cookies
-    browser_cookies = json.loads(browser_cookies_file.read_bytes())
-    if isinstance(browser_cookies, list):
-        browser_cookies = {cookie["name"]: cookie["value"] for cookie in browser_cookies}
-        dump_browser_cookies()
+    try:
+        browser_cookies = json.loads(browser_cookies_file.read_bytes())
+        if isinstance(browser_cookies, list):
+            browser_cookies = {cookie["name"]: cookie["value"] for cookie in browser_cookies}
+            dump_browser_cookies()
+    except Exception:
+        browser_cookies = {}
 
 
 def dump_browser_cookies():
