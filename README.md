@@ -253,13 +253,6 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 
 </details>
 
-### 动态配置项
-
-| 配置项 | 类型 | 默认值 | 说明 |
-| :----: | :--: | :----: | :--: |
-
-"dynamicrender", "browser_mobile", "browser_pc"
-
 ### 词云配置项
 
 开启此功能需要安装对应的依赖 `nonebot-plugin-bilichat[wordcloud]`
