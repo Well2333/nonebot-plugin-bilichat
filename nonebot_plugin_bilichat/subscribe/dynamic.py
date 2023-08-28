@@ -1,5 +1,4 @@
 import asyncio
-import json
 
 from bilireq.exceptions import GrpcError, ResponseCodeError
 from bilireq.grpc.dynamic import grpc_get_user_dynamics
@@ -87,6 +86,8 @@ async def fetch_dynamics_rest(up: Uploader):
 
         if not url:
             url = await get_b23_url(f"https://t.bilibili.com/{dyn['id_str']}")
+        
+        logger.info(f"{type_text}")
 
         dynamic = Dynamic(id=dyn["id_str"], url=url, dynamic_type=dyn_type, raw=dyn, raw_type="web")
         dyn_image: bytes = await dynamic.get_image(plugin_config.bilichat_basic_info_style)  # type: ignore
@@ -155,6 +156,8 @@ async def fetch_dynamics_grpc(up: Uploader):
 
         if not url:
             url = await get_b23_url(f"https://t.bilibili.com/{dyn.extend.dyn_id_str}")
+        
+        logger.info(f"{type_text}")
 
         dynamic = Dynamic(
             id=dyn.extend.dyn_id_str, url=url, dynamic_type=dyn.card_type, raw=MessageToDict(dyn), raw_type="grpc"
