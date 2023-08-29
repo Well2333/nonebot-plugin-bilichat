@@ -7,6 +7,7 @@ import httpx
 from loguru import logger
 from yarl import URL
 
+from ..config import plugin_config
 from .store import data_dir
 
 DEFUALT_DYNAMIC_FONT = "HarmonyOS_Sans_SC_Medium.ttf"
@@ -26,7 +27,8 @@ async def get_font(font: str = DEFUALT_DYNAMIC_FONT):
             return font_path.joinpath(url.name)
         else:
             logger.warning(
-                f"font {font} does not exist, this will take several seconds to minutes to download fonts depend on your network."
+                f"font {font} does not exist, "
+                "this will take several seconds to minutes to download fonts depend on your network."
             )
             async with httpx.AsyncClient() as client:
                 resp = await client.get(font)
