@@ -44,10 +44,10 @@ class Config(BaseModel):
     bilichat_dynamic_grpc: bool = False
     bilichat_command_to_me: bool = True
     bilichat_cmd_start: str = "bilichat"
-    bilichat_cmd_add_sub: Set[Union[str, Tuple[str]]] = {"订阅", "关注"}
-    bilichat_cmd_remove_sub: Set[Union[str, Tuple[str]]] = {"退订", "取关"}
-    bilichat_cmd_check_sub: Set[Union[str, Tuple[str]]] = {"查看", "查看订阅"}
-    bilichat_cmd_at_all: Set[Union[str, Tuple[str]]] = {"全体成员", "at全体"}
+    bilichat_cmd_add_sub: List[str] = ["订阅", "关注"]
+    bilichat_cmd_remove_sub: List[str] = ["退订", "取关"]
+    bilichat_cmd_check_sub: List[str] = ["查看", "查看订阅"]
+    bilichat_cmd_at_all: List[str] = ["全体成员", "at全体"]
 
     # basic info
     bilichat_basic_info: bool = True

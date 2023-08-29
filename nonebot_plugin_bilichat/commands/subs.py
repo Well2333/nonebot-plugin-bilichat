@@ -8,10 +8,10 @@ from ..lib.uid_extract import uid_extract
 from ..subscribe.manager import SubscriptionSystem, Uploader, User
 from .base import bilichat, get_user
 
-bili_add_sub = bilichat.command("sub",permission=SUPERUSER, aliases=plugin_config.bilichat_cmd_add_sub)
-bili_remove_sub = bilichat.command("unsub",permission=SUPERUSER, aliases=plugin_config.bilichat_cmd_remove_sub)
-bili_check_sub = bilichat.command("check", aliases=plugin_config.bilichat_cmd_check_sub)
-bili_at_all = bilichat.command("atall",permission=SUPERUSER, aliases=plugin_config.bilichat_cmd_at_all)
+bili_add_sub = bilichat.command("sub", permission=SUPERUSER, aliases=set(plugin_config.bilichat_cmd_add_sub))
+bili_remove_sub = bilichat.command("unsub", permission=SUPERUSER, aliases=set(plugin_config.bilichat_cmd_remove_sub))
+bili_check_sub = bilichat.command("check", aliases=set(plugin_config.bilichat_cmd_check_sub))
+bili_at_all = bilichat.command("atall", permission=SUPERUSER, aliases=set(plugin_config.bilichat_cmd_at_all))
 
 
 @bili_add_sub.handle()
