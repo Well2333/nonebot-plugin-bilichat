@@ -28,7 +28,7 @@ cd_size_limit = plugin_config.bilichat_cd_time // 2
 locks = {}
 
 
-def check_cd(uid: Union[int,str], check: bool = True):
+def check_cd(uid: Union[int, str], check: bool = True):
     global cd
     now = int(time.time())
     uid = str(uid)
@@ -52,6 +52,18 @@ def check_cd(uid: Union[int,str], check: bool = True):
 
 
 async def get_content_info_from_state(state: T_State):
+    """
+    Retrieves information about the content from the given state.
+
+    Args:
+        state (T_State): The state object containing the necessary information.
+
+    Returns:
+        Union[Column, Video, Dynamic, None]: The content object retrieved from the state.
+
+    Raises:
+        AbortError: If the returned content is empty.
+    """
     content: Union[Column, Video, Dynamic, None] = None
     ## video handle
     if matched := re.search(r"av(\d{1,15})|BV(1[A-Za-z0-9]{2}4.1.7[A-Za-z0-9]{2})", state["_bililink_"]):
@@ -71,7 +83,7 @@ async def get_content_info_from_state(state: T_State):
         check_cd(f"{state['_uid_']}_-_{content.id}")
         return content
     else:
-        raise AbortError("返回内容为空")
+        raise AbortError(f"查询 {state['_bililink_']} 返回内容为空")
 
 
 async def get_futuer_fuctions(content: Union[Video, Column, Any]):

@@ -32,7 +32,7 @@ async def _bili_check(bot: Bot, event: MessageEvent, state: T_State):
 
     for _msg in _msgs:
         # 如果是图片格式则忽略
-        if _msg.type in ("image",):
+        if _msg.type in ("Image","FlashImage","Voice"):
             continue
         # b23 格式的链接
         _msg_str = str(_msg)
@@ -113,8 +113,7 @@ async def content_info(bot: Bot, event: MessageEvent, state: T_State):
     try:
         content: Union[Column, Video, Dynamic] = await get_content_info_from_state(state)
     except AbortError as e:
-        if plugin_config.bilichat_show_error_msg:
-            await send_msg(bot, event, str(e), quote=messag_id)
+        logger.info(e)
         raise FinishedException
     if plugin_config.bilichat_basic_info:
         content_image = await content.get_image(plugin_config.bilichat_basic_info_style)
