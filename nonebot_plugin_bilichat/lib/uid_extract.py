@@ -19,8 +19,6 @@ class SearchResult(BaseModel, extra=Extra.ignore):
 
 async def uid_extract(text: str) -> Union[str, SearchUp]:
     text_u = text.strip(""""'“”‘’""").strip()
-    if text_u.startswith(("UID:", "uid:")):
-        text_u = text_u[4:]
     resp = await search_user(text_u)
     result = SearchResult(**resp)
     if result.items:
