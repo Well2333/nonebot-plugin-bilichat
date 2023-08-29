@@ -18,7 +18,7 @@ bili_at_all = bilichat.command("atall", permission=SUPERUSER, aliases=set(plugin
 async def add_sub(uid: Message = CommandArg(), user: User = Depends(get_user)):
     # 获取 UP 对象
     if not uid:
-        await bili_add_sub.finish("请输入UP主的昵称或 UID 呢\n`(*>﹏<*)′")
+        await bili_add_sub.finish("请输入UP主的昵称呢\n`(*>﹏<*)′")
     msg = await uid_extract(uid.extract_plain_text())
     if isinstance(msg, str):
         await bili_add_sub.finish(msg)
