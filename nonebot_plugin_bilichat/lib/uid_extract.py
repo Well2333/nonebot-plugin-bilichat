@@ -27,5 +27,5 @@ async def uid_extract(text: str) -> Union[str, SearchUp]:
         for up in result.items:
             if up.nickname == text_u:
                 return up
-            return "未找到该 UP，你可能在找：\n" + "\n".join([str(up) for up in result.items])
+        return "未找到该 UP，你可能在找：\n" + "\n".join([str(up) for up in result.items])
     return "未找到该 UP 主呢\n`(*>﹏<*)′"
