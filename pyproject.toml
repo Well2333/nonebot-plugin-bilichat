@@ -1,9 +1,9 @@
 [project]
 name = "nonebot-plugin-bilichat"
 
-version = "4.0.3"
+version = "4.0.4"
 
-description = "一个通过 OpenAI 来对b站视频进行总结插件"
+description = "多种B站链接解析，视频词云，AI总结，你想要的都在 bilichat"
 authors = [
     { name = "djkcyl", email = "cyl@cyllive.cn" },
     { name = "Well404", email = "well_404@outlook.com" },
