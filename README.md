@@ -163,21 +163,23 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 
 ### 通用配置项
 
-|         配置项          |   类型    | 默认值 |                               说明                               |
-| :---------------------: | :-------: | :----: | :--------------------------------------------------------------: |
-|     bilichat_block      |   bool    | False  |                是否拦截事件(防止其他插件二次解析)                |
-|  bilichat_enable_self   |   bool    | False  |                      是否允许响应自身的消息                      |
-|   bilichat_only_self    |   bool    | False  | 是否仅响应自身的消息，开启后会**覆盖全部其他规则**(人机合一特供) |
-|   bilichat_only_to_me   |   bool    | False  |      非自身消息是否需要 `@机器人` 或使用机器人的昵称才响应       |
-|   bilichat_whitelist    | list[str] |   []   |                 **响应**的会话名单, 会覆盖黑名单                 |
-|   bilichat_blacklist    | list[str] |   []   |                       **不响应**的会话名单                       |
-|  bilichat_dynamic_font  |    str    |  None  |                   视频信息及词云图片使用的字体                   |
-|    bilichat_cd_time     |    int    |  120   |                对同一视频的响应冷却时间(防止刷屏)                |
-| bilichat_neterror_retry |    int    |   3    |                   对部分网络请求错误的尝试次数                   |
-|  bilichat_use_bcut_asr  |   bool    |  True  |             是否在**没有字幕时**调用必剪接口生成字幕             |
-| bilichat_show_error_msg |   bool    |  True  |                   是否在解析失败时发送错误信息                   |
-|  bilichat_use_browser   |   bool    |  Auto  |     是否使用浏览器，`Auto` 会根据是否含有相应的依赖进行选择      |
-|  bilichat_cache_serive  |    str    |  Auto  |         使用的缓存类型，可用类型包含 `json` 和 `mongodb`         |
+|         配置项          |   类型    | 默认值  |                               说明                               |
+| :---------------------: | :-------: | :-----: | :--------------------------------------------------------------: |
+|     bilichat_block      |   bool    |  False  |                是否拦截事件(防止其他插件二次解析)                |
+|  bilichat_enable_self   |   bool    |  False  |                      是否允许响应自身的消息                      |
+|   bilichat_only_self    |   bool    |  False  | 是否仅响应自身的消息，开启后会**覆盖全部其他规则**(人机合一特供) |
+|   bilichat_only_to_me   |   bool    |  False  |      非自身消息是否需要 `@机器人` 或使用机器人的昵称才响应       |
+|   bilichat_whitelist    | list[str] |   []    |                 **响应**的会话名单, 会覆盖黑名单                 |
+|   bilichat_blacklist    | list[str] |   []    |                       **不响应**的会话名单                       |
+|  bilichat_dynamic_font  |    str    |  None   |                   视频信息及词云图片使用的字体                   |
+|    bilichat_cd_time     |    int    |   120   |                对同一视频的响应冷却时间(防止刷屏)                |
+| bilichat_neterror_retry |    int    |    3    |                   对部分网络请求错误的尝试次数                   |
+|  bilichat_use_bcut_asr  |   bool    |  True   |             是否在**没有字幕时**调用必剪接口生成字幕             |
+| bilichat_show_error_msg |   bool    |  True   |                   是否在解析失败时发送错误信息                   |
+|  bilichat_use_browser   |   bool    |  Auto   |     是否使用浏览器，`Auto` 会根据是否含有相应的依赖进行选择      |
+|  bilichat_cache_serive  |    str    |  Auto   |         使用的缓存类型，可用类型包含 `json` 和 `mongodb`         |
+|   bilichat_text_fonts   |    str    | default |          可供自定义的字体，仅作用于 dynamicrender 绘图           |
+|  bilichat_emoji_fonts   |    str    | default |          可供自定义的字体，仅作用于 dynamicrender 绘图           |
 
 注:
 
@@ -189,17 +191,17 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 
 ### 指令及订阅配置项
 
-|         配置项          |   类型   |         默认值          |           说明            |
-| :---------------------: | :------: | :---------------------: | :-----------------------: |
-|   bilichat_subs_limit   |   int    |            5            |  允许的最大订阅数(0-50)   |
-| bilichat_subs_interval  |   int    |           30            | 允许的订阅间隔(30-600 秒) |
-|  bilichat_dynamic_grpc  |   bool   |          False          |  是否使用 gRPC 刷取动态   |
-| bilichat_command_to_me  |   bool   |          True           |    命令是否需要@机器人    |
-|   bilichat_cmd_start    |   str    |       "bilichat"        | 命令的起始词，可设置为空  |
-|  bilichat_cmd_add_sub   | Set[str] |    {"订阅", "关注"}     |      "sub"命令的别名      |
-| bilichat_cmd_remove_sub | Set[str] |    {"退订", "取关"}     |     "unsub"命令的别名     |
-| bilichat_cmd_check_sub  | Set[str] |  {"查看", "查看订阅"}   |     "check"命令的别名     |
-|   bilichat_cmd_at_all   | Set[str] | {"全体成员", "at 全体"} |     "atall"命令的别名     |
+|         配置项          |   类型    |         默认值          |           说明            |
+| :---------------------: | :-------: | :---------------------: | :-----------------------: |
+|   bilichat_subs_limit   |    int    |            5            |  允许的最大订阅数(0-50)   |
+| bilichat_subs_interval  |    int    |           30            | 允许的订阅间隔(30-600 秒) |
+|  bilichat_dynamic_grpc  |   bool    |          False          |  是否使用 gRPC 刷取动态   |
+| bilichat_command_to_me  |   bool    |          True           |    命令是否需要@机器人    |
+|   bilichat_cmd_start    |    str    |       "bilichat"        | 命令的起始词，可设置为空  |
+|  bilichat_cmd_add_sub   | List[str] |    {"订阅", "关注"}     |      "sub"命令的别名      |
+| bilichat_cmd_remove_sub | List[str] |    {"退订", "取关"}     |     "unsub"命令的别名     |
+| bilichat_cmd_check_sub  | List[str] |  {"查看", "查看订阅"}   |     "check"命令的别名     |
+|   bilichat_cmd_at_all   | List[str] | {"全体成员", "at 全体"} |     "atall"命令的别名     |
 
 ### 基础信息配置项
 

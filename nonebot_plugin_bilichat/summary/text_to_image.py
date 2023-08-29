@@ -19,8 +19,16 @@ data_path.mkdir(parents=True, exist_ok=True)
 render = BiliText(
     static_path=str(data_path),
     style=SetDynStyle(
-        font_family=str(get_font_sync("HarmonyOS_Sans_SC_Medium.ttf")),
-        emoji_font_family=str(get_font_sync("nte.ttf")),
+        font_family=str(
+            get_font_sync("HarmonyOS_Sans_SC_Medium.ttf")
+            if plugin_config.bilichat_text_fonts == "default"
+            else plugin_config.bilichat_text_fonts
+        ),
+        emoji_font_family=str(
+            get_font_sync("nte.ttf")
+            if plugin_config.bilichat_emoji_fonts == "default"
+            else plugin_config.bilichat_emoji_fonts
+        ),
         font_style="Normal",
     ).set_style,
 )

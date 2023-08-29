@@ -37,6 +37,8 @@ class Config(BaseModel):
     bilichat_show_error_msg: bool = True
     bilichat_use_browser: bool = Field(default="Auto")
     bilichat_cache_serive: Literal["json", "mongodb"] = Field(default="Auto")
+    bilichat_text_fonts: str = "default"
+    bilichat_emoji_fonts: str = "default"
 
     # command and subscribe
     bilichat_subs_limit: int = Field(5, ge=0, le=50)
@@ -263,6 +265,7 @@ class Config(BaseModel):
             return str(uid) not in self.bilichat_blacklist
         else:
             return True
+
 
 raw_config = get_driver().config
 plugin_config = Config.parse_obj(raw_config)
