@@ -7,7 +7,7 @@ from ..subscribe.manager import DEFUALT_SUB_CONFIG, SubscriptionSystem, User
 from .base import bilichat, get_user
 
 bili_at_all = bilichat.command("atall", permission=SUPERUSER, aliases=set(plugin_config.bilichat_cmd_at_all))
-bili_dyanmic = bilichat.command("dyanmic", permission=SUPERUSER, aliases=set(plugin_config.bilichat_cmd_dynamic))
+bili_dynamic = bilichat.command("dynamic", permission=SUPERUSER, aliases=set(plugin_config.bilichat_cmd_dynamic))
 bili_live = bilichat.command("live", permission=SUPERUSER, aliases=set(plugin_config.bilichat_cmd_live))
 
 
@@ -45,7 +45,7 @@ async def at_all(
     await bili_at_all.finish(re_msg)
 
 
-@bili_dyanmic.handle()
+@bili_dynamic.handle()
 async def dynamic(
     user: User = Depends(get_user),
     msg: Message = CommandArg(),
@@ -55,7 +55,7 @@ async def dynamic(
     for up in SubscriptionSystem.uploaders.values():
         if up.nickname.lower() == keyword or str(up.uid) == keyword:
             cfg = user.subscriptions.get(up.uid, DEFUALT_SUB_CONFIG.copy())
-            if cfg.get("dynamic") is True:
+            if cfg.get("dynamic", True) is True:
                 cfg["dynamic"] = False
                 user.subscriptions.update(
                     {
@@ -68,7 +68,7 @@ async def dynamic(
                 user.subscriptions.update({up.uid: cfg})  # type: ignore
                 re_msg = f"已开启 {up.nickname}({up.uid}) 的动态通知了~\n(*^▽^*)"
     SubscriptionSystem.save_to_file()
-    await bili_dyanmic.finish(re_msg)
+    await bili_dynamic.finish(re_msg)
 
 
 @bili_live.handle()
@@ -81,7 +81,7 @@ async def live(
     for up in SubscriptionSystem.uploaders.values():
         if up.nickname.lower() == keyword or str(up.uid) == keyword:
             cfg = user.subscriptions.get(up.uid, DEFUALT_SUB_CONFIG.copy())
-            if cfg.get("live") is True:
+            if cfg.get("live", True) is True:
                 cfg["live"] = False
                 user.subscriptions.update(
                     {

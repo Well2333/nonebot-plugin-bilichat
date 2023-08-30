@@ -336,7 +336,7 @@ bilichat_cmd_start=""
 | qrlogin  |  主人  | 无限制 |              无              |   使用二维码登录 B 站，防止风控    |
 |   sub    |  主人  |  群聊  |      UP 主的昵称或 UID       |              添加订阅              |
 |  unsub   |  主人  |  群聊  |      UP 主的昵称或 UID       |              移除订阅              |
-|  check   | 无限制 |  群聊  |              无              |            查看本群订阅            |
+|  check   | 无限制 |  群聊  |  UP 主的昵称或 UID，或留空   | 查看本群订阅列表或指定 UP 主的配置 |
 |  atall   |  主人  |  群聊  | UP 主的昵称或 UID，或 `全局` | 设置是否 at 全体成员，仅 OB11 有效 |
 | dynamic  |  主人  |  群聊  |      UP 主的昵称或 UID       |      是否开启该 UP 的动态通知      |
 |   live   |  主人  |  群聊  |      UP 主的昵称或 UID       |      是否开启该 UP 的直播通知      |
