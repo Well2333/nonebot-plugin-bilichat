@@ -11,6 +11,7 @@ from nonebot.permission import SUPERUSER
 from nonebot.typing import T_State
 
 from ..lib.bilibili_request.auth import bili_grpc_auth, gRPC_Auth, login_from_cache
+from ..subscribe import LOCK
 from .base import bilichat
 
 bili_login_sms = bilichat.command(
@@ -36,6 +37,8 @@ async def bili_login_from_cache(
     matcher: Matcher,
     msg: Optional[Message] = CommandArg(),
 ):
+    if LOCK.locked():
+        await matcher.finish("正在刷取动态/直播呢，稍等几秒再试吧\n`(*>﹏<*)′")
     if msg and msg.extract_plain_text().strip() in ["-f", "force", "强制登录", "强制"]:
         logger.info("skip login verify, force login")
         return

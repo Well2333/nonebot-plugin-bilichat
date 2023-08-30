@@ -5,6 +5,7 @@ from nonebot.plugin import CommandGroup
 from nonebot.rule import to_me
 
 from ..config import plugin_config
+from ..subscribe import LOCK
 from ..subscribe.manager import SubscriptionSystem, User
 from .adapters import ID_HANDLER
 
@@ -15,6 +16,8 @@ bilichat = CommandGroup(
 
 
 async def get_user(matcher: Matcher, bot: Bot, event: Event) -> User:
+    if LOCK.locked():
+        await matcher.finish("正在刷取动态/直播呢，稍等几秒再试吧\n`(*>﹏<*)′")
     handler = ID_HANDLER.get(bot.adapter.get_name())
     # 获取用户对象
     if not handler:
@@ -25,4 +28,3 @@ async def get_user(matcher: Matcher, bot: Bot, event: Event) -> User:
         await matcher.finish("暂时还不支持当前会话呢\n`(*>﹏<*)′")
         raise FinishedException
     return SubscriptionSystem.users.get(user_id, User(user_id=user_id, platfrom=bot.adapter.get_name()))
-
