@@ -11,7 +11,6 @@ from .base import bilichat, get_user
 bili_add_sub = bilichat.command("sub", permission=SUPERUSER, aliases=set(plugin_config.bilichat_cmd_add_sub))
 bili_remove_sub = bilichat.command("unsub", permission=SUPERUSER, aliases=set(plugin_config.bilichat_cmd_remove_sub))
 bili_check_sub = bilichat.command("check", aliases=set(plugin_config.bilichat_cmd_check_sub))
-bili_at_all = bilichat.command("atall", permission=SUPERUSER, aliases=set(plugin_config.bilichat_cmd_at_all))
 
 
 @bili_add_sub.handle()
@@ -57,33 +56,3 @@ async def check_sub(user: User = Depends(get_user)):
         ups_prompt.append(text)
 
     await bili_check_sub.finish(f"本群共订阅 {len(ups)} 个 UP:\n" + "\n".join(ups_prompt))
-
-
-@bili_at_all.handle()
-async def at_all(
-    user: User = Depends(get_user),
-    msg: Message = CommandArg(),
-):
-    keyword = msg.extract_plain_text().lower().strip()
-    if keyword in ("全局", "全体", "all"):
-        if user.at_all:
-            user.at_all = False
-            re_msg = "已关闭全局@全体成员了~\n(*^▽^*)"
-        else:
-            user.at_all = True
-            re_msg = "已开启全局@全体成员了~\n(*^▽^*)"
-    else:
-        re_msg = "未找到该 UP 主呢\n`(*>﹏<*)′"
-        for up in SubscriptionSystem.uploaders.values():
-            if up.nickname.lower() == keyword or str(up.uid) == keyword:
-                cfg = user.subscriptions.get(up.uid, {"at_all": False})
-                if cfg["at_all"] is True:
-                    cfg["at_all"] = False
-                    user.subscriptions.update({up.uid: cfg})
-                    re_msg = f"已关闭 {up.nickname}({up.uid}) 的@全体成员了~\n(*^▽^*)"
-                else:
-                    cfg["at_all"] = True
-                    user.subscriptions.update({up.uid: cfg})
-                    re_msg = f"已开启 {up.nickname}({up.uid}) 的@全体成员了~\n(*^▽^*)"
-    SubscriptionSystem.save_to_file()
-    await bili_at_all.finish(re_msg)

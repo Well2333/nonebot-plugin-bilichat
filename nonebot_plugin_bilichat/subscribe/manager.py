@@ -46,6 +46,15 @@ class Uploader:
 
 class UserSubConfig(TypedDict):
     at_all: bool
+    dynamic: bool
+    live: bool
+
+
+DEFUALT_SUB_CONFIG = {
+    "at_all": False,
+    "dynamic": True,
+    "live": True,
+}
 
 
 class User:
@@ -90,7 +99,7 @@ class User:
         if uploader.uid in self.subscriptions:
             return "本群已经订阅了此UP主呢...\n`(*>﹏<*)′"
 
-        self.subscriptions[uploader.uid] = {"at_all": False}
+        self.subscriptions[uploader.uid] = DEFUALT_SUB_CONFIG.copy()  # type: ignore
 
         SubscriptionSystem.uploaders[uploader.uid] = uploader
         SubscriptionSystem.activate_uploaders[uploader.uid] = uploader

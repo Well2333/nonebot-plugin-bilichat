@@ -60,9 +60,10 @@ async def fetch_live(ups: Dict[int, Uploader]):
                     logger.info(f"{live_prompt}")
                     content = [live_prompt, live_image, url]
                     for user in up.subscribed_users:
-                        await user.push_to_user(
-                            content=content, at_all=user.subscriptions[up.uid]["at_all"] or user.at_all
-                        )
+                        if user.subscriptions[up.uid].get("live", True):
+                            await user.push_to_user(
+                                content=content, at_all=user.subscriptions[up.uid]["at_all"] or user.at_all
+                            )
                 # 如果记录值大于 0 则是正在直播，不进行开播推送
                 else:
                     up.living = room.live_time
@@ -74,9 +75,10 @@ async def fetch_live(ups: Dict[int, Uploader]):
                 logger.info(f"{live_prompt}")
                 content = [live_prompt]
                 for user in up.subscribed_users:
-                    await user.push_to_user(
-                        content=content, at_all=user.subscriptions[up.uid]["at_all"] or user.at_all  # type: ignore
-                    )
+                    if user.subscriptions[up.uid].get("live", True):
+                        await user.push_to_user(
+                            content=content, at_all=user.subscriptions[up.uid]["at_all"] or user.at_all  # type: ignore
+                        )
         finally:
             # 如果是 -1 则更新为 0
             if up.living == -1:
