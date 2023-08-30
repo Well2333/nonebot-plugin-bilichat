@@ -1,15 +1,8 @@
-from typing import Callable, Dict
-
 from nonebot.log import logger
 
-PUSH_HANDLER: Dict[str, Callable] = {}
-ID_HANDLER: Dict[str, Callable] = {}
-
 try:
-    from .onebot_v11 import get_user_id, push
+    from . import onebot_v11
 
-    PUSH_HANDLER["OneBot V11"] = push
-    ID_HANDLER["OneBot V11"] = get_user_id
     logger.success("OneBot V11 adapter was loaded successfully")
 except Exception:
     pass

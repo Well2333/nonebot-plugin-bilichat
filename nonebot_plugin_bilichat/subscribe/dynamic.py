@@ -86,13 +86,15 @@ async def fetch_dynamics_rest(up: Uploader):
 
         if not url:
             url = await get_b23_url(f"https://t.bilibili.com/{dyn['id_str']}")
-        
+
         logger.info(f"{type_text}")
 
         dynamic = Dynamic(id=dyn["id_str"], url=url, dynamic_type=dyn_type, raw=dyn, raw_type="web")
         dyn_image: bytes = await dynamic.get_image(plugin_config.bilichat_basic_info_style)  # type: ignore
+
+        content = [type_text, dyn_image, url]
         for user in up.subscribed_users:
-            await user.push_to_user(text=type_text, url=url, image=dyn_image)
+            await user.push_to_user(content=content, at_all=user.subscriptions[up.uid]["at_all"] or user.at_all)
 
 
 async def fetch_dynamics_grpc(up: Uploader):
@@ -156,7 +158,7 @@ async def fetch_dynamics_grpc(up: Uploader):
 
         if not url:
             url = await get_b23_url(f"https://t.bilibili.com/{dyn.extend.dyn_id_str}")
-        
+
         logger.info(f"{type_text}")
 
         dynamic = Dynamic(
@@ -165,5 +167,6 @@ async def fetch_dynamics_grpc(up: Uploader):
 
         dyn_image: bytes = await dynamic.get_image(plugin_config.bilichat_basic_info_style)  # type: ignore
 
+        content = [type_text, dyn_image, url]
         for user in up.subscribed_users:
-            await user.push_to_user(text=type_text, url=url, image=dyn_image)
+            await user.push_to_user(content=content, at_all=user.subscriptions[up.uid]["at_all"] or user.at_all)

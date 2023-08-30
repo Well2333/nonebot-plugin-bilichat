@@ -4,9 +4,9 @@ from nonebot.matcher import Matcher
 from nonebot.plugin import CommandGroup
 from nonebot.rule import to_me
 
-from ..adapters import ID_HANDLER
 from ..config import plugin_config
 from ..subscribe.manager import SubscriptionSystem, User
+from .adapters import ID_HANDLER
 
 bilichat = CommandGroup(
     plugin_config.bilichat_cmd_start,
@@ -25,3 +25,4 @@ async def get_user(matcher: Matcher, bot: Bot, event: Event) -> User:
         await matcher.finish("暂时还不支持当前会话呢\n`(*>﹏<*)′")
         raise FinishedException
     return SubscriptionSystem.users.get(user_id, User(user_id=user_id, platfrom=bot.adapter.get_name()))
+
