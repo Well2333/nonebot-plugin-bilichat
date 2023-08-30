@@ -94,7 +94,8 @@ async def fetch_dynamics_rest(up: Uploader):
 
         content = [type_text, dyn_image, url]
         for user in up.subscribed_users:
-            await user.push_to_user(content=content, at_all=user.subscriptions[up.uid]["at_all"] or user.at_all)
+            if user.subscriptions[up.uid].get("dynamic", True):
+                await user.push_to_user(content=content, at_all=user.subscriptions[up.uid]["at_all"] or user.at_all)
 
 
 async def fetch_dynamics_grpc(up: Uploader):
@@ -169,4 +170,5 @@ async def fetch_dynamics_grpc(up: Uploader):
 
         content = [type_text, dyn_image, url]
         for user in up.subscribed_users:
-            await user.push_to_user(content=content, at_all=user.subscriptions[up.uid]["at_all"] or user.at_all)
+            if user.subscriptions[up.uid].get("dynamic", True):
+                await user.push_to_user(content=content, at_all=user.subscriptions[up.uid]["at_all"] or user.at_all)

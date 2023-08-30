@@ -2,7 +2,7 @@ import importlib.util
 import json
 import sys
 from pathlib import Path
-from typing import List, Literal, Optional, Set, Tuple, Union
+from typing import List, Literal, Optional, Union
 
 from nonebot import get_driver, require
 from nonebot.log import logger
@@ -51,6 +51,8 @@ class Config(BaseModel):
     bilichat_cmd_remove_sub: List[str] = ["退订", "取关"]
     bilichat_cmd_check_sub: List[str] = ["查看", "查看订阅"]
     bilichat_cmd_at_all: List[str] = ["全体成员", "at全体"]
+    bilichat_cmd_dynamic: List[str] = ["动态通知", "动态订阅"]
+    bilichat_cmd_live: List[str] = ["直播通知", "直播订阅"]
 
     # basic info
     bilichat_basic_info: bool = True
