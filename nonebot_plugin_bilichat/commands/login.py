@@ -1,10 +1,12 @@
 import json
+from typing import Optional
 
 from bilireq.auth import Auth
 from bilireq.login import Login
+from nonebot.adapters import Message
 from nonebot.log import logger
 from nonebot.matcher import Matcher
-from nonebot.params import ArgPlainText
+from nonebot.params import ArgPlainText, CommandArg
 from nonebot.permission import SUPERUSER
 from nonebot.typing import T_State
 
@@ -13,19 +15,31 @@ from .base import bilichat
 
 bili_login_sms = bilichat.command(
     "smslogin",
+    aliases={
+        "验证码登录",
+    },
     permission=SUPERUSER,
 )
 
 bili_login_qrcode = bilichat.command(
     "qrlogin",
+    aliases={
+        "二维码登录",
+    },
     permission=SUPERUSER,
 )
 
 
 @bili_login_qrcode.handle()
 @bili_login_sms.handle()
-async def bili_login_from_cache(matcher: Matcher):
-    logger.info("尝试刷新登录")
+async def bili_login_from_cache(
+    matcher: Matcher,
+    msg: Optional[Message] = CommandArg(),
+):
+    if msg and msg.extract_plain_text().strip() in ["-f", "force", "强制登录", "强制"]:
+        logger.info("skip login verify, force login")
+        return
+    logger.info("try verify login")
     if await login_from_cache():
         await matcher.finish(f"账号 uid:{gRPC_Auth.uid} 已登录")
     else:
