@@ -73,6 +73,7 @@ async def at_all(
             user.at_all = True
             re_msg = "已开启全局@全体成员了~\n(*^▽^*)"
     else:
+        re_msg = "未找到该 UP 主呢\n`(*>﹏<*)′"
         for up in SubscriptionSystem.uploaders.values():
             if up.nickname.lower() == keyword or str(up.uid) == keyword:
                 cfg = user.subscriptions.get(up.uid, {"at_all": False})
@@ -84,6 +85,5 @@ async def at_all(
                     cfg["at_all"] = True
                     user.subscriptions.update({up.uid: cfg})
                     re_msg = f"已开启 {up.nickname}({up.uid}) 的@全体成员了~\n(*^▽^*)"
-        re_msg = "未找到该 UP 主呢\n`(*>﹏<*)′"
     SubscriptionSystem.save_to_file()
     await bili_at_all.finish(re_msg)

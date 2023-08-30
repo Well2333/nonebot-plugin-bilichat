@@ -191,17 +191,18 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 
 ### 指令及订阅配置项
 
-|         配置项          |   类型    |         默认值          |           说明            |
-| :---------------------: | :-------: | :---------------------: | :-----------------------: |
-|   bilichat_subs_limit   |    int    |            5            |  允许的最大订阅数(0-50)   |
-| bilichat_subs_interval  |    int    |           30            | 允许的订阅间隔(30-600 秒) |
-|  bilichat_dynamic_grpc  |   bool    |          False          |  是否使用 gRPC 刷取动态   |
-| bilichat_command_to_me  |   bool    |          True           |    命令是否需要@机器人    |
-|   bilichat_cmd_start    |    str    |       "bilichat"        | 命令的起始词，可设置为空  |
-|  bilichat_cmd_add_sub   | List[str] |    {"订阅", "关注"}     |      "sub"命令的别名      |
-| bilichat_cmd_remove_sub | List[str] |    {"退订", "取关"}     |     "unsub"命令的别名     |
-| bilichat_cmd_check_sub  | List[str] |  {"查看", "查看订阅"}   |     "check"命令的别名     |
-|   bilichat_cmd_at_all   | List[str] | {"全体成员", "at 全体"} |     "atall"命令的别名     |
+|          配置项           |   类型    |         默认值          |             说明             |
+| :-----------------------: | :-------: | :---------------------: | :--------------------------: |
+|    bilichat_subs_limit    |    int    |            5            |    允许的最大订阅数(0-50)    |
+| bilichat_dynamic_interval |    int    |           90            | 允许的动态刷取间隔(最低 60s) |
+|  bilichat_live_interval   |    int    |           30            | 允许的直播刷取间隔(最低 10s) |
+|   bilichat_dynamic_grpc   |   bool    |          False          |    是否使用 gRPC 刷取动态    |
+|  bilichat_command_to_me   |   bool    |          True           |     命令是否需要@机器人      |
+|    bilichat_cmd_start     |    str    |       "bilichat"        |   命令的起始词，可设置为空   |
+|   bilichat_cmd_add_sub    | List[str] |    {"订阅", "关注"}     |       "sub"命令的别名        |
+|  bilichat_cmd_remove_sub  | List[str] |    {"退订", "取关"}     |      "unsub"命令的别名       |
+|  bilichat_cmd_check_sub   | List[str] |  {"查看", "查看订阅"}   |      "check"命令的别名       |
+|    bilichat_cmd_at_all    | List[str] | {"全体成员", "at 全体"} |      "atall"命令的别名       |
 
 ### 基础信息配置项
 

@@ -13,8 +13,8 @@ from .manager import SubscriptionSystem
 LOCK = asyncio.Lock()
 
 
-@scheduler.scheduled_job("interval", seconds=plugin_config.bilichat_subs_interval, id="subscribe_update")
-async def run_subscribe_update():
+@scheduler.scheduled_job("interval", seconds=plugin_config.bilichat_dynamic_interval, id="dynamic_update")
+async def run_dynamic_update():
     async with LOCK:
         if not SubscriptionSystem.activate_uploaders:
             logger.debug("no activate uploaders to check, skip...")
@@ -45,7 +45,10 @@ async def run_subscribe_update():
                 logger.exception(f"[Dynamic] fetch dynamic for {up} failed, skip...")
         logger.debug("[Dynamic] Updating finished")
 
-        # 直播
+
+@scheduler.scheduled_job("interval", seconds=plugin_config.bilichat_live_interval, id="live_update")
+async def run_live_update():
+    async with LOCK:
         try:
             logger.debug("[Live] Updating start")
             await fetch_live(SubscriptionSystem.activate_uploaders)

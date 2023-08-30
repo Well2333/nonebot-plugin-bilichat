@@ -1,11 +1,11 @@
 import json
 import time
-from typing import Any, Dict, List, TypedDict, Union
+from typing import Any, Dict, List, Optional, TypedDict, Union
 
 from nonebot import get_bots, get_driver
 from nonebot.log import logger
 
-from ..adapters import PUSH_HANDLER
+from ..commands.adapters import PUSH_HANDLER
 from ..config import plugin_config
 from ..lib.store import data_dir
 from ..lib.tools import calc_time_total
@@ -76,10 +76,10 @@ class User:
                 del self.subscriptions[uid]
         return uplist
 
-    async def push_to_user(self, text: str, url: str = "", image: bytes = b""):
+    async def push_to_user(self, content: List[Union[str, bytes]], at_all: Optional[bool] = None):
         handler = PUSH_HANDLER.get(self.platfrom)
         if handler:
-            await handler(user=self, text=text, url=url, image=image)
+            await handler(self.user_id, content, at_all=self.at_all if at_all is None else at_all)
 
     def add_subscription(self, uploader: Uploader) -> Union[None, str]:
         """Add a subscription for a user to an uploader."""

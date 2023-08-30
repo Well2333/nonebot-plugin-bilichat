@@ -1,9 +1,8 @@
 import re
 import shlex
 from itertools import chain
-from typing import TYPE_CHECKING, Optional, Union, cast
+from typing import Union, cast
 
-from nonebot import get_bots
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GroupMessageEvent,
@@ -25,34 +24,6 @@ from ..model.arguments import Options, parser
 from ..model.exception import AbortError
 from ..optional import capture_exception
 from .base import get_content_info_from_state, get_futuer_fuctions
-
-if TYPE_CHECKING:
-    from ..subscribe.manager import User
-
-
-async def push(user: "User", text: str = "", url: str = "", image: Optional[bytes] = None, **data):
-    ms_image = MessageSegment.image(file=image) if image else ""
-    message = Message(text + ms_image + url)
-    if user.at_all:
-        message = MessageSegment.at("all") + message
-
-    bots = get_bots().values()
-    for bot in bots:
-        if isinstance(bot, Bot):
-            groups = await bot.get_group_list()
-            for group in groups:
-                if int(user.user_id) == group["group_id"]:
-                    try:
-                        await bot.send_group_msg(group_id=int(user.user_id), message=message)
-                        return
-                    except Exception as e:
-                        logger.exception(e)
-
-
-async def get_user_id(event: MessageEvent):
-    if isinstance(event, GroupMessageEvent):
-        return event.group_id
-    return None
 
 
 async def _bili_check(bot: Bot, event: MessageEvent, state: T_State):

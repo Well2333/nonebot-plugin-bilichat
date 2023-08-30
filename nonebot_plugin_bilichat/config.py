@@ -42,7 +42,8 @@ class Config(BaseModel):
 
     # command and subscribe
     bilichat_subs_limit: int = Field(5, ge=0, le=50)
-    bilichat_subs_interval: int = Field(30, ge=30, le=600)
+    bilichat_dynamic_interval: int = Field(90, ge=60)
+    bilichat_live_interval: int = Field(30, ge=10)
     bilichat_dynamic_grpc: bool = False
     bilichat_command_to_me: bool = True
     bilichat_cmd_start: str = "bilichat"
