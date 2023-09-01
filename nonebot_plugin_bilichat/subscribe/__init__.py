@@ -49,6 +49,9 @@ async def run_dynamic_update():
 @scheduler.scheduled_job("interval", seconds=plugin_config.bilichat_live_interval, id="live_update")
 async def run_live_update():
     async with LOCK:
+        if not SubscriptionSystem.activate_uploaders:
+            logger.debug("no activate uploaders to check, skip...")
+            return
         try:
             logger.debug("[Live] Updating start")
             await fetch_live(SubscriptionSystem.activate_uploaders)
