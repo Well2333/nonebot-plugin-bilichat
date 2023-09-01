@@ -4,7 +4,7 @@ from typing import Dict
 
 from bilireq.exceptions import ResponseCodeError
 from bilireq.live import get_rooms_info_by_uids
-from httpx import TransportError
+from httpx import ConnectError, TransportError
 from loguru import logger
 
 from ..lib.bilibili_request import get_b23_url, hc
@@ -18,7 +18,7 @@ from .manager import Uploader
 async def fetch_live(ups: Dict[int, Uploader]):
     try:
         status_infos = await get_rooms_info_by_uids(list(ups.keys()))
-    except (TransportError, JSONDecodeError, ResponseCodeError) as e:
+    except (TransportError, ConnectError, JSONDecodeError, ResponseCodeError) as e:
         logger.error(f"[Live] fetch live status failed: {type(e)} {e}")
         raise AbortError("Live Abort")
     except RuntimeError as e:
