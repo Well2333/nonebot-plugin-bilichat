@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, TypedDict, Union
 from nonebot import get_bots, get_driver
 from nonebot.log import logger
 
-from ..commands.adapters import PUSH_HANDLER
+from ..commands.adapters import PUSH_HANDLER, UP_HANDLER
 from ..config import plugin_config
 from ..lib.store import data_dir
 from ..lib.tools import calc_time_total
@@ -110,7 +110,7 @@ class User:
         SubscriptionSystem.get_activate_uploaders()
         SubscriptionSystem.save_to_file()
 
-    def remove_subscription(self, uploader: Uploader) -> Union[None, str]:
+    async def remove_subscription(self, uploader: Uploader) -> Union[None, str]:
         """Remove a subscription for a user from an uploader."""
         if uploader.uid not in self.subscriptions:
             return "本群并未订阅此UP主呢...\n`(*>﹏<*)′"
@@ -123,7 +123,7 @@ class User:
         if not uploader.subscribed_users:
             del SubscriptionSystem.uploaders[uploader.uid]
 
-        SubscriptionSystem.refresh_activate_uploaders()
+        await SubscriptionSystem.refresh_activate_uploaders()
         SubscriptionSystem.save_to_file()
 
 
@@ -167,24 +167,23 @@ class SubscriptionSystem:
         return at_ups
 
     @classmethod
-    def refresh_activate_uploaders(cls):
+    async def refresh_activate_uploaders(cls):
         """通过当前 Bot 覆盖的平台，激活需要推送的UP"""
         logger.debug("refreshing activate uploaders")
         cls.activate_uploaders = {}
         for bot in get_bots().values():
             platform = bot.adapter.get_name()
-            for user in cls.users.values():
-                if user.platfrom == platform:
-                    for up in user.subscribe_ups:
-                        cls.activate_uploaders[up.uid] = up
+            if handler := UP_HANDLER.get(platform):
+                ups = await handler(cls)
+                for up in ups:
+                    cls.activate_uploaders[up.uid] = up
+            else:
+                logger.debug(f"no handler for platform: {platform}")
         cls.get_activate_uploaders()
 
-    @classmethod
-    async def async_refresh_activate_uploaders(cls):
-        return cls.refresh_activate_uploaders()
 
 
 SubscriptionSystem.load_from_file()
 
-driver.on_bot_connect(SubscriptionSystem.async_refresh_activate_uploaders)
-driver.on_bot_disconnect(SubscriptionSystem.async_refresh_activate_uploaders)
+driver.on_bot_connect(SubscriptionSystem.refresh_activate_uploaders)
+driver.on_bot_disconnect(SubscriptionSystem.refresh_activate_uploaders)
