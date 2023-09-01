@@ -38,7 +38,7 @@ async def remove_sub(msg: Message = CommandArg(), user: User = Depends(get_user)
     keyword = msg.extract_plain_text().lower()
     for up in SubscriptionSystem.uploaders.values():
         if up.nickname.lower() == keyword or str(up.uid) == keyword:
-            re_msg = user.remove_subscription(up) or f"已经成功取关 {up} 啦\n(*^▽^*)"
+            re_msg = await user.remove_subscription(up) or f"已经成功取关 {up} 啦\n(*^▽^*)"
             await bili_add_sub.finish(re_msg)
     await bili_add_sub.finish("未找到该 UP 主呢\n`(*>﹏<*)′")
 
