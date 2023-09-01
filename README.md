@@ -196,6 +196,7 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 |    bilichat_subs_limit    |    int    |            5             |    允许的最大订阅数(0-50)    |
 | bilichat_dynamic_interval |    int    |            90            | 允许的动态刷取间隔(最低 60s) |
 |  bilichat_live_interval   |    int    |            30            | 允许的直播刷取间隔(最低 10s) |
+|    bilichat_push_delay    |    int    |            3             |      每条推送之间的延迟      |
 |   bilichat_dynamic_grpc   |   bool    |          False           |    是否使用 gRPC 刷取动态    |
 |  bilichat_command_to_me   |   bool    |           True           |     命令是否需要@机器人      |
 |    bilichat_cmd_start     |    str    |        "bilichat"        |   命令的起始词，可设置为空   |

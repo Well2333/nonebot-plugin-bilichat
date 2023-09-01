@@ -1,3 +1,4 @@
+import asyncio
 import json
 import time
 from typing import Any, Dict, List, Optional, TypedDict, Union
@@ -89,6 +90,7 @@ class User:
         handler = PUSH_HANDLER.get(self.platfrom)
         if handler:
             await handler(self.user_id, content, at_all=self.at_all if at_all is None else at_all)
+            await asyncio.sleep(plugin_config.bilichat_push_delay)
 
     def add_subscription(self, uploader: Uploader) -> Union[None, str]:
         """Add a subscription for a user to an uploader."""
