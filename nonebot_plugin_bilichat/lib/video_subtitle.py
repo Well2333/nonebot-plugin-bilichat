@@ -2,7 +2,7 @@ import asyncio
 from typing import Dict, List, Optional
 
 import httpx
-from loguru import logger
+from nonebot.log import logger
 
 from ..config import plugin_config
 from ..model.bcut_asr import ResultStateEnum

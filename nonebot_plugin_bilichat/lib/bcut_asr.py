@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import List, Literal, Optional, Union
 
 import httpx
-from loguru import logger
+from nonebot.log import logger
 
 from ..model.bcut_asr import (
     ResourceCompleteRspSchema,

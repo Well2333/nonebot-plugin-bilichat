@@ -1,11 +1,11 @@
 import asyncio
 import random
 from collections import OrderedDict
-from typing import Dict, List, Optional, Literal
+from typing import Dict, List, Literal, Optional
 
 import httpx
 import tiktoken_async
-from loguru import logger
+from nonebot.log import logger
 
 from ..config import plugin_config
 from ..model.openai import OpenAI, TokenUsage

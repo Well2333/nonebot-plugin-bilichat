@@ -1,6 +1,6 @@
 from typing import List
 
-from loguru import logger
+from nonebot.log import logger
 
 from ..config import plugin_config
 from ..lib.cache import BaseCache
@@ -28,9 +28,9 @@ async def openai_summarization(cache: BaseCache):
     try:
         if not cache.openai:
             if cache.id[:2].lower() in ["bv", "av"]:
-                ai_summary = await subtitle_summarise(cache.title, cache.content) # type: ignore
+                ai_summary = await subtitle_summarise(cache.title, cache.content)  # type: ignore
             elif cache.id[:2].lower() == "cv":
-                ai_summary = await column_summarise(cache.title, cache.content) # type: ignore
+                ai_summary = await column_summarise(cache.title, cache.content)  # type: ignore
             else:
                 raise ValueError(f"Illegal Video(Column) types {cache.id}")
 
