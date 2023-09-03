@@ -5,7 +5,7 @@ from typing import Dict
 from bilireq.exceptions import ResponseCodeError
 from bilireq.live import get_rooms_info_by_uids
 from httpx import ConnectError, TransportError
-from loguru import logger
+from nonebot.log import logger
 
 from ..lib.bilibili_request import get_b23_url, hc
 from ..lib.tools import calc_time_total

@@ -1,5 +1,5 @@
 from bilireq.utils import DEFAULT_HEADERS, get, post
-from loguru import logger
+from nonebot.log import logger
 
 from .auth import get_cookies, gRPC_Auth
 

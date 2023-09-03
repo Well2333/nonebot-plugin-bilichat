@@ -1,7 +1,7 @@
 import contextlib
 from typing import List
 
-from loguru import logger
+from nonebot.log import logger
 
 from .bilibili_request import hc
 

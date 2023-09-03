@@ -4,10 +4,9 @@ from pathlib import Path
 from zipfile import ZipFile
 
 import httpx
-from loguru import logger
+from nonebot.log import logger
 from yarl import URL
 
-from ..config import plugin_config
 from .store import data_dir
 
 DEFUALT_DYNAMIC_FONT = "HarmonyOS_Sans_SC_Medium.ttf"

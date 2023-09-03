@@ -1,69 +1,14 @@
 import asyncio
 import re
-from contextlib import asynccontextmanager
-from typing import AsyncIterator
 
-from loguru import logger
-from nonebot_plugin_htmlrender.browser import get_browser
+from nonebot.log import logger
 from playwright._impl._api_types import TimeoutError
-from playwright.async_api import Page, Request, Response
+from playwright.async_api import Page, Response
 
 from ....config import plugin_config
 from ....model.exception import AbortError, CaptchaAbortError, NotFindAbortError
 from ....optional import capture_exception
-from ...bilibili_request.auth import get_cookies, gRPC_Auth
-from ...browser import pw_font_injecter
-from ...store import static_dir
-
-mobile_style_js = static_dir.joinpath("browser", "mobile_style.js")
-
-
-@asynccontextmanager
-async def get_new_page(device_scale_factor: float = 2, **kwargs) -> AsyncIterator[Page]:
-    browser = await get_browser()
-    if plugin_config.bilichat_dynamic_style == "browser_mobile":
-        kwargs["user_agent"] = (
-            "5.0 (Linux; Android 13; SM-A037U) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Mobile Safari/537.36  uacq"
-        )
-    page = await browser.new_page(device_scale_factor=device_scale_factor, **kwargs)
-    if gRPC_Auth:
-        logger.debug("正在为浏览器添加cookies")
-        await page.context.add_cookies(  # type: ignore
-            [
-                {
-                    "domain": ".bilibili.com",
-                    "name": name,
-                    "path": "/",
-                    "value": value,
-                }
-                for name, value in get_cookies().items()
-            ]
-        )
-    try:
-        yield page
-    finally:
-        await page.close()
-
-
-async def network_request(request: Request):
-    url = request.url
-    method = request.method
-    response = await request.response()
-    if response:
-        status = response.status
-        timing = "%.2f" % response.request.timing["responseEnd"]
-    else:
-        status = "/"
-        timing = "/"
-    logger.debug(f"[Response] [{method} {status}] {timing}ms <<  {url}")
-
-
-def network_requestfailed(request: Request):
-    url = request.url
-    fail = request.failure
-    method = request.method
-    logger.warning(f"[RequestFailed] [{method} {fail}] << {url}")
+from ...browser import get_new_page, mobile_style_js, network_requestfailed, pw_font_injecter
 
 
 async def get_mobile_screenshot(page: Page, dynid: str):
@@ -138,7 +83,7 @@ async def get_pc_screenshot(page: Page, dynid: str):
 
 async def screenshot(dynid: str, retry: bool = True, **kwargs):
     logger.info(f"正在截图动态：{dynid}")
-    async with get_new_page() as page:
+    async with get_new_page(mobile_style=(plugin_config.bilichat_dynamic_style == "browser_mobile")) as page:
         await page.route(re.compile("^https://fonts.bbot/(.+)$"), pw_font_injecter)
         try:
             # page.on("requestfinished", network_request)
