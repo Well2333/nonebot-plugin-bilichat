@@ -72,9 +72,9 @@ async def get_subtitle(aid: int, cid: int) -> List[str]:
             try:
                 asr = await get_bcut_asr(audio)
                 return [x.transcript for x in asr]
-            except httpx.ReadTimeout as e:
+            except (httpx.ReadTimeout, httpx.WriteTimeout):
                 logger.error(
-                    f"except httpx.ReadTimeout, retry count remaining {plugin_config.bilichat_neterror_retry-count-1}"
+                    f"except network error, retry count remaining {plugin_config.bilichat_neterror_retry-count-1}"
                 )
                 await asyncio.sleep(5)
             except Exception as e:
