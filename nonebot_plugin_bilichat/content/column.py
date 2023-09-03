@@ -7,6 +7,7 @@ from nonebot.log import logger
 from pydantic import BaseModel
 
 from ..lib.bilibili_request import get_b23_url, hc
+from ..lib.bilibili_request.auth import get_cookies
 from ..lib.cache import BaseCache, Cache
 from ..model.arguments import Options
 from ..model.exception import AbortError
@@ -27,7 +28,7 @@ class Column(BaseModel):
     async def from_id(cls, bili_number: str, options: Optional[Options] = None):
         try:
             cvid = bili_number[2:]
-            cv = await hc.get(f"https://www.bilibili.com/read/cv{cvid}")
+            cv = await hc.get(f"https://www.bilibili.com/read/cv{cvid}", cookies=get_cookies())
             if cv.status_code != 200:
                 raise AbortError("未找到此专栏，可能已被 UP 主删除。")
             cv.encoding = "utf-8"

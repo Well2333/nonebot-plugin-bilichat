@@ -25,7 +25,7 @@ FUTUER_FUCTIONS = ENABLE_SUMMARY or plugin_config.bilichat_word_cloud
 
 cd: Dict[str, int] = {}
 cd_size_limit = plugin_config.bilichat_cd_time // 2
-locks = {}
+sem = asyncio.Semaphore(1)
 
 
 def check_cd(uid: Union[int, str], check: bool = True):
@@ -93,31 +93,22 @@ async def get_content_info_from_state(state: T_State):
 
 
 async def get_futuer_fuctions(content: Union[Video, Column, Any]):
-    global locks
     if not (FUTUER_FUCTIONS and content) or not isinstance(content, (Video, Column)):
         raise FinishedException
 
-    # add lock
-    if content.id not in locks:
-        locks[content.id] = asyncio.Lock()
+    async with sem:
+        subtitle = await content.get_subtitle()
+        if not subtitle:
+            raise AbortError("视频无有效字幕")
 
-    async with locks[content.id]:
-        try:
-            subtitle = await content.get_subtitle()
-            if not subtitle:
-                raise AbortError("视频无有效字幕")
+        # wordcloud
+        wc_image = ""
+        if plugin_config.bilichat_word_cloud:
+            wc_image = await wordcloud(cache=content.cache) or ""  # type: ignore
 
-            # wordcloud
-            wc_image = ""
-            if plugin_config.bilichat_word_cloud:
-                wc_image = await wordcloud(cache=content.cache) or ""  # type: ignore
+        # summary
+        summary = ""
+        if ENABLE_SUMMARY:
+            summary = await summarization(cache=content.cache) or ""  # type: ignore
 
-            # summary
-            summary = ""
-            if ENABLE_SUMMARY:
-                summary = await summarization(cache=content.cache) or ""  # type: ignore
-
-            return wc_image, summary
-        finally:
-            if content.id in locks:
-                del locks[content.id]
+        return wc_image, summary
