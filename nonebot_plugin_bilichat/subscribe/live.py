@@ -62,7 +62,7 @@ async def fetch_live(ups: Dict[int, Uploader]):
                     for user in up.subscribed_users:
                         if user.subscriptions[up.uid].get("live", True):
                             await user.push_to_user(
-                                content=content, at_all=user.subscriptions[up.uid]["at_all"] or user.at_all
+                                content=content, at_all=user.subscriptions[up.uid]["live_at_all"] or user.at_all
                             )
                 # 如果记录值大于 0 则是正在直播，不进行开播推送
                 else:
@@ -77,7 +77,7 @@ async def fetch_live(ups: Dict[int, Uploader]):
                 for user in up.subscribed_users:
                     if user.subscriptions[up.uid].get("live", True):
                         await user.push_to_user(
-                            content=content, at_all=user.subscriptions[up.uid]["at_all"] or user.at_all  # type: ignore
+                            content=content, at_all=user.subscriptions[up.uid]["live_at_all"] or user.at_all  # type: ignore
                         )
         finally:
             # 如果是 -1 则更新为 0

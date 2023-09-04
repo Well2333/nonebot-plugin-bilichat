@@ -27,20 +27,24 @@ async def at_all(
     else:
         re_msg = "未找到该 UP 主呢\n`(*>﹏<*)′"
         for up in SubscriptionSystem.uploaders.values():
-            if up.nickname.lower() == keyword or str(up.uid) == keyword:
+            if up.nickname.lower() in keyword or str(up.uid) in keyword:
                 cfg = user.subscriptions.get(up.uid, DEFUALT_SUB_CONFIG.copy())
-                if cfg.get("at_all") is True:
-                    cfg["at_all"] = False
-                    user.subscriptions.update(
-                        {
-                            up.uid: cfg,  # type: ignore
-                        }
-                    )
-                    re_msg = f"已关闭 {up.nickname}({up.uid}) 的@全体成员了~\n(*^▽^*)"
+                if "动态" in keyword or "dynamic" in keyword:
+                    cfg["dynamic_at_all"] = not cfg.get("dynamic_at_all", False)
+                    user.subscriptions.update({up.uid: cfg})
+                    if cfg["dynamic_at_all"]:
+                        re_msg = f"已开启 {up.nickname}({up.uid}) 的动态@全体成员了~\n(*^▽^*)"
+                    else:
+                        re_msg = f"已关闭 {up.nickname}({up.uid}) 的动态@全体成员了~\n(*^▽^*)"
+                elif "直播" in keyword or "live" in keyword:
+                    cfg["live_at_all"] = not cfg.get("live_at_all", False)
+                    user.subscriptions.update({up.uid: cfg})
+                    if cfg["live_at_all"]:
+                        re_msg = f"已开启 {up.nickname}({up.uid}) 的直播@全体成员了~\n(*^▽^*)"
+                    else:
+                        re_msg = f"已关闭 {up.nickname}({up.uid}) 的直播@全体成员了~\n(*^▽^*)"
                 else:
-                    cfg["at_all"] = True
-                    user.subscriptions.update({up.uid: cfg})  # type: ignore
-                    re_msg = f"已开启 {up.nickname}({up.uid}) 的@全体成员了~\n(*^▽^*)"
+                    await bili_at_all.finish("请输入你想开启(关闭)的是 `直播` 或 `动态` 呢\n`(*>﹏<*)′")
     SubscriptionSystem.save_to_file()
     await bili_at_all.finish(re_msg)
 

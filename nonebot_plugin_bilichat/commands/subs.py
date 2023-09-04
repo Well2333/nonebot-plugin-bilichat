@@ -71,7 +71,8 @@ async def check_sub(
             if up.nickname.lower() == keyword or str(up.uid) == keyword:
                 prompt = [str(up)]
                 cfg = user.subscriptions.get(up.uid, {})
-                prompt.append(f"📢 全体成员 - {cfg.get('at_all',False)}")
+                prompt.append(f"📢 @ 全员(动态) - {cfg.get('dynamic_at_all',False)}")
+                prompt.append(f"📢 @ 全员(直播) - {cfg.get('live_at_all',False)}")
                 prompt.append(f"💬 动态推送 - {cfg.get('dynamic',True)}")
                 prompt.append(f"📺 直播推送 - {cfg.get('live',True)}")
                 re_msg = "\n".join(prompt)
