@@ -46,15 +46,17 @@ class Uploader:
 
 
 class UserSubConfig(TypedDict):
-    at_all: bool
     dynamic: bool
+    dynamic_at_all: bool
     live: bool
+    live_at_all: bool
 
 
-DEFUALT_SUB_CONFIG = {
-    "at_all": False,
+DEFUALT_SUB_CONFIG: UserSubConfig = {
     "dynamic": True,
+    "dynamic_at_all": False,
     "live": True,
+    "live_at_all": False,
 }
 
 
@@ -180,7 +182,6 @@ class SubscriptionSystem:
             else:
                 logger.debug(f"no handler for platform: {platform}")
         cls.get_activate_uploaders()
-
 
 
 SubscriptionSystem.load_from_file()
