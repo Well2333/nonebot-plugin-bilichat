@@ -1,0 +1,64 @@
+name: Bug 反馈
+title: "Bug: 出现异常"
+description: 提交 Bug 反馈以帮助我们改进代码
+labels: ["bug"]
+body:
+  - type: dropdown
+    id: env-os
+    attributes:
+      label: 操作系统
+      description: 选择运行 NoneBot 的系统
+      options:
+        - Windows
+        - MacOS
+        - Linux
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: env-python-ver
+    attributes:
+      label: Python 版本
+      description: 填写运行 NoneBot 的 Python 版本
+      placeholder: e.g. 3.11.0
+    validations:
+      required: true
+
+  - type: input
+    id: env-nb-ver
+    attributes:
+      label: NoneBot 版本
+      description: 填写 NoneBot 版本
+      placeholder: e.g. 2.0.0
+    validations:
+      required: true
+    
+  - type: input
+    id: env-nb-ver
+    attributes:
+      label: Bilichat 版本
+      description: 填写 Bilichat 版本
+      placeholder: e.g. 2.0.0
+    validations:
+      required: true
+
+  - type: textarea
+    id: describe
+    attributes:
+      label: 描述问题
+      description: 清晰简洁地说明问题是什么
+    validations:
+      required: true
+
+  - type: textarea
+    id: config
+    attributes:
+      label: 插件的配置项
+      description: 去除敏感信息的插件相关配置项
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 截图或日志
+      description: 提供有助于诊断问题的任何日志和截图
