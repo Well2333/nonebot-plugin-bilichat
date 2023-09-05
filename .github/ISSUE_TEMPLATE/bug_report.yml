@@ -35,7 +35,7 @@ body:
       required: true
     
   - type: input
-    id: env-nb-ver
+    id: env-plugin-ver
     attributes:
       label: Bilichat 版本
       description: 填写 Bilichat 版本
