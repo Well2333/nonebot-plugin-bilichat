@@ -67,7 +67,12 @@ class User:
         self.user_id: str = str(user_id)
         self.platfrom: str = platfrom
         self.at_all: bool = at_all
-        self.subscriptions: Dict[int, UserSubConfig] = {int(k): v for k, v in subscriptions.items()}
+
+        self.subscriptions: Dict[int, UserSubConfig] = {}
+        for k, v in subscriptions.items():
+            cfg: UserSubConfig = DEFUALT_SUB_CONFIG.copy()
+            cfg.update(v)
+            self.subscriptions[int(k)] = cfg
 
     def dict(self) -> Dict[str, Any]:
         """Return a dictionary representation of the User."""
