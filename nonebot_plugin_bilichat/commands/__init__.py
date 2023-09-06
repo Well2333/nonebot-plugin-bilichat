@@ -1,4 +1,4 @@
-from . import login, subs, subs_cfg  # noqa: F401
+from . import check_dynamic, login, subs, subs_cfg  # noqa: F401
 
 try:
     from . import onebot_leave_group  # noqa: F401

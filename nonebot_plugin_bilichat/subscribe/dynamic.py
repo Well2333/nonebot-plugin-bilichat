@@ -1,4 +1,5 @@
 import asyncio
+from typing import List
 
 from bilireq.exceptions import GrpcError, ResponseCodeError
 from bilireq.grpc.dynamic import grpc_get_user_dynamics
@@ -29,10 +30,21 @@ DYNAMIC_TYPE_MAP = {
     "DYNAMIC_TYPE_MUSIC": DynamicType.music,
 }
 
+DYNAMIC_TYPE_IGNORE = {
+    "DYNAMIC_TYPE_AD",
+    "DYNAMIC_TYPE_LIVE",
+    "DYNAMIC_TYPE_LIVE_RCMD",
+    "DYNAMIC_TYPE_BANNER",
+    DynamicType.ad,
+    DynamicType.live,
+    DynamicType.live_rcmd,
+    DynamicType.banner,
+}
+
 
 async def fetch_dynamics_rest(up: Uploader):
     try:
-        resp: list = (await get_user_dynamics(up.uid))["items"]
+        resp: List = (await get_user_dynamics(up.uid))["items"]
     except TimeoutException:
         logger.error(f"[Dynamic] fetch {up.nickname}({up.uid}) timeout")
         raise AbortError("Dynamic Abort")
@@ -50,7 +62,7 @@ async def fetch_dynamics_rest(up: Uploader):
     if up.dyn_offset == 0:
         up.dyn_offset = max([int(x["id_str"]) for x in resp])
         return
-    dyns = [x for x in resp if int(x["id_str"]) > up.dyn_offset]
+    dyns = [x for x in resp if int(x["id_str"]) > up.dyn_offset and x["type"] not in DYNAMIC_TYPE_IGNORE]
     dyns.reverse()
     for dyn in dyns:
         check_cd(dyn["id_str"], check=False)
@@ -122,7 +134,7 @@ async def fetch_dynamics_grpc(up: Uploader):
     if up.dyn_offset == 0:
         up.dyn_offset = max([int(x.extend.dyn_id_str) for x in resp.list])
         return
-    dyns = [x for x in resp.list if int(x.extend.dyn_id_str) > up.dyn_offset]
+    dyns = [x for x in resp.list if int(x.extend.dyn_id_str) > up.dyn_offset and x.card_type not in DYNAMIC_TYPE_IGNORE]
     dyns.reverse()
     for dyn in dyns:
         check_cd(dyn.extend.dyn_id_str, check=False)
