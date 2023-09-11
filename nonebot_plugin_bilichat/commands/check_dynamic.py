@@ -83,10 +83,10 @@ async def fetch_dynamics_grpc(up_mid: int, up_name: str) -> Union[Dynamic, None]
 
 
 try:
-    from nonebot.adapters.onebot.v11 import Message, MessageSegment
+    from nonebot.adapters.onebot import v11
 
     @bili_check_dyn.handle()
-    async def check_dynamic(uid: Message = CommandArg()):
+    async def check_dynamic_v11(bot: v11.Bot, uid: v11.Message = CommandArg()):
         # 获取 UP 对象
         if not uid:
             await bili_check_dyn.finish("请输入UP主的昵称呢\n`(*>﹏<*)′")
@@ -102,7 +102,35 @@ try:
 
         if dyn:
             if image := await dyn.get_image(plugin_config.bilichat_dynamic_style):
-                await bili_check_dyn.finish(MessageSegment.image(image))
+                await bili_check_dyn.finish(v11.MessageSegment.image(image))
+
+except ImportError:
+    pass
+
+
+try:
+    import base64
+
+    from nonebot.adapters import mirai2
+
+    @bili_check_dyn.handle()
+    async def check_dynamic_mirai(bot: mirai2.Bot, uid: mirai2.MessageChain = CommandArg()):
+        # 获取 UP 对象
+        if not uid:
+            await bili_check_dyn.finish("请输入UP主的昵称呢\n`(*>﹏<*)′")
+        up = await uid_extract(uid.extract_plain_text())
+        if isinstance(up, str):
+            await bili_check_dyn.finish(up)
+            raise FinishedException
+
+        if plugin_config.bilichat_dynamic_grpc:
+            dyn = await fetch_dynamics_grpc(up.mid, up.nickname)
+        else:
+            dyn = await fetch_dynamics_rest(up.mid, up.nickname)
+
+        if dyn:
+            if image := await dyn.get_image(plugin_config.bilichat_dynamic_style):
+                await bili_check_dyn.finish(mirai2.MessageSegment.image(base64=base64.b64encode(image).decode("utf-8")))
 
 except ImportError:
     pass

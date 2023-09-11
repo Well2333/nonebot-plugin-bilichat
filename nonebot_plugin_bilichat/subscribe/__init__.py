@@ -13,7 +13,12 @@ from .manager import SubscriptionSystem
 LOCK = asyncio.Lock()
 
 
-@scheduler.scheduled_job("interval", seconds=plugin_config.bilichat_dynamic_interval, id="dynamic_update")
+@scheduler.scheduled_job(
+    "interval",
+    seconds=plugin_config.bilichat_dynamic_interval,
+    id="dynamic_update",
+    jitter=plugin_config.bilichat_dynamic_interval // 5,
+)
 async def run_dynamic_update():
     async with LOCK:
         if not SubscriptionSystem.activate_uploaders:
@@ -46,7 +51,12 @@ async def run_dynamic_update():
         logger.debug("[Dynamic] Updating finished")
 
 
-@scheduler.scheduled_job("interval", seconds=plugin_config.bilichat_live_interval, id="live_update")
+@scheduler.scheduled_job(
+    "interval",
+    seconds=plugin_config.bilichat_live_interval,
+    id="live_update",
+    jitter=plugin_config.bilichat_live_interval // 5,
+)
 async def run_live_update():
     async with LOCK:
         if not SubscriptionSystem.activate_uploaders:

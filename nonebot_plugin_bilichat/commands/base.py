@@ -27,4 +27,6 @@ async def get_user(matcher: Matcher, bot: Bot, event: Event) -> User:
     if not user_id:
         await matcher.finish("暂时还不支持当前会话呢\n`(*>﹏<*)′")
         raise FinishedException
-    return SubscriptionSystem.users.get(user_id, User(user_id=user_id, platfrom=bot.adapter.get_name()))
+    return SubscriptionSystem.users.get(
+        f"{bot.adapter.get_name()}-_-{user_id}", User(user_id=user_id, platfrom=bot.adapter.get_name())
+    )
