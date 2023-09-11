@@ -93,3 +93,46 @@ try:
 
 except Exception:
     pass
+
+try:
+    from nonebot.adapters.onebot import v11
+
+    @bili_login_qrcode.handle()
+    async def bili_qrcode_login_v11(event: v11.MessageEvent):
+        login = Login()
+        qr_url = await login.get_qrcode_url()
+        logger.debug(f"qrcode login url: {qr_url}")
+        data = "base64://" + await login.get_qrcode(qr_url, base64=True)  # type: ignore
+        await bili_login_qrcode.send(v11.MessageSegment.image(data))
+        try:
+            gRPC_Auth: Auth = await login.qrcode_login(interval=5)  # type: ignore
+            logger.debug(gRPC_Auth.data)
+            bili_grpc_auth.write_text(json.dumps(gRPC_Auth.data, indent=2, ensure_ascii=False), encoding="utf-8")
+        except Exception as e:
+            await bili_login_sms.finish(f"登录失败: {e}")
+        await bili_login_sms.finish("登录成功，已将验证信息缓存至文件")
+
+except Exception:
+    pass
+
+
+try:
+    from nonebot.adapters import mirai2
+
+    @bili_login_qrcode.handle()
+    async def bili_qrcode_login_mirai2(event: mirai2.event.MessageEvent):
+        login = Login()
+        qr_url = await login.get_qrcode_url()
+        logger.debug(f"qrcode login url: {qr_url}")
+        data = "base64://" + await login.get_qrcode(qr_url, base64=True)  # type: ignore
+        await bili_login_qrcode.send(mirai2.MessageSegment.image(base64=data))
+        try:
+            gRPC_Auth: Auth = await login.qrcode_login(interval=5)  # type: ignore
+            logger.debug(gRPC_Auth.data)
+            bili_grpc_auth.write_text(json.dumps(gRPC_Auth.data, indent=2, ensure_ascii=False), encoding="utf-8")
+        except Exception as e:
+            await bili_login_sms.finish(f"登录失败: {e}")
+        await bili_login_sms.finish("登录成功，已将验证信息缓存至文件")
+
+except Exception:
+    pass

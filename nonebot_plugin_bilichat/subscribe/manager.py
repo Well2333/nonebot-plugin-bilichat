@@ -93,6 +93,10 @@ class User:
                 del self.subscriptions[uid]
         return uplist
 
+    @property
+    def _id(self) -> str:
+        return f"{self.platfrom}-_-{self.user_id}"
+
     async def push_to_user(self, content: List[Union[str, bytes]], at_all: Optional[bool] = None):
         handler = PUSH_HANDLER.get(self.platfrom)
         if handler:
@@ -112,7 +116,7 @@ class User:
 
         SubscriptionSystem.uploaders[uploader.uid] = uploader
         SubscriptionSystem.activate_uploaders[uploader.uid] = uploader
-        SubscriptionSystem.users[self.user_id] = self
+        SubscriptionSystem.users[self._id] = self
 
         SubscriptionSystem.get_activate_uploaders()
         SubscriptionSystem.save_to_file()
@@ -123,9 +127,9 @@ class User:
             return "本群并未订阅此UP主呢...\n`(*>﹏<*)′"
 
         del self.subscriptions[uploader.uid]
-        SubscriptionSystem.users[self.user_id] = self
+        SubscriptionSystem.users[self._id] = self
         if not self.subscriptions:
-            del SubscriptionSystem.users[self.user_id]
+            del SubscriptionSystem.users[self._id]
 
         if not uploader.subscribed_users:
             del SubscriptionSystem.uploaders[uploader.uid]
@@ -145,7 +149,7 @@ class SubscriptionSystem:
     def dict(cls):
         return {
             "uploaders": {up.uid: up.dict() for up in cls.uploaders.values()},
-            "users": {u.user_id: u.dict() for u in cls.users.values()},
+            "users": {f"{u.platfrom}-_-{u.user_id}": u.dict() for u in cls.users.values()},
         }
 
     @classmethod
@@ -153,7 +157,11 @@ class SubscriptionSystem:
         """Load data from the JSON file."""
         data = json.loads(subscribe_file.read_text() or '{"uploaders":{},"users":{}}')
         cls.uploaders = {int(k): Uploader(**v) for k, v in data["uploaders"].items()}
-        cls.users = {k: User(**v) for k, v in data["users"].items()}
+        cls.users = {}
+        for k, v in data["users"].items():
+            user = User(**v)
+            id_ = k if "-_-" in k else f"{user.platfrom}-_-{user.user_id}"
+            cls.users[id_] = user
 
     @classmethod
     def save_to_file(cls):

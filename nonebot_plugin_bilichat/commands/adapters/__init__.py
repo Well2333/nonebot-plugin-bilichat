@@ -5,11 +5,11 @@ ID_HANDLER: Dict[str, Callable] = {}
 UP_HANDLER: Dict[str, Callable] = {}
 
 try:
-    from .onebot_v11 import get_activate_ups, get_user_id, push
+    from . import onebot_v11
 
-    PUSH_HANDLER["OneBot V11"] = push
-    ID_HANDLER["OneBot V11"] = get_user_id
-    UP_HANDLER["OneBot V11"] = get_activate_ups
+    PUSH_HANDLER["OneBot V11"] = onebot_v11.push
+    ID_HANDLER["OneBot V11"] = onebot_v11.get_user_id
+    UP_HANDLER["OneBot V11"] = onebot_v11.get_activate_ups
 except Exception:
     pass
 
@@ -20,6 +20,10 @@ except Exception:
 
 try:
     from . import mirai2
+
+    PUSH_HANDLER["mirai2"] = mirai2.push
+    ID_HANDLER["mirai2"] = mirai2.get_user_id
+    UP_HANDLER["mirai2"] = mirai2.get_activate_ups
 except Exception:
     pass
 
