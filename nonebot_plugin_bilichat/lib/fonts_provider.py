@@ -64,9 +64,11 @@ def font_init():
     if lock_file.read_text() != font_url:
         logger.warning("font file does not exist. Trying to download")
         font_file = BytesIO()
-        with httpx.stream("GET", font_url) as r:
-            for chunk in r.iter_bytes():
-                font_file.write(chunk)
+        with httpx.Client() as client:
+            client.follow_redirects = True
+            with client.stream("GET", font_url) as r:
+                for chunk in r.iter_bytes():
+                    font_file.write(chunk)
         with ZipFile(font_file) as z:
             fonts = [i for i in z.filelist if str(i.filename).startswith("bbot_fonts/font/")]
             for font in fonts:
