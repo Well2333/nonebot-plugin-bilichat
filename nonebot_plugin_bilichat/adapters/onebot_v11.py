@@ -28,11 +28,15 @@ from .base import get_content_info_from_state, get_futuer_fuctions
 
 async def _bili_check(bot: Bot, event: MessageEvent, state: T_State):
     # 检查并提取 raw_bililink
-    if plugin_config.bilichat_enable_self and str(event.get_user_id()) == str(bot.self_id) and event.reply:
-        # 是自身消息的情况下，检查是否是回复，是的话则取被回复的消息
-        _msgs = event.reply.message
-    else:
-        # 其余情况取该条消息
+    try:
+        if plugin_config.bilichat_enable_self and str(event.get_user_id()) == str(bot.self_id) and event.reply:
+            # 是自身消息的情况下，检查是否是回复，是的话则取被回复的消息
+            _msgs = event.reply.message
+        else:
+            # 其余情况取该条消息
+            _msgs = event.get_message()
+    except Exception:
+        # 如果出现错误，则取该条消息
         _msgs = event.get_message()
 
     for _msg in _msgs:
