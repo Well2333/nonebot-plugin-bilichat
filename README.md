@@ -276,6 +276,7 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 
 |            配置项            | 类型 |       默认值       |                                                        说明                                                        |
 | :--------------------------: | :--: | :----------------: | :----------------------------------------------------------------------------------------------------------------: |
+|  bilichat_official_summary   | bool |       False        |                        是否开启官方总结，此总结独立于下方 AI 总结，可与下方 AI 总结同时生效                        |
 |   bilichat_newbing_cookie    | str  |        None        |       newbing 的 cookie 文件路径, 填写 `no_login` 则不登录,`api` 则自动创建空文件, 若留空则禁用 newbing 总结       |
 | bilichat_newbing_cookie_api  | str  |        None        | 在运行时更新 newbing cookie，使用方法参考[这里](./docs/Update%20newBing%20cookie%20via%20tampermonkey%20script.md) |
 | bilichat_newbing_token_limit | int  |         0          |                                        newbing 请求的文本量上限, 0 为无上限                                        |

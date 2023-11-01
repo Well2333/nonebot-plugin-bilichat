@@ -10,6 +10,7 @@ from nonebot.typing import T_State
 from ..config import plugin_config
 from ..content import Column, Dynamic, Video
 from ..model.exception import AbortError
+from ..summary.text_to_image import t2i
 
 if plugin_config.bilichat_openai_token or plugin_config.bilichat_newbing_cookie:
     ENABLE_SUMMARY = True
@@ -20,7 +21,7 @@ else:
 if plugin_config.bilichat_word_cloud:
     from ..wordcloud.wordcloud import wordcloud
 
-FUTUER_FUCTIONS = ENABLE_SUMMARY or plugin_config.bilichat_word_cloud
+FUTUER_FUCTIONS = ENABLE_SUMMARY or plugin_config.bilichat_word_cloud or plugin_config.bilichat_official_summary
 
 
 cd: Dict[str, int] = {}
@@ -97,6 +98,10 @@ async def get_futuer_fuctions(content: Union[Video, Column, Any]):
         raise FinishedException
 
     async with sem:
+        official_summary = ""
+        if isinstance(content, Video) and plugin_config.bilichat_official_summary:
+            official_summary = await t2i((await content.get_offical_summary()).model_result.markdown(), src="bilibili")
+
         subtitle = await content.get_subtitle()
         if not subtitle:
             raise AbortError("视频无有效字幕")
@@ -111,4 +116,4 @@ async def get_futuer_fuctions(content: Union[Video, Column, Any]):
         if ENABLE_SUMMARY:
             summary = await summarization(cache=content.cache) or ""  # type: ignore
 
-        return wc_image, summary
+        return official_summary, wc_image, summary

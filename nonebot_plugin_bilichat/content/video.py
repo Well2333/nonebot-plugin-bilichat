@@ -1,6 +1,7 @@
 from typing import Optional
 
 from bilireq.grpc.protos.bilibili.app.view.v1.view_pb2 import ViewReply
+from bilireq.utils import get
 from nonebot.log import logger
 from pydantic import BaseModel
 
@@ -9,6 +10,7 @@ from ..lib.cache import BaseCache, Cache
 from ..lib.draw import VideoImage
 from ..lib.video_subtitle import get_subtitle
 from ..model.arguments import Options
+from ..model.bilibili.summary import SummaryApiResponse
 from ..model.exception import AbortError
 
 
@@ -25,11 +27,10 @@ class Video(BaseModel):
 
     class Config:
         arbitrary_types_allowed = True
-    
+
     @property
     def bili_id(self) -> str:
         return f"av{self.id}"
-
 
     @classmethod
     async def from_id(cls, bili_number: str, options: Optional[Options] = None):
@@ -81,3 +82,23 @@ class Video(BaseModel):
 
     async def get_image(self, style: str):
         return await (await VideoImage.from_view_rely(self.raw, self.url)).render(style)
+
+    async def get_offical_summary(self):
+        params = {
+            "bvid": self.raw.bvid,
+            "cid": self.raw.activity_season.pages[0].page.cid
+            if self.raw.activity_season.pages
+            else self.raw.pages[0].page.cid,
+            "up_mid": self.raw.arc.author.mid,
+            "web_location": "0.0",
+        }
+        summary = SummaryApiResponse(
+            **await get(
+                "https://api.bilibili.com/x/web-interface/view/conclusion/get",
+                params=params,
+                is_wbi=True,
+            )
+        )
+        return summary
+        
+        
