@@ -24,6 +24,10 @@ class Dynamic(BaseModel):
     raw: Dict = {}
     """动态的原始信息"""
     raw_type: Literal["web", "grpc", None] = None
+    
+    @property
+    def bili_id(self) -> str:
+        return f"动态id: {self.id}"
 
     async def _grpc(self):
         logger.debug("正在使用 gRPC 获取动态信息")

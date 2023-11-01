@@ -25,6 +25,11 @@ class Video(BaseModel):
 
     class Config:
         arbitrary_types_allowed = True
+    
+    @property
+    def bili_id(self) -> str:
+        return f"av{self.id}"
+
 
     @classmethod
     async def from_id(cls, bili_number: str, options: Optional[Options] = None):

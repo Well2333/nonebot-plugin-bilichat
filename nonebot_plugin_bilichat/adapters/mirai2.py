@@ -119,7 +119,7 @@ async def content_info(bot: Bot, event: MessageEvent, state: T_State):
         content_image = await content.get_image(plugin_config.bilichat_basic_info_style)
         if content_image:
             msgs = MessageChain(MessageSegment.image(base64=base64.b64encode(content_image).decode("utf-8")))
-            msgs.append(content.url)
+            msgs.append(content.url if plugin_config.bilichat_basic_info_url else content.bili_id)
         else:
             msgs = MessageChain(content.url)
         id_ = await send_msg(bot, event, msgs, quote=messag_id)
