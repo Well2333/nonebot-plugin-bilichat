@@ -84,21 +84,18 @@ class Video(BaseModel):
         return await (await VideoImage.from_view_rely(self.raw, self.url)).render(style)
 
     async def get_offical_summary(self):
-        params = {
-            "bvid": self.raw.bvid,
-            "cid": self.raw.activity_season.pages[0].page.cid
-            if self.raw.activity_season.pages
-            else self.raw.pages[0].page.cid,
-            "up_mid": self.raw.arc.author.mid,
-            "web_location": "0.0",
-        }
-        summary = SummaryApiResponse(
-            **await get(
-                "https://api.bilibili.com/x/web-interface/view/conclusion/get",
-                params=params,
-                is_wbi=True,
-            )
+        resp = await get(
+            "https://api.bilibili.com/x/web-interface/view/conclusion/get",
+            params={
+                "bvid": self.raw.bvid,
+                "cid": self.raw.activity_season.pages[0].page.cid
+                if self.raw.activity_season.pages
+                else self.raw.pages[0].page.cid,
+                "up_mid": self.raw.arc.author.mid,
+                "web_location": "0.0",
+            },
+            is_wbi=True,
         )
+        logger.debug(resp)
+        summary = SummaryApiResponse(**resp)
         return summary
-        
-        

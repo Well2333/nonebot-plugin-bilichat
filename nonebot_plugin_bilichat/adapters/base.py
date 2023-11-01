@@ -97,23 +97,29 @@ async def get_futuer_fuctions(content: Union[Video, Column, Any]):
     if not (FUTUER_FUCTIONS and content) or not isinstance(content, (Video, Column)):
         raise FinishedException
 
+    official_summary = ""
+    wc_image = ""
+    summary = ""
+
+    if isinstance(content, Video) and plugin_config.bilichat_official_summary:
+        official_summary_response = await content.get_offical_summary()
+        try:
+            official_summary = await t2i(data=official_summary_response.model_result.markdown(), src="bilibili")
+        except Exception as e:
+            official_summary = f"当前视频不支持AI视频总结: {e}"
+
     async with sem:
-        official_summary = ""
-        if isinstance(content, Video) and plugin_config.bilichat_official_summary:
-            official_summary = await t2i((await content.get_offical_summary()).model_result.markdown(), src="bilibili")
+        if ENABLE_SUMMARY or plugin_config.bilichat_word_cloud:
+            subtitle = await content.get_subtitle()
+            if not subtitle:
+                raise AbortError("视频无有效字幕")
 
-        subtitle = await content.get_subtitle()
-        if not subtitle:
-            raise AbortError("视频无有效字幕")
+            # wordcloud
+            if plugin_config.bilichat_word_cloud:
+                wc_image = await wordcloud(cache=content.cache) or ""  # type: ignore
 
-        # wordcloud
-        wc_image = ""
-        if plugin_config.bilichat_word_cloud:
-            wc_image = await wordcloud(cache=content.cache) or ""  # type: ignore
+            # summary
+            if ENABLE_SUMMARY:
+                summary = await summarization(cache=content.cache) or ""  # type: ignore
 
-        # summary
-        summary = ""
-        if ENABLE_SUMMARY:
-            summary = await summarization(cache=content.cache) or ""  # type: ignore
-
-        return official_summary, wc_image, summary
+    return official_summary, wc_image, summary

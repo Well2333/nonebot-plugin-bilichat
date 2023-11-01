@@ -31,10 +31,11 @@ class ModelResult(BaseModel):
     def markdown(self) -> str:
         ls = [f"{self.summary}"]
         for o in self.outline:
-            ls.append(f"\n- {o.title}")
+            ls.append(f"- {o.title}")
             for p in o.part_outline:
-                ls.append(f"  - {self._format_ts(p.timestamp)} {p.content}")
-        return "\n".join(ls)
+                ls.append(f"    + *{self._format_ts(p.timestamp)}* {p.content}")
+        msg = "\n".join(ls).replace('"', '\\"')
+        return msg
 
 
 class SummaryApiResponse(BaseModel):
