@@ -60,7 +60,12 @@ async def pw_text2image(data: str, src: str):
 
     from ..lib.browser import pw_font_injecter
 
-    src = "openai" if src == plugin_config.bilichat_openai_model else "newbing"
+    if src == plugin_config.bilichat_openai_model:
+        src = "openai"
+    elif src == "newbing":
+        src = "newbing"
+    else:
+        src = "bilibili"
     data = r"\n".join(data.splitlines())
 
     summary = Path(__file__).parent.parent.joinpath("static", "summary")

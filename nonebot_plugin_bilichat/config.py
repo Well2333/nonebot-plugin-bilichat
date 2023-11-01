@@ -75,6 +75,7 @@ class Config(BaseModel):
     bilichat_word_cloud: bool = False
 
     # AI Summary
+    bilichat_official_summary: bool = False
     bilichat_newbing_cookie: Optional[str] = None
     bilichat_newbing_cookie_api: Optional[str] = None
     bilichat_newbing_token_limit: int = 0
