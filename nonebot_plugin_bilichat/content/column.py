@@ -24,6 +24,10 @@ class Column(BaseModel):
     url: str
     """b23 链接"""
     cache: BaseCache
+    
+    @property
+    def bili_id(self) -> str:
+        return f"cv{self.id}"
 
     @classmethod
     async def from_id(cls, bili_number: str, options: Optional[Options] = None):

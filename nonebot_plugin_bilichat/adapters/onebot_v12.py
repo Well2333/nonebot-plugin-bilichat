@@ -112,7 +112,7 @@ async def content_info(bot: Bot, event: MessageEvent, state: T_State):
         if content_image:
             file_ = await bot.upload_file(type="data", name=f"{randint(0,999999)}.image", data=content_image)
             msgs.append(MessageSegment.image(file_["file_id"]))
-        msgs.append(content.url)
+        msgs.append(content.url if plugin_config.bilichat_basic_info_url else content.bili_id)
         id_ = await bilichat.send(msgs)
         messag_id = id_["message_id"] if plugin_config.bilichat_reply_to_basic_info else messag_id
 
