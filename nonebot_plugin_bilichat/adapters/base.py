@@ -102,8 +102,8 @@ async def get_futuer_fuctions(content: Union[Video, Column, Any]):
     summary = ""
 
     if isinstance(content, Video) and plugin_config.bilichat_official_summary:
-        official_summary_response = await content.get_offical_summary()
         try:
+            official_summary_response = await content.get_offical_summary()
             official_summary = await t2i(data=official_summary_response.model_result.markdown(), src="bilibili")
         except Exception as e:
             official_summary = f"当前视频不支持AI视频总结: {e}"
