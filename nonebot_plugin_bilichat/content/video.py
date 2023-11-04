@@ -3,7 +3,7 @@ from typing import Optional
 from bilireq.grpc.protos.bilibili.app.view.v1.view_pb2 import ViewReply
 from bilireq.utils import get
 from nonebot.log import logger
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 from ..lib.bilibili_request import get_b23_url, grpc_get_view_info
 from ..lib.cache import BaseCache, Cache
@@ -12,6 +12,7 @@ from ..lib.video_subtitle import get_subtitle
 from ..model.arguments import Options
 from ..model.bilibili.summary import SummaryApiResponse
 from ..model.exception import AbortError
+from ..optional import capture_exception
 
 
 class Video(BaseModel):
@@ -97,5 +98,9 @@ class Video(BaseModel):
             is_wbi=True,
         )
         logger.debug(resp)
-        summary = SummaryApiResponse(**resp)
+        try:
+            summary = SummaryApiResponse(**resp)
+        except ValidationError as e:
+            capture_exception(extra={"response": resp})
+            raise AbortError("获取官方视频总结失败") from e
         return summary
