@@ -22,8 +22,8 @@ except Exception:
     pass
 
 try:
-    from . import qqguild
+    from . import qq
 
-    logger.success("QQ Guild adapter was loaded successfully")
+    logger.success("QQ adapter was loaded successfully")
 except Exception:
     pass
