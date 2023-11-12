@@ -3,10 +3,10 @@ import shlex
 from itertools import chain
 from typing import Union, cast
 
-from nonebot.adapters.qqguild import (
+from nonebot.adapters.qq import (
     Bot,
+    GuildMessageEvent,
     Message,
-    MessageEvent,
     MessageSegment,
 )
 from nonebot.exception import FinishedException
@@ -24,7 +24,7 @@ from ..optional import capture_exception
 from .base import get_content_info_from_state, get_futuer_fuctions
 
 
-async def _bili_check(event: MessageEvent, state: T_State):
+async def _bili_check(event: GuildMessageEvent, state: T_State):
     _msgs = event.get_message()
 
     for _msg in _msgs:
@@ -45,7 +45,7 @@ async def _bili_check(event: MessageEvent, state: T_State):
     return False
 
 
-async def _permission_check(bot: Bot, event: MessageEvent, state: T_State):
+async def _permission_check(bot: Bot, event: GuildMessageEvent, state: T_State):
     # 自身消息
     if str(event.get_user_id()) == str(bot.self_id):
         if plugin_config.bilichat_only_self or plugin_config.bilichat_enable_self:
@@ -59,7 +59,7 @@ async def _permission_check(bot: Bot, event: MessageEvent, state: T_State):
     if plugin_config.bilichat_only_to_me and not event.is_tome():
         return False
     # 其他消息
-    if isinstance(event, MessageEvent):
+    if isinstance(event, GuildMessageEvent):
         state["_uid_"] = f"{event.guild_id}_{event.channel_id}"
         return plugin_config.verify_permission(event.guild_id or "") and plugin_config.verify_permission(
             event.channel_id or ""
@@ -75,7 +75,7 @@ bilichat = on_message(
 
 
 @bilichat.handle()
-def set_options(state: T_State, event: MessageEvent):
+def set_options(state: T_State, event: GuildMessageEvent):
     state["_options_"] = parser.parse_known_args(
         list(
             chain.from_iterable(
@@ -87,7 +87,7 @@ def set_options(state: T_State, event: MessageEvent):
 
 
 @bilichat.handle()
-async def content_info(event: MessageEvent, state: T_State):
+async def content_info(event: GuildMessageEvent, state: T_State):
     try:
         content: Union[Column, Video, Dynamic] = await get_content_info_from_state(state)
     except AbortError as e:

@@ -2,10 +2,8 @@ import nonebot
 
 # from nonebot.adapters.mirai2 import Adapter as Mirai_Adapter
 from nonebot.adapters.onebot.v11 import Adapter as ONEBOT_V11Adapter
+from nonebot.adapters.qq import Adapter as QQ_Adapter
 from nonebot.log import logger
-
-# from nonebot.adapters.qqguild import Adapter as QQGUILD_Adapter
-
 
 nonebot.init()
 
@@ -27,7 +25,7 @@ logger.info("========= 重新启动 =========")
 driver = nonebot.get_driver()
 driver.register_adapter(ONEBOT_V11Adapter)
 # driver.register_adapter(Mirai_Adapter)
-# driver.register_adapter(QQGUILD_Adapter)
+driver.register_adapter(QQ_Adapter)
 
 
 nonebot.load_plugin("nonebot_plugin_bilichat")
