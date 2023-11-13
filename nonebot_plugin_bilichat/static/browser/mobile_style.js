@@ -83,9 +83,12 @@ async function getMobileStyle(useImageBig = true) {
     })).then(() => {
         // 判断 ratioList 中超过 1 的个数为 3 的倍数 且 ratioList 的长度大于 3
         const isAllOneLength = ratioList.filter(item => item >= 0.9 && item <= 1.1).length;
-        const isAllOne = ratioList.length === 9 ? isAllOneLength > ratioList.length / 2 : isAllOneLength > 0 && isAllOneLength % 3 === 0 && ratioList.length > 3;
         // 说明可能为组装的拼图, 如果不是则放大为大图
-        if (!isAllOne && useImageBig) {
+        const isAllOne = ratioList.length === 9 ? isAllOneLength > ratioList.length / 2 : isAllOneLength > 0 && isAllOneLength % 3 === 0 && ratioList.length > 3;
+        // 计算所有图片高宽比之和
+        const totalRatioSum = ratioList.reduce((sum, ratio) => sum + ratio, 0);
+        // 判断是否需要展开图片
+        if (!isAllOne && useImageBig && totalRatioSum <= 10) {
             // 找到图标容器dom
             const containerDom = document.querySelector(".bm-pics-block__container");
             if (containerDom) {
