@@ -18,6 +18,7 @@ from nonebot.typing import T_State
 from ..config import plugin_config
 from ..content import Column, Dynamic, Video
 from ..lib.b23_extract import b23_extract
+from ..lib.tools import obfuscate_urls_in_text
 from ..model.arguments import Options, parser
 from ..model.exception import AbortError
 from ..optional import capture_exception
@@ -95,6 +96,10 @@ async def content_info(event: GuildMessageEvent, state: T_State):
         raise FinishedException
 
     if plugin_config.bilichat_basic_info:
+        if plugin_config.bilichat_basic_info_url:
+            await bilichat.send(
+                MessageSegment.reference(event.id) + MessageSegment.text(obfuscate_urls_in_text(content.url))
+            )
         if content_image := await content.get_image(plugin_config.bilichat_basic_info_style):
             await bilichat.send(MessageSegment.file_image(content_image))
 
