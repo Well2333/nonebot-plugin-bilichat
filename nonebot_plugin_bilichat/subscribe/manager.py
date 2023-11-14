@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, TypedDict, Union
 from nonebot import get_bots, get_driver
 from nonebot.log import logger
 
-from ..commands.adapters import PUSH_HANDLER, UP_HANDLER
+from ..adapters.adapter_handler import PUSH_HANDLER, UP_HANDLER
 from ..config import plugin_config
 from ..lib.store import data_dir
 from ..lib.tools import calc_time_total

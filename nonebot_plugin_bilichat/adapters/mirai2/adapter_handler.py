@@ -3,7 +3,10 @@ from typing import TYPE_CHECKING, List, Set, Union
 
 from nonebot import get_bots
 from nonebot.adapters.mirai2 import Bot
-from nonebot.adapters.mirai2.event import GroupMessage, MessageEvent
+from nonebot.adapters.mirai2.event import (
+    GroupMessage,
+    MessageEvent,
+)
 from nonebot.adapters.mirai2.message import MessageChain, MessageSegment
 from nonebot.log import logger
 
