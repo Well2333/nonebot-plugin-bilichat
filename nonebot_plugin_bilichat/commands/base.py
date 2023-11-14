@@ -1,13 +1,13 @@
 from nonebot.adapters import Bot, Event
 from nonebot.exception import FinishedException
 from nonebot.matcher import Matcher
-from nonebot.plugin import CommandGroup
+from nonebot.plugin import CommandGroup, on_notice
 from nonebot.rule import to_me
 
+from ..adapters.adapter_handler import ID_HANDLER
 from ..config import plugin_config
 from ..subscribe import LOCK
 from ..subscribe.manager import SubscriptionSystem, User
-from .adapters import ID_HANDLER
 
 bilichat = CommandGroup(
     plugin_config.bilichat_cmd_start,
@@ -30,3 +30,7 @@ async def get_user(matcher: Matcher, bot: Bot, event: Event) -> User:
     return SubscriptionSystem.users.get(
         f"{bot.adapter.get_name()}-_-{user_id}", User(user_id=user_id, platfrom=bot.adapter.get_name())
     )
+
+
+bili_check_dyn = bilichat.command("checkdynamic", aliases=set(plugin_config.bilichat_cmd_checkdynamic))
+leave_group = on_notice(block=False)
