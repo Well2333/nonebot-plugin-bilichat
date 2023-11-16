@@ -23,12 +23,3 @@ try:
     UP_HANDLER["mirai2"] = mirai2.get_activate_ups
 except Exception as e:
     logger.error(e)
-
-try:
-    from .qq import adapter_handler as qq
-
-    PUSH_HANDLER["QQ"] = qq.push
-    ID_HANDLER["QQ"] = qq.get_user_id
-    UP_HANDLER["QQ"] = qq.get_activate_ups
-except Exception as e:
-    logger.error(e)
