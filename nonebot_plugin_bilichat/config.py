@@ -51,6 +51,7 @@ class Config(BaseModel):
     bilichat_cmd_add_sub: List[str] = ["订阅", "关注"]
     bilichat_cmd_remove_sub: List[str] = ["退订", "取关"]
     bilichat_cmd_check_sub: List[str] = ["查看", "查看订阅"]
+    bilichat_cmd_reset_sub: List[str] = ["重置", "重置配置"]
     bilichat_cmd_at_all: List[str] = ["全体成员", "at全体"]
     bilichat_cmd_dynamic: List[str] = ["动态通知", "动态订阅"]
     bilichat_cmd_live: List[str] = ["直播通知", "直播订阅"]
