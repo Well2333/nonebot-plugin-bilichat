@@ -16,6 +16,7 @@ from ...config import plugin_config
 from ...lib.bilibili_request.auth import bili_grpc_auth, gRPC_Auth
 from ...lib.fetch_dynamic import fetch_last_dynamic
 from ...lib.uid_extract import uid_extract
+from ...subscribe import LOCK
 from ...subscribe.manager import SubscriptionSystem
 
 
@@ -36,10 +37,11 @@ async def check_dynamic_mirai(bot: Bot, uid: MessageChain = CommandArg()):
 @leave_group.handle()
 async def remove_sub_mirai2(event: Union[BotLeaveEventKick, BotLeaveEventDisband, BotLeaveEventActive]):
     logger.info(f"remove subs from {event.group.id}")
-    if user := SubscriptionSystem.users.get("mirai2-_-" + str(event.group.id)):
-        for up in user.subscribe_ups:
-            await user.remove_subscription(up)
-    SubscriptionSystem.save_to_file()
+    async with LOCK:
+        if user := SubscriptionSystem.users.get("mirai2-_-" + str(event.group.id)):
+            for up in user.subscribe_ups:
+                await user.remove_subscription(up)
+        SubscriptionSystem.save_to_file()
 
 
 @bili_login_qrcode.handle()
