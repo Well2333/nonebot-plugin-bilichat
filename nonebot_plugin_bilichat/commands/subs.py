@@ -41,7 +41,7 @@ async def remove_sub(msg: Message = CommandArg(), user: User = Depends(get_user)
             await bili_add_sub.finish("请输入UP主的昵称或 UID 呢\n`(*>﹏<*)′")
         keyword = msg.extract_plain_text().lower()
         if keyword in ["all", "全部"]:
-            for up in SubscriptionSystem.uploaders.values():
+            for up in SubscriptionSystem.uploaders.copy().values():
                 await user.remove_subscription(up)
             await bili_add_sub.finish("已经成功取关本群订阅的全部UP主啦\n(*^▽^*)")
         for up in SubscriptionSystem.uploaders.values():
