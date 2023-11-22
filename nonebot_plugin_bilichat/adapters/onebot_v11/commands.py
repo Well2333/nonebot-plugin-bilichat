@@ -12,6 +12,7 @@ from ...config import plugin_config
 from ...lib.bilibili_request.auth import bili_grpc_auth, gRPC_Auth
 from ...lib.fetch_dynamic import fetch_last_dynamic
 from ...lib.uid_extract import uid_extract
+from ...subscribe import LOCK
 from ...subscribe.manager import SubscriptionSystem
 
 
@@ -34,10 +35,11 @@ async def remove_sub_v11(event: GroupDecreaseNoticeEvent):
     if not event.is_tome():
         return
     logger.info(f"remove subs from {event.group_id}")
-    if user := SubscriptionSystem.users.get("OneBot V11-_-" + str(event.group_id)):
-        for up in user.subscribe_ups:
-            await user.remove_subscription(up)
-    SubscriptionSystem.save_to_file()
+    async with LOCK:
+        if user := SubscriptionSystem.users.get("OneBot V11-_-" + str(event.group_id)):
+            for up in user.subscribe_ups:
+                await user.remove_subscription(up)
+        SubscriptionSystem.save_to_file()
 
 
 @bili_login_qrcode.handle()
