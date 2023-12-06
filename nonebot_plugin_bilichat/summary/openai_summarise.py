@@ -4,10 +4,10 @@ from nonebot.log import logger
 
 from ..config import plugin_config
 from ..lib.cache import BaseCache
+from ..lib.text_to_image import t2i
 from ..model.exception import AbortError
 from ..optional import capture_exception  # type: ignore
 from .openai import get_small_size_transcripts, get_summarise_prompt, openai_req
-from .text_to_image import t2i
 
 
 async def subtitle_summarise(title: str, sub: List[str]):
