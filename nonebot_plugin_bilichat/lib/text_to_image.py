@@ -9,8 +9,8 @@ from dynrender_skia.DynText import BiliText
 from nonebot.log import logger
 
 from ..config import plugin_config
-from ..lib.fonts_provider import get_font_sync
-from ..lib.store import cache_dir
+from .fonts_provider import get_font_sync
+from .store import cache_dir
 
 data_path = cache_dir.joinpath("render")
 data_path.mkdir(parents=True, exist_ok=True)

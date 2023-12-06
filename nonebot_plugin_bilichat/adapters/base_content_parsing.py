@@ -9,8 +9,8 @@ from nonebot.typing import T_State
 
 from ..config import plugin_config
 from ..content import Column, Dynamic, Video
+from ..lib.text_to_image import t2i
 from ..model.exception import AbortError
-from ..summary.text_to_image import t2i
 
 if plugin_config.bilichat_openai_token:
     ENABLE_SUMMARY = True
