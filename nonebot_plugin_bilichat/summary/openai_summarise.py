@@ -39,12 +39,21 @@ async def openai_summarization(cache: BaseCache):
                 await cache.save()
             else:
                 logger.warning(f"Video(Column) {cache.id} summary failure: {ai_summary.raw}")
-                return f"视频(专栏) {cache.id} 总结失败: 响应内容异常\n{ai_summary.raw}"
+                if plugin_config.bilichat_summary_ignore_null:
+                    return ""
+                else:
+                    return f"视频(专栏) {cache.id} 总结失败: 响应内容异常\n{ai_summary.raw}"
         return await t2i(cache.openai or "视频无法总结", plugin_config.bilichat_openai_model)
     except AbortError as e:
         logger.exception(f"Video(Column) {cache.id} summary aborted: {e}")
-        return f"视频(专栏) {cache.id} 总结中止: {e}"
+        if plugin_config.bilichat_summary_ignore_null:
+            return ""
+        else:
+            return f"视频(专栏) {cache.id} 总结中止: {e}"
     except Exception as e:
         capture_exception()
         logger.exception(f"Video(Column) {cache.id} summary failed: {e}")
-        return f"视频(专栏) {cache.id} 总结失败: {e}"
+        if plugin_config.bilichat_summary_ignore_null:
+            return ""
+        else:
+            return f"视频(专栏) {cache.id} 总结失败: {e}"

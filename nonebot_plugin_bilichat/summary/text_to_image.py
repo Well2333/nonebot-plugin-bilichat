@@ -62,8 +62,6 @@ async def pw_text2image(data: str, src: str):
 
     if src == plugin_config.bilichat_openai_model:
         src = "openai"
-    elif src == "newbing":
-        src = "newbing"
     else:
         src = "bilibili"
     data = r"\n".join(data.splitlines())
