@@ -1,7 +1,7 @@
 [project]
 name = "nonebot-plugin-bilichat"
 
-version = "4.11.3"
+version = "4.12.0"
 
 description = "多种B站链接解析，视频词云，AI总结，你想要的都在 bilichat"
 authors = [
@@ -30,10 +30,9 @@ extra = [
     "nonebot-plugin-mongodb>=0.1.0",
 ]
 wordcloud = ["jieba>=0.42.1", "wordcloud>=1.8.2.2"]
-summary = ["tiktoken-async>=0.3.2", "aiohttp>=3.8.4"]
+summary = ["tiktoken-async>=0.3.2"]
 all = [
     "numpy>=1.20.1,<1.25.0",
-    "aiohttp>=3.8.4",
     "jieba>=0.42.1",
     "wordcloud>=1.8.2.2",
     "tiktoken-async>=0.3.2",

@@ -156,16 +156,16 @@ _✨ 多功能的 B 站视频解析工具 ✨_
 bilichat_cd_time = 120
 # 网络请求重试次数
 bilichat_neterror_retry = 3
-# 是否使用浏览器截图
+# 是否使用浏览器截图(需要额外依赖)
 bilichat_use_browser = True
 
-# 是否开启词云
+# 是否开启词云(需要额外依赖)
 bilichat_word_cloud = True
 
 # === AI 总结相关 ===
-# newbing cookies
-bilichat_newbing_cookie = "cookies.json"
-# openai token
+# 官方总结接口
+bilichat_official_summary = True
+# openai 接口(需要额外依赖)
 bilichat_openai_token = sk-xxxxxxx
 # 网络代理
 bilichat_openai_proxy = "http://127.0.0.1:7890/"
@@ -285,28 +285,21 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 
 开启此功能需要安装对应的依赖 `nonebot-plugin-bilichat[summary]`
 
-|            配置项            | 类型 |       默认值       |                                                        说明                                                        |
-| :--------------------------: | :--: | :----------------: | :----------------------------------------------------------------------------------------------------------------: |
-|  bilichat_official_summary   | bool |       False        |                        是否开启官方总结，此总结独立于下方 AI 总结，可与下方 AI 总结同时生效                        |
-|   bilichat_newbing_cookie    | str  |        None        |       newbing 的 cookie 文件路径, 填写 `no_login` 则不登录,`api` 则自动创建空文件, 若留空则禁用 newbing 总结       |
-| bilichat_newbing_cookie_api  | str  |        None        | 在运行时更新 newbing cookie，使用方法参考[这里](./docs/Update%20newBing%20cookie%20via%20tampermonkey%20script.md) |
-| bilichat_newbing_token_limit | int  |         0          |                                        newbing 请求的文本量上限, 0 为无上限                                        |
-| bilichat_newbing_preprocess  | bool |        True        |                             是否对 newbing 的返回值进行预处理, 以去除其中不想要的内容                              |
-|  bilichat_newbing_wss_link   | str  |  see description   |                             默认为 `wss://sydney.bing.com/sydney/ChatHub`，可自行替换                              |
-|    bilichat_openai_token     | str  |        None        |                                     openai 的 apikey, 若留空则禁用 openai 总结                                     |
-|    bilichat_openai_proxy     | str  |        None        |                                       访问 openai 或 newbing 使用的代理地址                                        |
-|    bilichat_openai_model     | str  | gpt-3.5-turbo-0301 |                                                 使用的语言模型名称                                                 |
-| bilichat_openai_token_limit  | int  |        3500        |                   请求的文本量上限, 计算方式可参考[tiktoken](https://github.com/openai/tiktoken)                   |
-|   bilichat_openai_api_base   | str  |  see description   |                                    默认为 `https://api.openai.com`，可自行替换                                     |
+|            配置项            | 类型 |       默认值       |                                      说明                                      |
+| :--------------------------: | :--: | :----------------: | :----------------------------------------------------------------------------: |
+| bilichat_summary_ignore_null | bool |        True        |                            是否忽略无意义的总结内容                            |
+|  bilichat_official_summary   | bool |       False        |      是否开启官方总结，此总结独立于下方 AI 总结，可与下方 AI 总结同时生效      |
+|    bilichat_openai_token     | str  |        None        |                   openai 的 apikey, 若留空则禁用 openai 总结                   |
+|    bilichat_openai_proxy     | str  |        None        |                     访问 openai 或 newbing 使用的代理地址                      |
+|    bilichat_openai_model     | str  | gpt-3.5-turbo-0301 |                               使用的语言模型名称                               |
+| bilichat_openai_token_limit  | int  |        3500        | 请求的文本量上限, 计算方式可参考[tiktoken](https://github.com/openai/tiktoken) |
+|   bilichat_openai_api_base   | str  |  see description   |                  默认为 `https://api.openai.com`，可自行替换                   |
 
 注:
 
-1. openai 与 newbing 目前均需求科学上网才能使用，国内服务器请务必填写 `bilichat_openai_proxy` 或全局透明代理
-2. 如果同时填写了 `bilichat_openai_token` 和 `bilichat_newbing_cookie`，则会使用 `newbing` 进行总结, 并在 `newbing` 总结失败时使用 `openai` 进行总结
-3. `newbing` 和 `openai` 均有缓存机制，同一视频在**获取到正常的总结内容后**不会重复发送请求，如需刷新请求内容可以 [添加参数](#参数表) 或手动删除对应视频的缓存文件或整个缓存文件夹
-4. 经测试，目前 `newbing` 至少能总结 12000 字符以上的文本，推测 token 上限应为 `gpt-4-32k-0314` 的 `32200` token，但过长的内容易造成输出内容包含额外内容或总结失败，因此也建议设置一个合理的 token 上限 ~~（反正不要钱，要啥自行车）~~
-5. 由于 `newbing` 限制较大，也不如 `openai` 听话，且需要联网查询资料，因此使用体验并不如 chatgpt ~~（反正不要钱，要啥自行车）~~
-6. newbing cookie 文件获取方式参考[这里](https://github.com/acheong08/EdgeGPT#getting-authentication-required)和[这里](https://github.com/Harry-Jing/nonebot-plugin-bing-chat#%EF%B8%8F-%E9%85%8D%E7%BD%AE)。~~目前 newbing 已正式公布且无需登录也可使用，填写 `bilichat_newbing_cookie=no_login` 即可无 cookie 使用。~~ 目前无 cookie 使用**失败概率极高**，请谨慎考虑是否采用无 cookie 的方式。
+1. openai 需求科学上网才能使用，国内服务器请务必填写 `bilichat_openai_proxy` 或全局透明代理
+2. 由于 newbing 接口限制以及能力下降，现已移除支持
+3. 官方总结目前为内测状态，之后接口随时可能会有变化，请注意及时更新
 
 ## 🎉 使用
 

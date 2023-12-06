@@ -12,7 +12,7 @@ from ..content import Column, Dynamic, Video
 from ..model.exception import AbortError
 from ..summary.text_to_image import t2i
 
-if plugin_config.bilichat_openai_token or plugin_config.bilichat_newbing_cookie:
+if plugin_config.bilichat_openai_token:
     ENABLE_SUMMARY = True
     from ..summary import summarization
 else:
@@ -106,7 +106,10 @@ async def get_futuer_fuctions(content: Union[Video, Column, Any]):
             official_summary_response = await content.get_offical_summary()
             official_summary = await t2i(data=official_summary_response.model_result.markdown(), src="bilibili")
         except Exception as e:
-            official_summary = f"当前视频不支持AI视频总结: {e}"
+            if plugin_config.bilichat_summary_ignore_null:
+                official_summary = ""
+            else:
+                official_summary = f"当前视频不支持AI视频总结: {e}"
 
     async with sem:
         if ENABLE_SUMMARY or plugin_config.bilichat_word_cloud:

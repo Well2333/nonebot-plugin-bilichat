@@ -10,10 +10,9 @@ from nonebot.log import logger
 from ..config import plugin_config
 from ..model.openai import OpenAI, TokenUsage
 
-if plugin_config.bilichat_openai_token:
-    logger.info("Loading OpenAI Token enc model")
-    tiktoken_enc = asyncio.run(tiktoken_async.encoding_for_model(plugin_config.bilichat_openai_model))
-    logger.success(f"Enc model {tiktoken_enc.name} load successfully")
+logger.info("Loading OpenAI Token enc model")
+tiktoken_enc = asyncio.run(tiktoken_async.encoding_for_model(plugin_config.bilichat_openai_model))
+logger.success(f"Enc model {tiktoken_enc.name} load successfully")
 
 
 def get_summarise_prompt(title: str, transcript: str, type_: Literal["视频字幕", "专栏文章"] = "视频字幕"):

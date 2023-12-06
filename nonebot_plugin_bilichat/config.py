@@ -76,12 +76,8 @@ class Config(BaseModel):
     bilichat_word_cloud: bool = False
 
     # AI Summary
+    bilichat_summary_ignore_null: bool = True
     bilichat_official_summary: bool = False
-    bilichat_newbing_cookie: Optional[str] = None
-    bilichat_newbing_cookie_api: Optional[str] = None
-    bilichat_newbing_token_limit: int = 0
-    bilichat_newbing_preprocess: bool = True
-    bilichat_newbing_wss_link: str = "wss://sydney.bing.com/sydney/ChatHub"
     bilichat_openai_token: Optional[str] = None
     bilichat_openai_proxy: Optional[str] = None
     bilichat_openai_model: Literal[
@@ -189,7 +185,7 @@ class Config(BaseModel):
 
     @validator("bilichat_openai_proxy", always=True, pre=True)
     def check_openai_proxy(cls, v, values):
-        if not (values["bilichat_openai_token"] or values["bilichat_newbing_cookie"]):
+        if not values["bilichat_openai_token"]:
             return v
         if v is None:
             logger.warning(
@@ -226,34 +222,6 @@ class Config(BaseModel):
                 "Package(s) of fuction openai summary not installed, "
                 "use **pip install nonebot-plugin-bilichat[summary]** to install required dependencies"
             )
-
-    @validator("bilichat_newbing_cookie", always=True)
-    def check_newbing_cookie(cls, v):
-        if not v:
-            return v
-        # verify cookie file
-        if Path(v).is_file():
-            try:
-                json.loads(Path(v).read_text("utf-8"))
-            except Exception as e:
-                raise ValueError("Config bilichat_newbing_cookie got a problem occurred") from e
-
-        elif Path(v).is_dir():
-            raise ValueError(f"Config bilichat_newbing_cookie requires a file, but {v} is a folder")
-
-        elif v == "no_login":
-            logger.info("Using newbing summary without a cookie")
-
-        elif v == "api":
-            cookie_file = cache_dir.joinpath("cookies.json").absolute()
-            cookie_file.touch(0o755)
-            logger.info(f"create newbing cookies file at {cookie_file.as_posix()}")
-            return cookie_file.as_posix()
-
-        else:
-            raise ValueError(f"Path {v} is not recognized")
-
-        return v
 
     @validator("bilichat_word_cloud", always=True)
     def check_pypackage_wordcloud(cls, v):

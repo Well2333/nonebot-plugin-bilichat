@@ -1,5 +1,3 @@
-import json
-from pathlib import Path
 from typing import Dict
 
 import nonebot
@@ -27,7 +25,6 @@ if plugin_config.bilichat_bilibili_cookie_api and plugin_config.bilichat_bilibil
 
     @app.post(plugin_config.bilichat_bilibili_cookie_api)
     async def receive_cookies(raw_cookies: Dict):
-        global browser_cookies
         try:
             browser_cookies.update(raw_cookies)
             dump_browser_cookies()
