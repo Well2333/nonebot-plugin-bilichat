@@ -8,6 +8,7 @@ from nonebot.matcher import Matcher
 from nonebot.params import ArgPlainText, CommandArg
 from nonebot.permission import SUPERUSER
 from nonebot.typing import T_State
+from nonebot_plugin_saa import Image, MessageFactory
 
 from ..lib.bilibili_request.auth import bili_grpc_auth, gRPC_Auth, login_from_cache
 from ..subscribe import LOCK
@@ -70,3 +71,19 @@ async def bili_handle_login(state: T_State, sms: str = ArgPlainText()):
     except Exception as e:
         await bili_login_sms.finish(f"登录失败: {e}")
     await bili_login_sms.finish("登录成功，已将验证信息缓存至文件")
+
+
+@bili_login_qrcode.handle()
+async def bili_qrcode_login():
+    login = Login()
+    qr_url = await login.get_qrcode_url()
+    logger.debug(f"qrcode login url: {qr_url}")
+    data = "base64://" + await login.get_qrcode(qr_url, base64=True)  # type: ignore
+    await MessageFactory(Image(data)).send()
+    try:
+        gRPC_Auth.update(await login.qrcode_login(interval=5))  # type: ignore
+        logger.debug(gRPC_Auth.data)
+        bili_grpc_auth.write_text(json.dumps(gRPC_Auth.data, indent=2, ensure_ascii=False), encoding="utf-8")
+    except Exception as e:
+        await bili_login_qrcode.finish(f"登录失败: {e}")
+    await bili_login_qrcode.finish("登录成功，已将验证信息缓存至文件")

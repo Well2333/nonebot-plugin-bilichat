@@ -3,13 +3,26 @@ import json
 import time
 from typing import Any, Dict, List, Optional, TypedDict, Union
 
-from nonebot import get_bots, get_driver
+from nonebot import get_driver
+from nonebot.adapters import Bot
 from nonebot.log import logger
+from nonebot_plugin_saa import (
+    Image,
+    Mention,
+    MessageFactory,
+    PlatformTarget,
+    TargetQQGroup,
+    TargetQQGuildChannel,
+    TargetQQPrivate,
+)
+from nonebot_plugin_saa.auto_select_bot import BOT_CACHE, get_bot
+from nonebot_plugin_saa.utils.const import SupportedPlatform
+from nonebot_plugin_saa.utils.exceptions import NoBotFound
 
-from ..adapters.adapter_handler import PUSH_HANDLER, UP_HANDLER
 from ..config import plugin_config
 from ..lib.store import data_dir
 from ..lib.tools import calc_time_total
+from ..optional import capture_exception
 
 subscribe_file = data_dir.joinpath("subscribe.json")
 subscribe_file.touch(0o755, True)
@@ -74,6 +87,32 @@ class User:
             cfg.update(v)
             self.subscriptions[int(k)] = cfg
 
+        # 兼容性处理
+        if self.platfrom in ["OneBot V11", "mirai2"]:
+            self.platfrom = str(SupportedPlatform.qq_group)
+
+    @classmethod
+    def extract_saa_target(cls, target: PlatformTarget):
+        if isinstance(target, TargetQQGroup):
+            user_id = target.group_id
+        elif isinstance(target, TargetQQPrivate):
+            user_id = target.user_id
+        elif isinstance(target, TargetQQGuildChannel):
+            user_id = target.channel_id
+        else:
+            raise NotImplementedError("Unsupported target type")
+        return str(target.platform_type), str(user_id)
+
+    def create_saa_target(self):
+        if self.platfrom == SupportedPlatform.qq_group:
+            return TargetQQGroup(group_id=int(self.user_id))
+        elif self.platfrom == SupportedPlatform.qq_private:
+            return TargetQQPrivate(user_id=int(self.user_id))
+        elif self.platfrom == SupportedPlatform.qq_guild_channel:
+            return TargetQQGuildChannel(channel_id=int(self.user_id))
+        else:
+            raise NotImplementedError("Unsupported platfrom type")
+
     def dict(self) -> Dict[str, Any]:
         """Return a dictionary representation of the User."""
         return {
@@ -98,10 +137,26 @@ class User:
         return f"{self.platfrom}-_-{self.user_id}"
 
     async def push_to_user(self, content: List[Union[str, bytes]], at_all: Optional[bool] = None):
-        handler = PUSH_HANDLER.get(self.platfrom)
-        if handler:
-            await handler(self.user_id, content, at_all=self.at_all if at_all is None else at_all)
-            await asyncio.sleep(plugin_config.bilichat_push_delay)
+        target = self.create_saa_target()
+        if not at_all:
+            at = ""
+        elif self.platfrom == SupportedPlatform.qq_group:
+            at = Mention("all")
+        elif self.platfrom == SupportedPlatform.qq_guild_channel:
+            at = "@everyone"
+        else:
+            at = ""
+        msg = MessageFactory(at)
+        msg.extend([Image(x) if isinstance(x, bytes) else x for x in content])  # type: ignore
+        try:
+            await msg.send_to(target)
+        except NoBotFound:
+            pass
+        except Exception as e:
+            logger.exception("Failed to push message to user")
+            capture_exception(e)
+
+        await asyncio.sleep(plugin_config.bilichat_push_delay)
 
     def add_subscription(self, uploader: Uploader) -> Union[None, str]:
         """Add a subscription for a user to an uploader."""
@@ -186,18 +241,29 @@ class SubscriptionSystem:
         """通过当前 Bot 覆盖的平台，激活需要推送的UP"""
         logger.debug("refreshing activate uploaders")
         cls.activate_uploaders = {}
-        for bot in get_bots().values():
-            platform = bot.adapter.get_name()
-            if handler := UP_HANDLER.get(platform):
-                ups = await handler(cls)
-                for up in ups:
-                    cls.activate_uploaders[up.uid] = up
-            else:
-                logger.debug(f"no handler for platform: {platform}")
+        for user in cls.users.values():
+            target = user.create_saa_target()
+            try:
+                get_bot(target)
+                cls.activate_uploaders.update({up: cls.uploaders[up] for up in user.subscriptions.keys()})
+            except NoBotFound:
+                logger.debug(f"no bot found for user {user._id}")
+                continue
         cls.get_activate_uploaders()
 
 
 SubscriptionSystem.load_from_file()
 
-driver.on_bot_connect(SubscriptionSystem.refresh_activate_uploaders)
-driver.on_bot_disconnect(SubscriptionSystem.refresh_activate_uploaders)
+
+@driver.on_bot_connect
+async def _(bot: Bot):
+    while bot not in BOT_CACHE.keys():
+        await asyncio.sleep(0.5)
+    await SubscriptionSystem.refresh_activate_uploaders()
+
+
+@driver.on_bot_disconnect
+async def _(bot: Bot):
+    while bot in BOT_CACHE.keys():
+        await asyncio.sleep(0.5)
+    await SubscriptionSystem.refresh_activate_uploaders()
