@@ -76,9 +76,7 @@ async def fetch_live(ups: Dict[int, Uploader]):
                 content = [live_prompt]
                 for user in up.subscribed_users:
                     if user.subscriptions[up.uid].get("live", True):
-                        await user.push_to_user(
-                            content=content, at_all=user.subscriptions[up.uid]["live_at_all"] or user.at_all  # type: ignore
-                        )
+                        await user.push_to_user(content=content, at_all=False)  # type: ignore
         finally:
             # 如果是 -1 则更新为 0
             if up.living == -1:
