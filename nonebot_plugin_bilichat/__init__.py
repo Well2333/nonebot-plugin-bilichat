@@ -1,7 +1,15 @@
+from nonebot import require
 from nonebot.log import logger
 from nonebot.plugin import PluginMetadata
 
 from .config import __version__, plugin_config, raw_config
+
+require("nonebot_plugin_apscheduler")
+require("nonebot_plugin_saa")
+
+from nonebot_plugin_saa import enable_auto_select_bot  # noqa: E402
+
+enable_auto_select_bot()
 
 cmd_perfix = f"{raw_config.command_start}{plugin_config.bilichat_cmd_start}{raw_config.command_sep}"
 
@@ -63,41 +71,4 @@ __plugin_meta__ = PluginMetadata(
     },
 )
 
-
-from . import adapters, commands, subscribe  # noqa: F401, E402
-
-try:
-    from .adapters import onebot_v11  # noqa: F401
-    from .adapters.onebot_v11 import commands  # noqa: F401, F811
-
-    logger.success("OneBot V11 adapter was loaded successfully")
-except Exception:
-    pass
-
-try:
-    from .adapters import onebot_v12  # noqa: F401
-
-    logger.success("OneBot V12 adapter was loaded successfully")
-except Exception:
-    pass
-
-try:
-    from .adapters import mirai2  # noqa: F401
-    from .adapters.mirai2 import commands  # noqa: F401, F811
-
-    logger.success("mirai2 adapter was loaded successfully")
-except Exception:
-    pass
-
-try:
-    from .adapters import qq  # noqa: F401
-    from .adapters.qq import commands  # noqa: F401, F811
-
-    logger.success("QQ adapter was loaded successfully")
-except Exception:
-    pass
-
-
-from .commands import login, subs, subs_cfg  # noqa: F401, E402
-
-logger.success("Commands was loaded successfully")
+from . import adapters, commands  # noqa: F401, E402

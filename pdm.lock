@@ -5,7 +5,7 @@
 groups = ["default", "all", "dev", "extra", "summary", "wordcloud"]
 strategy = ["cross_platform"]
 lock_version = "4.4"
-content_hash = "sha256:552e6def5eb35f6bfe297d5ed21952b33098f0f6ecbdf105142ff2955d176fef"
+content_hash = "sha256:f7c2e674b7c8ef9cf0898706de63cd520393c1b1a962ea27d00e2009a06892cd"
 
 [[package]]
 name = "aiofiles"
@@ -1276,6 +1276,22 @@ files = [
 ]
 
 [[package]]
+name = "nonebot-plugin-send-anything-anywhere"
+version = "0.4.0"
+requires_python = ">=3.8,<4.0"
+summary = "An adaptor for nonebot2 adaptors"
+dependencies = [
+    "anyio<4.0.0,>=3.6.2",
+    "nonebot2<3.0.0,>=2.0.0",
+    "pydantic<2.0.0,>=1.10.5",
+    "strenum<0.5.0,>=0.4.8",
+]
+files = [
+    {file = "nonebot_plugin_send_anything_anywhere-0.4.0-py3-none-any.whl", hash = "sha256:d089729458e247d4717db195fe679ca2d47b86394f1dc20ce9f06eea300c2227"},
+    {file = "nonebot_plugin_send_anything_anywhere-0.4.0.tar.gz", hash = "sha256:c72d4cfbed963ba07a9e29cb40fd0174dce01a49f6f9944f4bbfda0bb8322630"},
+]
+
+[[package]]
 name = "nonebot-plugin-sentry"
 version = "1.0.0"
 requires_python = ">=3.8,<4.0"
@@ -2053,6 +2069,15 @@ dependencies = [
 files = [
     {file = "starlette-0.27.0-py3-none-any.whl", hash = "sha256:918416370e846586541235ccd38a474c08b80443ed31c578a418e2209b3eef91"},
     {file = "starlette-0.27.0.tar.gz", hash = "sha256:6a6b0d042acb8d469a01eba54e9cda6cbd24ac602c4cd016723117d6a7e73b75"},
+]
+
+[[package]]
+name = "strenum"
+version = "0.4.15"
+summary = "An Enum that inherits from str."
+files = [
+    {file = "StrEnum-0.4.15-py3-none-any.whl", hash = "sha256:a30cda4af7cc6b5bf52c8055bc4bf4b2b6b14a93b574626da33df53cf7740659"},
+    {file = "StrEnum-0.4.15.tar.gz", hash = "sha256:878fb5ab705442070e4dd1929bb5e2249511c0bcf2b0eeacf3bcd80875c82eff"},
 ]
 
 [[package]]

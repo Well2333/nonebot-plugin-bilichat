@@ -21,7 +21,6 @@ try:
 except Exception:
     __version__ = None
 
-require("nonebot_plugin_apscheduler")
 
 
 class Config(BaseModel):
