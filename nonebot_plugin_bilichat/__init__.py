@@ -71,4 +71,4 @@ __plugin_meta__ = PluginMetadata(
     },
 )
 
-from . import adapters, commands  # noqa: F401, E402
+from . import adapters, api, commands  # noqa: F401, E402

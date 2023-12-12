@@ -166,23 +166,24 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 
 ### 通用配置项
 
-|         配置项          |   类型    | 默认值  |                               说明                               |
-| :---------------------: | :-------: | :-----: | :--------------------------------------------------------------: |
-|     bilichat_block      |   bool    |  False  |                是否拦截事件(防止其他插件二次解析)                |
-|  bilichat_enable_self   |   bool    |  False  |                      是否允许响应自身的消息                      |
-|   bilichat_only_self    |   bool    |  False  | 是否仅响应自身的消息，开启后会**覆盖全部其他规则**(人机合一特供) |
-|   bilichat_only_to_me   |   bool    |  False  |      非自身消息是否需要 `@机器人` 或使用机器人的昵称才响应       |
-|   bilichat_whitelist    | list[str] |   []    |                 **响应**的会话名单, 会覆盖黑名单                 |
-|   bilichat_blacklist    | list[str] |   []    |                       **不响应**的会话名单                       |
-|  bilichat_dynamic_font  |    str    |  None   |                   视频信息及词云图片使用的字体                   |
-|    bilichat_cd_time     |    int    |   120   |                对同一视频的响应冷却时间(防止刷屏)                |
-| bilichat_neterror_retry |    int    |    3    |                   对部分网络请求错误的尝试次数                   |
-|  bilichat_use_bcut_asr  |   bool    |  True   |             是否在**没有字幕时**调用必剪接口生成字幕             |
-| bilichat_show_error_msg |   bool    |  True   |                   是否在解析失败时发送错误信息                   |
-|  bilichat_use_browser   |   bool    |  Auto   |     是否使用浏览器，`Auto` 会根据是否含有相应的依赖进行选择      |
-|  bilichat_cache_serive  |    str    |  Auto   |         使用的缓存类型，可用类型包含 `json` 和 `mongodb`         |
-|   bilichat_text_fonts   |    str    | default |          可供自定义的字体，仅作用于 dynamicrender 绘图           |
-|  bilichat_emoji_fonts   |    str    | default |          可供自定义的字体，仅作用于 dynamicrender 绘图           |
+|         配置项          |   类型    |  默认值  |                               说明                               |
+| :---------------------: | :-------: | :------: | :--------------------------------------------------------------: |
+|     bilichat_block      |   bool    |  False   |                是否拦截事件(防止其他插件二次解析)                |
+|  bilichat_enable_self   |   bool    |  False   |                      是否允许响应自身的消息                      |
+|   bilichat_only_self    |   bool    |  False   | 是否仅响应自身的消息，开启后会**覆盖全部其他规则**(人机合一特供) |
+|   bilichat_only_to_me   |   bool    |  False   |      非自身消息是否需要 `@机器人` 或使用机器人的昵称才响应       |
+|   bilichat_whitelist    | list[str] |    []    |                 **响应**的会话名单, 会覆盖黑名单                 |
+|   bilichat_blacklist    | list[str] |    []    |                       **不响应**的会话名单                       |
+|  bilichat_dynamic_font  |    str    |   None   |                   视频信息及词云图片使用的字体                   |
+|    bilichat_cd_time     |    int    |   120    |                对同一视频的响应冷却时间(防止刷屏)                |
+| bilichat_neterror_retry |    int    |    3     |                   对部分网络请求错误的尝试次数                   |
+|  bilichat_use_bcut_asr  |   bool    |   True   |             是否在**没有字幕时**调用必剪接口生成字幕             |
+| bilichat_show_error_msg |   bool    |   True   |                   是否在解析失败时发送错误信息                   |
+|  bilichat_use_browser   |   bool    |   Auto   |     是否使用浏览器，`Auto` 会根据是否含有相应的依赖进行选择      |
+|  bilichat_cache_serive  |    str    |   Auto   |         使用的缓存类型，可用类型包含 `json` 和 `mongodb`         |
+|   bilichat_text_fonts   |    str    | default  |          可供自定义的字体，仅作用于 dynamicrender 绘图           |
+|  bilichat_emoji_fonts   |    str    | default  |          可供自定义的字体，仅作用于 dynamicrender 绘图           |
+|   bilichat_webui_url    |    str    | bilichat |                 Webui 的路径，留空则不开启 webui                 |
 
 注:
 
@@ -192,38 +193,32 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 4. 当使用 `bcut_asr` 接口来生成 AI 字幕时，根据视频时长和网络情况有可能会识别失败，Bot 会提示 `BCut-ASR conversion failed due to network error`。可以通过调高 `bilichat_neterror_retry` 次数或几分钟后重试来尝试重新生成字幕
 5. 当 `bilichat_cache_serive` 为 `mongodb` 时，需要安装并配置 [nonebot-plugin-mongodb](https://github.com/Well2333/nonebot-plugin-mongodb) 才可正常使用
 
-### 指令及订阅配置项
+### 指令配置项
 
-|          配置项           |   类型    |          默认值          |             说明             |
-| :-----------------------: | :-------: | :----------------------: | :--------------------------: |
-|    bilichat_subs_limit    |    int    |            5             |    允许的最大订阅数(0-50)    |
-| bilichat_dynamic_interval |    int    |            90            | 允许的动态刷取间隔(最低 60s) |
-|  bilichat_live_interval   |    int    |            30            | 允许的直播刷取间隔(最低 10s) |
-|    bilichat_push_delay    |    int    |            3             |      每条推送之间的延迟      |
-|   bilichat_dynamic_grpc   |   bool    |          False           |    是否使用 gRPC 刷取动态    |
-|  bilichat_command_to_me   |   bool    |           True           |     命令是否需要@机器人      |
-|    bilichat_cmd_start     |    str    |        "bilichat"        |   命令的起始词，可设置为空   |
-|   bilichat_cmd_add_sub    | List[str] |     ["订阅", "关注"]     |       "sub"命令的别名        |
-|  bilichat_cmd_remove_sub  | List[str] |     ["退订", "取关"]     |      "unsub"命令的别名       |
-|  bilichat_cmd_check_sub   | List[str] |   ["查看", "查看订阅"]   |      "check"命令的别名       |
-|  bilichat_cmd_reset_sub   | List[str] |   ["重置", "重置配置"]   |      "reset"命令的别名       |
-|    bilichat_cmd_at_all    | List[str] | ["全体成员", "at 全体"]  |      "atall"命令的别名       |
-|   bilichat_cmd_dynamic    | List[str] | ["动态通知", "动态订阅"] |     "dynamic"命令的别名      |
-|     bilichat_cmd_live     | List[str] | ["直播通知", "直播订阅"] |       "live"命令的别名       |
-| bilichat_cmd_checkdynamic | List[str] |       ["查看动态"]       |  "checkdynamic" 命令的别名   |
+|          配置项           |   类型    |          默认值          |           说明            |
+| :-----------------------: | :-------: | :----------------------: | :-----------------------: |
+|  bilichat_command_to_me   |   bool    |           True           |    命令是否需要@机器人    |
+|    bilichat_cmd_start     |    str    |        "bilichat"        | 命令的起始词，可设置为空  |
+|   bilichat_cmd_add_sub    | List[str] |     ["订阅", "关注"]     |      "sub"命令的别名      |
+|  bilichat_cmd_remove_sub  | List[str] |     ["退订", "取关"]     |     "unsub"命令的别名     |
+|  bilichat_cmd_check_sub   | List[str] |   ["查看", "查看订阅"]   |     "check"命令的别名     |
+|  bilichat_cmd_reset_sub   | List[str] |   ["重置", "重置配置"]   |     "reset"命令的别名     |
+|    bilichat_cmd_at_all    | List[str] | ["全体成员", "at 全体"]  |     "atall"命令的别名     |
+|   bilichat_cmd_dynamic    | List[str] | ["动态通知", "动态订阅"] |    "dynamic"命令的别名    |
+|     bilichat_cmd_live     | List[str] | ["直播通知", "直播订阅"] |     "live"命令的别名      |
+| bilichat_cmd_checkdynamic | List[str] |       ["查看动态"]       | "checkdynamic" 命令的别名 |
 
 ### 基础信息配置项
 
-|            配置项            | 类型 | 默认值 |                                                        说明                                                         |
-| :--------------------------: | :--: | :----: | :-----------------------------------------------------------------------------------------------------------------: |
-|     bilichat_basic_info      | bool |  True  |                                                是否开启视频基本信息                                                 |
-|  bilichat_basic_info_style   | str  |  Auto  |                                       视频详情的图片样式，可用样式见下方备注                                        |
-|   bilichat_basic_info_url    | bool |  True  |                                   开启视频进本信息的情况下，是否一同回复一个链接                                    |
-| bilichat_reply_to_basic_info | bool |  True  |                                  后续消息是否回复基础信息(关闭则回复发送者的信息)                                   |
-|       bilichat_dynamic       | bool |  True  |                                                  是否开启动态解析                                                   |
-|    bilichat_dynamic_style    | str  |  Auto  |                                       动态详情的图片样式，可用样式见下方备注                                        |
-|   bilichat_bilibili_cookie   | str  |  None  |                                 bilibili 的 cookie 文件路径,`api` 则自动创建空文件                                  |
-| bilichat_bilibili_cookie_api | str  |  None  | 在运行时更新 bilibili cookie，使用方法参考[这里](./docs/Update%20newBing%20cookie%20via%20tampermonkey%20script.md) |
+|            配置项            | 类型 | 默认值 |                        说明                        |
+| :--------------------------: | :--: | :----: | :------------------------------------------------: |
+|     bilichat_basic_info      | bool |  True  |                是否开启视频基本信息                |
+|  bilichat_basic_info_style   | str  |  Auto  |       视频详情的图片样式，可用样式见下方备注       |
+|   bilichat_basic_info_url    | bool |  True  |   开启视频进本信息的情况下，是否一同回复一个链接   |
+| bilichat_reply_to_basic_info | bool |  True  |  后续消息是否回复基础信息(关闭则回复发送者的信息)  |
+|       bilichat_dynamic       | bool |  True  |                  是否开启动态解析                  |
+|    bilichat_dynamic_style    | str  |  Auto  |       动态详情的图片样式，可用样式见下方备注       |
+|   bilichat_bilibili_cookie   | str  |  None  | bilibili 的 cookie 文件路径,`api` 则自动创建空文件 |
 
 > bilichat_basic_info_style 除默认的 bbot_default 使用 PIL 绘图（未开启浏览器时默认选择），其他均依赖于浏览器进行渲染（需要设置 bilichat_use_browser 为 True 或 Auto），其可用的样式如下所示
 

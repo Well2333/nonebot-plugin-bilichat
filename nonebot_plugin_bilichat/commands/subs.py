@@ -8,7 +8,7 @@ from nonebot.permission import SUPERUSER
 from ..config import plugin_config
 from ..lib.uid_extract import uid_extract
 from ..subscribe import LOCK
-from ..subscribe.manager import DEFUALT_SUB_CONFIG, SubscriptionSystem, Uploader, User
+from ..subscribe.manager import SubscriptionSystem, Uploader, User, UserSubConfig
 from .base import bilichat, get_user
 
 bili_add_sub = bilichat.command("sub", permission=SUPERUSER, aliases=set(plugin_config.bilichat_cmd_add_sub))
@@ -65,9 +65,9 @@ async def check_sub(
             ups_prompt = []
             for index, up in enumerate(ups):
                 text = f"{index+1}."
-                cfg = DEFUALT_SUB_CONFIG.copy()
+                cfg = UserSubConfig(uid=up.uid)
                 cfg.update(user.subscriptions.get(up.uid, {}))  # type: ignore
-                if cfg != DEFUALT_SUB_CONFIG:
+                if cfg.is_defualt_val():
                     text += "⚙️"
                 text += f" {str(up)}"
                 ups_prompt.append(text)
@@ -79,11 +79,11 @@ async def check_sub(
             for up in user.subscribe_ups:
                 if up.nickname.lower() == keyword or str(up.uid) == keyword:
                     prompt = [str(up)]
-                    cfg = user.subscriptions.get(up.uid, {})
-                    prompt.append(f"📢 @ 全员(动态) - {cfg.get('dynamic_at_all',False)}")
-                    prompt.append(f"📢 @ 全员(直播) - {cfg.get('live_at_all',False)}")
-                    prompt.append(f"💬 动态推送 - {cfg.get('dynamic',True)}")
-                    prompt.append(f"📺 直播推送 - {cfg.get('live',True)}")
+                    cfg = user.subscriptions.get(up.uid, UserSubConfig(uid=up.uid))
+                    prompt.append(f"📢 @ 全员(动态) - {cfg.dynamic_at_all}")
+                    prompt.append(f"📢 @ 全员(直播) - {cfg.live_at_all}")
+                    prompt.append(f"💬 动态推送 - {cfg.dynamic}")
+                    prompt.append(f"📺 直播推送 - {cfg.live}")
                     re_msg = "\n".join(prompt)
                     break
         await bili_check_sub.finish(re_msg)
@@ -100,12 +100,12 @@ async def reset_sub(
         keyword = msg.extract_plain_text().lower()
         if keyword in ["all", "全部"]:
             for sub in user.subscriptions:
-                user.subscriptions[sub] = DEFUALT_SUB_CONFIG.copy()
+                user.subscriptions[sub] = UserSubConfig(uid=sub)
             SubscriptionSystem.save_to_file()
             await bili_reset_sub.finish("已经成功重置本群订阅的全部UP主的推送配置啦\n(*^▽^*)")
         for up in SubscriptionSystem.uploaders.values():
             if up.nickname.lower() == keyword or str(up.uid) == keyword:
-                user.subscriptions[up.uid] = DEFUALT_SUB_CONFIG.copy()
+                user.subscriptions[up.uid] = UserSubConfig(uid=up.uid)
                 SubscriptionSystem.save_to_file()
                 await bili_reset_sub.finish(f"已经成功重置 {up} 的推送配置啦\n(*^▽^*)")
         await bili_reset_sub.finish("未找到该 UP 主呢\n`(*>﹏<*)′")

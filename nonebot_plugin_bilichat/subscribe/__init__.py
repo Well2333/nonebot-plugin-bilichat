@@ -15,9 +15,9 @@ LOCK = asyncio.Lock()
 
 @scheduler.scheduled_job(
     "interval",
-    seconds=plugin_config.bilichat_dynamic_interval,
+    seconds=SubscriptionSystem.config.dynamic_interval,
     id="dynamic_update",
-    jitter=plugin_config.bilichat_dynamic_interval // 5,
+    jitter=SubscriptionSystem.config.dynamic_interval // 5,
 )
 async def run_dynamic_update():
     async with LOCK:
@@ -28,7 +28,7 @@ async def run_dynamic_update():
         logger.debug("[Dynamic] Updating start")
         up_groups = SubscriptionSystem.activate_uploaders.values()
         for up in up_groups:
-            if plugin_config.bilichat_dynamic_grpc:
+            if SubscriptionSystem.config.dynamic_grpc:
                 try:
                     logger.debug(f"[Dynamic] fetch {up.nickname}({up.uid}) by gRPC")
                     await fetch_dynamics_grpc(up)
@@ -53,9 +53,9 @@ async def run_dynamic_update():
 
 @scheduler.scheduled_job(
     "interval",
-    seconds=plugin_config.bilichat_live_interval,
+    seconds=SubscriptionSystem.config.live_interval,
     id="live_update",
-    jitter=plugin_config.bilichat_live_interval // 5,
+    jitter=SubscriptionSystem.config.live_interval // 5,
 )
 async def run_live_update():
     async with LOCK:
