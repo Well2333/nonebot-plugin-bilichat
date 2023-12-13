@@ -5,64 +5,64 @@ from nonebot.log import logger
 from ..config import plugin_config, raw_config
 
 if plugin_config.bilichat_webui_url:
-    from . import base, bilibili_cookies, subs  # noqa: F401
+    from . import base, bilibili_cookies, subs_config  # noqa: F401
 
     def generate_framed_text(content: List[str], width=88, padding=4):
         """
-        Generates a text frame around the given content.
+        Generates a framed text block with specified width and padding.
 
         Parameters:
-        content (list[str]): The content to be framed.
-        width (int): The total width of the framed text, including borders.
-        padding (int): The padding between the content and the frame.
+        content (list of str): The content to be framed.
+        width (int): The total width of the framed block including the border.
+        padding (int): The padding between the text and the border.
 
         Returns:
-        str: The framed text.
+        str: The framed text block.
         """
+        # Calculate the width available for text
+        text_width = width - 2 - (padding * 2)
+        framed_lines = []
 
-        # Calculate the inner width (width - borders - padding)
-        inner_width = width - 2 - (padding * 2)
+        # Function to split lines according to text_width and padding
+        def split_line(line):
+            words = line.split()
+            current_line = ""
+            for word in words:
+                if len(current_line) + len(word) + 1 <= text_width:
+                    current_line += word + " "
+                else:
+                    framed_lines.append(current_line.rstrip())
+                    current_line = word + " "
+            framed_lines.append(current_line.rstrip())
 
-        # Initialize an empty list to store each line of the framed text
-        framed_text = []
-
-        # Add the top border
-        framed_text.append("*" * width)
-
-        # Process each line of the content
+        # Process each line in the content
         for line in content:
-            # Split long lines into multiple lines
-            while len(line) > inner_width:
-                # Extract a substring of the maximum allowed length
-                substring = line[:inner_width]
-                # Add padding and borders to the substring
-                framed_text.append("*" + " " * padding + substring + " " * padding + "*")
-                # Remove the processed substring from the original line
-                line = line[inner_width:]
+            split_line(line)
 
-            # Add padding and borders to the line
-            line = line + " " * (inner_width - len(line))  # Padding for short lines
-            framed_text.append("*" + " " * padding + line + " " * padding + "*")
+            # Adding an empty line between paragraphs
+            if line != content[-1]:
+                framed_lines.append("")
 
-        # Add the bottom border
-        framed_text.append("*" * width)
+        # Add padding and border to each line
+        framed_text = "\n".join(
+            ["*" + " " * padding + line.ljust(text_width) + " " * padding + "*" for line in framed_lines]
+        )
+        # Add the top and bottom border
+        border = "*" * width
+        line = "*" + " " * (width - 2) + "*"
+        framed_text = border + "\n" + line + "\n" + framed_text + "\n" + line + "\n" + border
 
-        # Join the framed text lines with newlines and return
-        return "\n".join(framed_text)
+        return framed_text
 
     propmt = [
-        "",
         "SETTING UP BILICHAT WEB USER INTERFACE AT",
-        "",
         f"http://{raw_config.host}:{raw_config.port}/{plugin_config.bilichat_webui_url}/web/",
-        "",
     ]
     if plugin_config.bilichat_webui_url == "bilichat":
         propmt.extend(
             [
                 "WARNING: Bilichat WebUI is currently running on default path. "
-                "Please consider to use different path via adding config `bilichat_webui_url` in .env file. ",
-                "",
+                "Please consider to use different path via adding config `bilichat_webui_url` in .env file.",
             ]
         )
     logger.success("\n" + generate_framed_text(propmt))

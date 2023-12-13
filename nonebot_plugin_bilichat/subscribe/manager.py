@@ -277,16 +277,24 @@ class SubscriptionSystem:
         cls.uploaders = {up.uid: up for up in raw_cfg.uploaders}
         cls.users = {f"{u.platform}-_-{u.user_id}": u for u in raw_cfg.users}
 
+        # 清理无订阅的UP
         for uploader in cls.uploaders.values():
             if not uploader.subscribed_users:
                 del SubscriptionSystem.uploaders[uploader.uid]
 
+        # 添加缺失的UP
+        for user in cls.users.values():
+            for sub in user.subscriptions.keys():
+                if sub not in cls.uploaders:
+                    cls.uploaders[sub] = Uploader(nickname="", uid=sub)
+
+        cls.save_to_file()
         cls.refresh_activate_uploaders()
 
     @classmethod
     def load_from_file(cls):
         """Load data from the JSON file."""
-        cls.load(json.loads(subscribe_file.read_text() or '{"uploaders":{},"users":{}}'))
+        cls.load(json.loads(subscribe_file.read_text() or "{}"))
 
     @classmethod
     def save_to_file(cls):
@@ -323,7 +331,6 @@ class SubscriptionSystem:
 
 
 SubscriptionSystem.load_from_file()
-SubscriptionSystem.save_to_file()
 
 
 @driver.on_bot_connect

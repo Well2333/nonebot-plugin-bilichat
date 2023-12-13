@@ -11,12 +11,12 @@ config = nonebot.get_driver().config
 app: FastAPI = nonebot.get_app()
 
 
-@app.get(f"/{plugin_config.bilichat_webui_url}/api/config")
+@app.get(f"/{plugin_config.bilichat_webui_url}/api/subs_config")
 async def get_subs():
     return JSONResponse(SubscriptionSystem.dict())
 
 
-@app.put(f"/{plugin_config.bilichat_webui_url}/api/config")
+@app.put(f"/{plugin_config.bilichat_webui_url}/api/subs_config")
 async def update_subs(data: Dict):
     try:
         SubscriptionSystem.load(data)
