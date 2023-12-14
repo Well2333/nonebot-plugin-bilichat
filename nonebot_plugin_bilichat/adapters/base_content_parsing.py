@@ -26,7 +26,7 @@ FUTUER_FUCTIONS = ENABLE_SUMMARY or plugin_config.bilichat_word_cloud or plugin_
 
 cd: Dict[str, int] = {}
 cd_size_limit = plugin_config.bilichat_cd_time // 2
-sem = asyncio.Semaphore(1)
+lock = asyncio.Lock()
 
 
 def check_cd(uid: Union[int, str], check: bool = True):
@@ -111,7 +111,7 @@ async def get_futuer_fuctions(content: Union[Video, Column, Any]):
             else:
                 official_summary = f"当前视频不支持AI视频总结: {e}"
 
-    async with sem:
+    async with lock:
         if ENABLE_SUMMARY or plugin_config.bilichat_word_cloud:
             subtitle = await content.get_subtitle()
             if not subtitle:
