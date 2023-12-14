@@ -1,22 +1,21 @@
 from typing import Dict
 
 import nonebot
-from fastapi import FastAPI, HTTPException
+from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 
-from ..config import plugin_config
 from ..subscribe.manager import SubscriptionSystem
+from .base import app
 
 config = nonebot.get_driver().config
-app: FastAPI = nonebot.get_app()
 
 
-@app.get(f"/{plugin_config.bilichat_webui_url}/api/subs_config")
+@app.get("/subs_config")
 async def get_subs():
     return JSONResponse(SubscriptionSystem.dict())
 
 
-@app.put(f"/{plugin_config.bilichat_webui_url}/api/subs_config")
+@app.put("/subs_config")
 async def update_subs(data: Dict):
     try:
         SubscriptionSystem.load(data)

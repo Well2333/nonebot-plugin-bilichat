@@ -4,7 +4,7 @@ from nonebot.log import logger
 
 from ..config import plugin_config, raw_config
 
-if plugin_config.bilichat_webui_url:
+if plugin_config.bilichat_api_path:
     from . import base, bilibili_cookies, subs_config  # noqa: F401
 
     def generate_framed_text(content: List[str], width=88, padding=4):
@@ -55,14 +55,14 @@ if plugin_config.bilichat_webui_url:
         return framed_text
 
     propmt = [
-        "SETTING UP BILICHAT WEB USER INTERFACE AT",
-        f"http://{raw_config.host}:{raw_config.port}/{plugin_config.bilichat_webui_url}/web/",
+        "SETTING UP BILICHAT API AT",
+        f"http://{raw_config.host}:{raw_config.port}/{plugin_config.bilichat_api_path}/api/",
     ]
-    if plugin_config.bilichat_webui_url == "bilichat":
+    if plugin_config.bilichat_api_path == "bilichat":
         propmt.extend(
             [
-                "WARNING: Bilichat WebUI is currently running on default path. "
-                "Please consider to use different path via adding config `bilichat_webui_url` in .env file.",
+                "WARNING: Bilichat API is currently running on default path. "
+                "Please consider to use different path via adding config `bilichat_api_path` in .env file.",
             ]
         )
     logger.success("\n" + generate_framed_text(propmt))

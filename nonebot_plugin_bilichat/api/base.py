@@ -1,14 +1,26 @@
-from pathlib import Path
-
 import nonebot
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+from nonebot.drivers import ReverseDriver
+from nonebot.drivers.fastapi import Driver as FastAPIDriver
 
 from ..config import plugin_config
 
-app: FastAPI = nonebot.get_app()
+app = FastAPI()
 
-app.mount(
-    f"/{plugin_config.bilichat_webui_url}/web/",
-    StaticFiles(directory=Path(__file__).parent.parent.joinpath("static").joinpath("web"), html=True),
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
+
+
+# mount fastapi app
+driver: FastAPIDriver = nonebot.get_driver()  # type: ignore
+
+if not isinstance(driver, ReverseDriver) or not isinstance(driver.server_app, FastAPI):
+    raise NotImplementedError("Only FastAPI reverse driver is supported.")
+
+driver.server_app.mount(f"/{plugin_config.bilichat_api_path}/api", app, name="bilichat")

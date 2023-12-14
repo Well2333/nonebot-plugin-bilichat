@@ -37,7 +37,7 @@ class Config(BaseModel):
     bilichat_cache_serive: Literal["json", "mongodb"] = Field(default="Auto")
     bilichat_text_fonts: str = "default"
     bilichat_emoji_fonts: str = "default"
-    bilichat_webui_url: Optional[str] = "bilichat"
+    bilichat_api_path: Optional[str] = "bilichat"
 
     # command and subscribe
     bilichat_command_to_me: bool = True
@@ -226,7 +226,7 @@ class Config(BaseModel):
                 "use **pip install nonebot-plugin-bilichat[wordcloud]** to install required dependencies"
             )
 
-    @validator("bilichat_webui_url", always=True)
+    @validator("bilichat_api_path", always=True)
     def check_api(cls, v: str):
         if not v:
             return v
