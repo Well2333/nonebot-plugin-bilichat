@@ -20,4 +20,4 @@ async def get_user(matcher: Matcher, target: SaaTarget):
         platform, user_id = User.extract_saa_target(target)
         if not user_id:
             await matcher.finish("暂时还不支持当前会话呢\n`(*>﹏<*)′")
-        return SubscriptionSystem.users.get(f"{platform}-_-{user_id}", User(user_id=user_id, platfrom=platform))
+        return SubscriptionSystem.users.get(f"{platform}-_-{user_id}", User(user_id=user_id, platform=platform))

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>JSON 配置编辑器</title>
+        <style>
+            .container {
+                padding: 20px;
+            }
+            .form-group {
+                margin-bottom: 10px;
+            }
+            label,
+            input,
+            select,
+            button,
+            textarea {
+                display: block;
+                width: 100%;
+                padding: 8px;
+            }
+            button {
+                margin-top: 10px;
+            }
+            #jsonInput {
+                height: 200px;
+                margin-bottom: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>输入配置文件</h2>
+            <textarea id="jsonInput">{}</textarea>
+            <button onclick="parseJson()">解析配置文件</button>
+
+            <h2>Config</h2>
+            <div id="configForm"></div>
+
+            <h2>Users</h2>
+            <div id="usersList"></div>
+
+            <h3>Add New User</h3>
+            <div id="addUserForm"></div>
+        </div>
+
+        <script>
+            let initialJson = {}; // 初始空配置
+
+            function createInput(name, value) {
+                return `<div class="form-group">
+                        <label for="${name}">${name}</label>
+                        <input type="text" id="${name}" name="${name}" value="${value}">
+                    </div>`;
+            }
+
+            function createUserForm(user = {}) {
+                let formHtml = "";
+                for (const key in user) {
+                    if (typeof user[key] === "boolean") {
+                        formHtml += `<div class="form-group">
+                                    <label for="${key}">${key}</label>
+                                    <input type="checkbox" id="${key}" name="${key}" ${
+                            user[key] ? "checked" : ""
+                        }>
+                                </div>`;
+                    } else {
+                        formHtml += createInput(key, user[key]);
+                    }
+                }
+                return formHtml;
+            }
+
+            function displayConfigForm() {
+                let formHtml = "";
+                for (const key in initialJson.config) {
+                    formHtml += createInput(key, initialJson.config[key]);
+                }
+                document.getElementById("configForm").innerHTML = formHtml;
+            }
+
+            function displayUsersList() {
+                let listHtml = "";
+                initialJson.users.forEach((user, index) => {
+                    listHtml += `<div>
+                                <h4>User ${index + 1}</h4>
+                                ${createUserForm(user)}
+                                <button onclick="editUser(${index})">Edit</button>
+                                <button onclick="deleteUser(${index})">Delete</button>
+                             </div>`;
+                });
+                document.getElementById("usersList").innerHTML = listHtml;
+            }
+
+            function displayAddUserForm() {
+                const newUser = {
+                    user_id: "",
+                    platform: "",
+                    at_all: false,
+                    subscriptions: [],
+                };
+                document.getElementById("addUserForm").innerHTML =
+                    createUserForm(newUser) +
+                    '<button onclick="addUser()">Add User</button>';
+            }
+
+            function parseJson() {
+                try {
+                    initialJson = JSON.parse(
+                        document.getElementById("jsonInput").value
+                    );
+                    displayConfigForm();
+                    displayUsersList();
+                    displayAddUserForm();
+                } catch (e) {
+                    alert("解析错误: " + e.message);
+                }
+            }
+
+            function editUser(index) {
+                // 编辑用户逻辑
+            }
+
+            function deleteUser(index) {
+                // 删除用户逻辑
+            }
+
+            function addUser() {
+                // 添加用户逻辑
+            }
+
+            // 初始渲染（如果有初始配置）
+            displayConfigForm();
+            displayUsersList();
+            displayAddUserForm();
+        </script>
+    </body>
+</html>

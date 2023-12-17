@@ -4,7 +4,7 @@ from nonebot.permission import SUPERUSER
 
 from ..config import plugin_config
 from ..subscribe import LOCK
-from ..subscribe.manager import DEFUALT_SUB_CONFIG, SubscriptionSystem, User
+from ..subscribe.manager import SubscriptionSystem, User, UserSubConfig
 from .base import bilichat, get_user
 
 bili_at_all = bilichat.command("atall", permission=SUPERUSER, aliases=set(plugin_config.bilichat_cmd_at_all))
@@ -30,18 +30,18 @@ async def at_all(
             re_msg = "未找到该 UP 主呢\n`(*>﹏<*)′"
             for up in SubscriptionSystem.uploaders.values():
                 if up.nickname.lower() in keyword or str(up.uid) in keyword:
-                    cfg = user.subscriptions.get(up.uid, DEFUALT_SUB_CONFIG.copy())
+                    cfg = user.subscriptions.get(up.uid, UserSubConfig(uid=up.uid))
                     if "动态" in keyword or "dynamic" in keyword:
-                        cfg["dynamic_at_all"] = not cfg.get("dynamic_at_all", False)
+                        cfg.dynamic_at_all = not cfg.dynamic_at_all
                         user.subscriptions.update({up.uid: cfg})
-                        if cfg["dynamic_at_all"]:
+                        if cfg.dynamic_at_all:
                             re_msg = f"已开启 {up.nickname}({up.uid}) 的动态@全体成员了~\n(*^▽^*)"
                         else:
                             re_msg = f"已关闭 {up.nickname}({up.uid}) 的动态@全体成员了~\n(*^▽^*)"
                     elif "直播" in keyword or "live" in keyword:
-                        cfg["live_at_all"] = not cfg.get("live_at_all", False)
+                        cfg.live_at_all = not cfg.live_at_all
                         user.subscriptions.update({up.uid: cfg})
-                        if cfg["live_at_all"]:
+                        if cfg.live_at_all:
                             re_msg = f"已开启 {up.nickname}({up.uid}) 的直播@全体成员了~\n(*^▽^*)"
                         else:
                             re_msg = f"已关闭 {up.nickname}({up.uid}) 的直播@全体成员了~\n(*^▽^*)"
@@ -61,9 +61,9 @@ async def dynamic(
         re_msg = "未找到该 UP 主呢\n`(*>﹏<*)′"
         for up in SubscriptionSystem.uploaders.values():
             if up.nickname.lower() == keyword or str(up.uid) == keyword:
-                cfg = user.subscriptions.get(up.uid, DEFUALT_SUB_CONFIG.copy())
-                if cfg.get("dynamic", True) is True:
-                    cfg["dynamic"] = False
+                cfg = user.subscriptions.get(up.uid, UserSubConfig(uid=up.uid))
+                if cfg.dynamic is True:
+                    cfg.dynamic = False
                     user.subscriptions.update(
                         {
                             up.uid: cfg,  # type: ignore
@@ -71,7 +71,7 @@ async def dynamic(
                     )
                     re_msg = f"已关闭 {up.nickname}({up.uid}) 的动态通知了~\n(*^▽^*)"
                 else:
-                    cfg["dynamic"] = True
+                    cfg.dynamic = True
                     user.subscriptions.update({up.uid: cfg})  # type: ignore
                     re_msg = f"已开启 {up.nickname}({up.uid}) 的动态通知了~\n(*^▽^*)"
         SubscriptionSystem.save_to_file()
@@ -88,9 +88,9 @@ async def live(
         re_msg = "未找到该 UP 主呢\n`(*>﹏<*)′"
         for up in SubscriptionSystem.uploaders.values():
             if up.nickname.lower() == keyword or str(up.uid) == keyword:
-                cfg = user.subscriptions.get(up.uid, DEFUALT_SUB_CONFIG.copy())
-                if cfg.get("live", True) is True:
-                    cfg["live"] = False
+                cfg = user.subscriptions.get(up.uid, UserSubConfig(uid=up.uid))
+                if cfg.live is True:
+                    cfg.live = False
                     user.subscriptions.update(
                         {
                             up.uid: cfg,  # type: ignore
@@ -98,7 +98,7 @@ async def live(
                     )
                     re_msg = f"已关闭 {up.nickname}({up.uid}) 的直播通知了~\n(*^▽^*)"
                 else:
-                    cfg["live"] = True
+                    cfg.live = True
                     user.subscriptions.update({up.uid: cfg})  # type: ignore
                     re_msg = f"已开启 {up.nickname}({up.uid}) 的直播通知了~\n(*^▽^*)"
         SubscriptionSystem.save_to_file()

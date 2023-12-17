@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Bilibili Cookie Handler</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: #f0f0f0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .container {
+                display: flex;
+                flex-direction: row;
+                width: 95%;
+            }
+
+            .section {
+                flex: 1;
+                min-width: 50%;
+                padding: 20px;
+                box-sizing: border-box;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .code-input,
+            .code-output {
+                width: 100%;
+                min-height: 150px;
+                font-family: "Courier New", monospace;
+                padding: 10px;
+                margin-bottom: 10px;
+                border: 1px solid #ddd;
+                background-color: white;
+                border-radius: 4px;
+                resize: vertical;
+                overflow: auto;
+            }
+
+            @media screen and (max-width: 800px) {
+                .container {
+                    flex-direction: column;
+                }
+            }
+
+            h2 {
+                color: #333;
+            }
+
+            textarea,
+            pre {
+                width: 80%;
+                max-width: 800px;
+                margin-bottom: 20px;
+            }
+
+            button {
+                padding: 10px 15px;
+                width: 80%;
+                background-color: #4caf50;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+            button:hover {
+                background-color: #45a049;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="section">
+                <h2>Bilibili Cookie 输入</h2>
+                <p>
+                    在此输入您的 Bilibili Cookie。点击“发送
+                    Cookie”按钮将它们发送到服务器。 建议使用 Cookie-Editor
+                    插件提取 Cookies。
+                </p>
+                <p>
+                    <a
+                        href="https://microsoftedge.microsoft.com/addons/detail/cookieeditor/neaplmfkghagebokkhpjpoebhdledlfi"
+                    >
+                        Edge浏览器的 Cookie-Editor 插件 </a
+                    ><br />
+                    <a
+                        href="https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/"
+                    >
+                        Firefox浏览器的 Cookie-Editor 插件 </a
+                    ><br />
+                    <a
+                        href="https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm"
+                    >
+                        Chrome浏览器的 Cookie-Editor 插件
+                    </a>
+                </p>
+                <textarea
+                    id="cookieInput"
+                    class="code-input"
+                    placeholder="在此输入cookie，建议使用 Cookie-Editor 插件提取 Cookies"
+                ></textarea>
+                <button onclick="sendCookies()">发送 Cookie</button>
+            </div>
+
+            <div class="section">
+                <h2>生成用户脚本</h2>
+                <p>
+                    点击“复制用户脚本到剪贴板”按钮，将自动生成的脚本复制到您的剪贴板。
+                    在 Tampermonkey 或其他类似的脚本管理器中添加此脚本并启用它。
+                    之后每当访问 bilibili.com
+                    时，脚本将自动将Cookies发送至服务器。
+                </p>
+                <p>
+                    注意：脚本第一次尝试发送时 Tampermonkey 会发出
+                    <b>跨源资源警告</b> ，请允许发送。
+                </p>
+                <pre id="scriptOutput" class="code-output"></pre>
+                <button onclick="generateScript()">复制用户脚本到剪贴板</button>
+            </div>
+        </div>
+
+        <script>
+            function getRootPath() {
+                return (
+                    window.location.origin +
+                    "/" +
+                    window.location.pathname.split("/")[1]
+                );
+            }
+
+            function validateAndFormatCookies(input) {
+                if (Array.isArray(input)) {
+                    return input.reduce((acc, item) => {
+                        if (
+                            item.name &&
+                            typeof item.name === "string" &&
+                            item.value &&
+                            typeof item.value === "string"
+                        ) {
+                            acc[item.name] = item.value;
+                        }
+                        return acc;
+                    }, {});
+                } else if (typeof input === "object" && input !== null) {
+                    Object.keys(input).forEach((key) => {
+                        if (typeof input[key] !== "string") {
+                            throw new Error("Invalid value type");
+                        }
+                    });
+                    return input;
+                } else {
+                    return null;
+                }
+            }
+
+            function sendCookies() {
+                var cookiesInput = document.getElementById("cookieInput").value;
+                try {
+                    var cookies = JSON.parse(cookiesInput);
+                    var formattedCookies = validateAndFormatCookies(cookies);
+                    if (formattedCookies) {
+                        fetch(getRootPath() + "/api/bili_cookies", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify(formattedCookies),
+                        })
+                            .then((response) => {
+                                if (response.status === 201) {
+                                    alert("Cookies sent successfully");
+                                } else if (response.status === 422) {
+                                    alert("Invalid cookie data");
+                                } else if (response.status === 500) {
+                                    alert("Server error occurred");
+                                } else {
+                                    alert(
+                                        "Unexpected response status: " +
+                                            response.status
+                                    );
+                                }
+                            })
+                            .catch((error) => console.error("Error:", error));
+                    } else {
+                        alert("Invalid cookies format");
+                    }
+                } catch (e) {
+                    alert("Invalid JSON input");
+                }
+            }
+
+            function generateScript() {
+                var scriptContent = `
+// ==UserScript==
+// @name         Cookie Extractor
+// @namespace    yournamespace
+// @version      1.0
+// @description  Extracts cookies and sends them to your server
+// @match        *://www.bilibili.com
+// @grant        GM_xmlhttpRequest
+// ==/UserScript==
+
+(function () {
+    "use strict";
+
+    function getCookies() {
+        var cookies = document.cookie.split("; ");
+        var cookieObj = {};
+        for (const element of cookies) {
+            var cookie = element.split("=");
+            var cookieName = cookie[0];
+            var cookieValue = cookie[1];
+            cookieObj[cookieName] = cookieValue;
+        }
+        return cookieObj;
+    }
+
+    function sendCookies(cookies) {
+        GM_xmlhttpRequest({
+            method: "POST",
+            url: "${getRootPath()}/api/bili_cookies",
+            headers: {
+                "Content-Type": "application/json;charset=UTF-8"
+            },
+            data: JSON.stringify(cookies),
+        });
+    }
+
+    function main() {
+        var cookies = getCookies();
+        sendCookies(cookies);
+    }
+
+    main();
+})();`;
+
+                var scriptOutput = document.getElementById("scriptOutput");
+                scriptOutput.textContent = scriptContent;
+                navigator.clipboard.writeText(scriptContent);
+            }
+        </script>
+    </body>
+</html>

@@ -22,7 +22,6 @@ except Exception:
     __version__ = None
 
 
-
 class Config(BaseModel):
     # general
     bilichat_block: bool = False
@@ -38,13 +37,9 @@ class Config(BaseModel):
     bilichat_cache_serive: Literal["json", "mongodb"] = Field(default="Auto")
     bilichat_text_fonts: str = "default"
     bilichat_emoji_fonts: str = "default"
+    bilichat_api_path: Optional[str] = "bilichat"
 
     # command and subscribe
-    bilichat_subs_limit: int = Field(5, ge=0, le=50)
-    bilichat_dynamic_interval: int = Field(90, ge=60)
-    bilichat_live_interval: int = Field(30, ge=10)
-    bilichat_push_delay: int = Field(3, ge=0)
-    bilichat_dynamic_grpc: bool = False
     bilichat_command_to_me: bool = True
     bilichat_cmd_start: str = "bilichat"
     bilichat_cmd_add_sub: List[str] = ["订阅", "关注"]
@@ -66,7 +61,6 @@ class Config(BaseModel):
     bilichat_dynamic: bool = True
     bilichat_dynamic_style: Literal["dynamicrender", "browser_mobile", "browser_pc"] = Field(default="Auto")
     bilichat_bilibili_cookie: Optional[str] = None
-    bilichat_bilibili_cookie_api: Optional[str] = None
 
     # both WC and AI
     bilichat_use_bcut_asr: bool = True
@@ -231,6 +225,15 @@ class Config(BaseModel):
                 "Package(s) of fuction wordcloud not installed, "
                 "use **pip install nonebot-plugin-bilichat[wordcloud]** to install required dependencies"
             )
+
+    @validator("bilichat_api_path", always=True)
+    def check_api(cls, v: str):
+        if not v:
+            return v
+        v = v.strip("/")
+        if "/" in v:
+            raise ValueError("bilichat_webui_url should not contain '/'")
+        return v
 
     def verify_permission(self, uid: Union[str, int]):
         if self.bilichat_whitelist:

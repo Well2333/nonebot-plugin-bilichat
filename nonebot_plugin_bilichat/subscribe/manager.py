@@ -1,7 +1,8 @@
 import asyncio
 import json
 import time
-from typing import Any, Dict, List, Optional, TypedDict, Union
+from dataclasses import field
+from typing import Any, Dict, List, Optional, Union
 
 from nonebot import get_driver
 from nonebot.adapters import Bot
@@ -18,8 +19,8 @@ from nonebot_plugin_saa import (
 from nonebot_plugin_saa.auto_select_bot import BOT_CACHE, get_bot
 from nonebot_plugin_saa.utils.const import SupportedPlatform
 from nonebot_plugin_saa.utils.exceptions import NoBotFound
+from pydantic import BaseModel, Extra, Field, validator
 
-from ..config import plugin_config
 from ..lib.store import data_dir
 from ..lib.tools import calc_time_total
 from ..optional import capture_exception
@@ -30,23 +31,22 @@ subscribe_file.touch(0o755, True)
 driver = get_driver()
 
 
-class Uploader:
+class Uploader(BaseModel):
     """Represents an Uploader"""
 
-    def __init__(self, nickname: str, uid: int):
-        self.nickname: str = nickname
-        self.uid: int = uid
-        self.living: int = -1
-        self.dyn_offset: int = 0
+    nickname: str
+    uid: int
+    living: int = -1
+    dyn_offset: int = 0
 
     @property
     def subscribed_users(self) -> List["User"]:
         """Get a list of user IDs subscribed to this uploader."""
         return [user for user in SubscriptionSystem.users.values() if self.uid in user.subscriptions]
 
-    def dict(self) -> Dict[str, Any]:
-        """Return a dictionary representation of the User."""
-        return {"nickname": self.nickname, "uid": self.uid}
+    def dict(self, **kwargs) -> Dict[str, Any]:
+        exclude_properties = {name for name, value in type(self).__dict__.items() if isinstance(value, property)}
+        return super().dict(**{**kwargs, "exclude": exclude_properties})
 
     def __str__(self) -> str:
         if self.living > 100000:
@@ -58,38 +58,62 @@ class Uploader:
         return f"{self.nickname}({self.uid}){live}"
 
 
-class UserSubConfig(TypedDict):
-    dynamic: bool
-    dynamic_at_all: bool
-    live: bool
-    live_at_all: bool
+class UserSubConfig(BaseModel):
+    uid: int
+    dynamic: bool = True
+    dynamic_at_all: bool = False
+    live: bool = True
+    live_at_all: bool = False
+
+    class Config:
+        extra = Extra.ignore
+
+    def is_defualt_val(self) -> bool:
+        """
+        Checks if all the attributes of the object have their default values.
+
+        Returns:
+            bool: True if all attributes have their default values, False otherwise.
+        """
+
+        return not any(
+            self.__getattribute__(field_name) != self.__fields__[field_name].default if field_name != "uid" else False
+            for field_name in self.__fields__
+        )
 
 
-DEFUALT_SUB_CONFIG: UserSubConfig = {
-    "dynamic": True,
-    "dynamic_at_all": False,
-    "live": True,
-    "live_at_all": False,
-}
-
-
-class User:
+class User(BaseModel):
     """Represents a user in the system."""
 
-    def __init__(self, user_id: str, platfrom: str, at_all: bool = False, subscriptions: Dict[str, UserSubConfig] = {}):
-        self.user_id: str = str(user_id)
-        self.platfrom: str = platfrom
-        self.at_all: bool = at_all
+    user_id: str
+    platform: str
+    at_all: bool = False
+    subscriptions: Dict[int, UserSubConfig] = {}
 
-        self.subscriptions: Dict[int, UserSubConfig] = {}
-        for k, v in subscriptions.items():
-            cfg: UserSubConfig = DEFUALT_SUB_CONFIG.copy()
-            cfg.update(v)
-            self.subscriptions[int(k)] = cfg
+    @validator("subscriptions", pre=True, always=True)
+    def validate_subscriptions(cls, v: Union[Dict[str, Dict[str, Any]], List[Dict[str, Any]]]):
+        if not v:
+            return {}
 
-        # 兼容性处理
-        if self.platfrom in ["OneBot V11", "mirai2"]:
-            self.platfrom = str(SupportedPlatform.qq_group)
+        if isinstance(v, list):
+            # 列表形式的输入：直接解包每个字典创建 UserSubConfig 实例
+            return {sub.get("uid"): UserSubConfig(**sub) for sub in v if sub.get("uid") is not None}
+
+        # 字典形式的输入
+        validated_subs = {}
+        for uid, sub in v.items():
+            try:
+                # 如果sub中存在uid，直接传递整个字典
+                if "uid" in sub:
+                    validated_subs[sub["uid"]] = UserSubConfig(**sub)
+                # 否则，显式地设置uid
+                else:
+                    validated_subs[int(uid)] = UserSubConfig(uid=int(uid), **sub)
+            except (ValueError, TypeError):
+                # 处理 uid 转换为 int 时可能发生的错误
+                continue
+
+        return validated_subs
 
     @classmethod
     def extract_saa_target(cls, target: PlatformTarget):
@@ -104,29 +128,27 @@ class User:
         return str(target.platform_type), str(user_id)
 
     def create_saa_target(self):
-        if self.platfrom == SupportedPlatform.qq_group:
+        if self.platform == SupportedPlatform.qq_group:
             return TargetQQGroup(group_id=int(self.user_id))
-        elif self.platfrom == SupportedPlatform.qq_private:
+        elif self.platform == SupportedPlatform.qq_private:
             return TargetQQPrivate(user_id=int(self.user_id))
-        elif self.platfrom == SupportedPlatform.qq_guild_channel:
+        elif self.platform == SupportedPlatform.qq_guild_channel:
             return TargetQQGuildChannel(channel_id=int(self.user_id))
         else:
-            raise NotImplementedError("Unsupported platfrom type")
+            raise NotImplementedError("Unsupported platform type")
 
-    def dict(self) -> Dict[str, Any]:
-        """Return a dictionary representation of the User."""
-        return {
-            "user_id": self.user_id,
-            "platfrom": self.platfrom,
-            "at_all": self.at_all,
-            "subscriptions": self.subscriptions,
-        }
+    def dict(self, **kwargs) -> Dict[str, Any]:
+        exclude_properties = {name for name, value in type(self).__dict__.items() if isinstance(value, property)}
+        exclude_properties.add("subscriptions")
+        dict_ = super().dict(**{**kwargs, "exclude": exclude_properties})
+        dict_["subscriptions"] = [sub.dict() for sub in self.subscriptions.values()]
+        return dict_
 
     @property
     def subscribe_ups(self) -> List[Uploader]:
         uplist = []
         for uid in self.subscriptions.keys():
-            if up := SubscriptionSystem.uploaders.get(uid):
+            if up := SubscriptionSystem.uploaders.get(int(uid)):
                 uplist.append(up)
             else:
                 del self.subscriptions[uid]
@@ -134,15 +156,15 @@ class User:
 
     @property
     def _id(self) -> str:
-        return f"{self.platfrom}-_-{self.user_id}"
+        return f"{self.platform}-_-{self.user_id}"
 
     async def push_to_user(self, content: List[Union[str, bytes]], at_all: Optional[bool] = None):
         target = self.create_saa_target()
         if not at_all:
             at = ""
-        elif self.platfrom == SupportedPlatform.qq_group:
+        elif self.platform == SupportedPlatform.qq_group:
             at = Mention("all")
-        elif self.platfrom == SupportedPlatform.qq_guild_channel:
+        elif self.platform == SupportedPlatform.qq_guild_channel:
             at = "@everyone"
         else:
             at = ""
@@ -156,18 +178,18 @@ class User:
             logger.exception("Failed to push message to user")
             capture_exception(e)
 
-        await asyncio.sleep(plugin_config.bilichat_push_delay)
+        await asyncio.sleep(SubscriptionSystem.config.push_delay)
 
     def add_subscription(self, uploader: Uploader) -> Union[None, str]:
         """Add a subscription for a user to an uploader."""
 
-        if len(self.subscriptions) > plugin_config.bilichat_subs_limit:
+        if len(self.subscriptions) > SubscriptionSystem.config.subs_limit:
             return "本群的订阅已经满啦\n删除无用的订阅再试吧\n`(*>﹏<*)′"
 
         if uploader.uid in self.subscriptions:
             return "本群已经订阅了此UP主呢...\n`(*>﹏<*)′"
 
-        self.subscriptions[uploader.uid] = DEFUALT_SUB_CONFIG.copy()  # type: ignore
+        self.subscriptions[uploader.uid] = UserSubConfig(uid=uploader.uid)  # type: ignore
 
         SubscriptionSystem.uploaders[uploader.uid] = uploader
         SubscriptionSystem.activate_uploaders[uploader.uid] = uploader
@@ -189,8 +211,47 @@ class User:
         if not uploader.subscribed_users:
             del SubscriptionSystem.uploaders[uploader.uid]
 
-        await SubscriptionSystem.refresh_activate_uploaders()
+        SubscriptionSystem.refresh_activate_uploaders()
         SubscriptionSystem.save_to_file()
+
+
+class SubscriptionConfig(BaseModel):
+    subs_limit: int = Field(5, ge=0, le=50)
+    dynamic_interval: int = Field(90, ge=60)
+    live_interval: int = Field(30, ge=10)
+    push_delay: int = Field(3, ge=0)
+    dynamic_grpc: bool = False
+
+
+class SubscriptionCfgFile(BaseModel):
+    config: SubscriptionConfig = SubscriptionConfig(**{})
+    uploaders: List[Uploader] = []
+    users: List[User] = []
+
+    @validator("uploaders", always=True, pre=True)
+    def validate_uploaders(cls, v: Union[Dict[str, Dict[str, Any]], List[Dict[str, Any]]]):
+        if not v:
+            return []
+        ups = v.values() if isinstance(v, dict) else v
+        return [Uploader.parse_obj(up) for up in ups]
+
+    @validator("users", always=True, pre=True)
+    def validate_users(cls, v: Union[Dict[str, Dict[str, Any]], List[Dict[str, Any]]]):
+        if not v:
+            return []
+        users = v.values() if isinstance(v, dict) else v
+        users_obj = []
+        for user in users:
+            # 兼容旧版本配置文件
+            if "platfrom" in user:
+                user["platform"] = user.pop("platfrom")
+            if user["platform"] in ["OneBot V11", "mirai2"]:
+                user["platform"] = str(SupportedPlatform.qq_group)
+            # 移除无订阅的用户
+            if len(user["subscriptions"]) == 0:
+                continue
+            users_obj.append(User(**user))
+        return users_obj
 
 
 class SubscriptionSystem:
@@ -199,24 +260,41 @@ class SubscriptionSystem:
     uploaders: Dict[int, Uploader] = {}
     activate_uploaders: Dict[int, Uploader] = {}
     users: Dict[str, User] = {}
+    config: SubscriptionConfig = SubscriptionConfig(**{})
 
     @classmethod
     def dict(cls):
         return {
-            "uploaders": {up.uid: up.dict() for up in cls.uploaders.values()},
-            "users": {f"{u.platfrom}-_-{u.user_id}": u.dict() for u in cls.users.values()},
+            "config": cls.config.dict(),
+            "uploaders": [up.dict() for up in cls.uploaders.values()],
+            "users": [user.dict() for user in cls.users.values()],
         }
+
+    @classmethod
+    def load(cls, data: Dict[str, Union[Dict[str, Any], List[Dict[str, Any]]]]):
+        raw_cfg = SubscriptionCfgFile.parse_obj(data)
+        cls.config = raw_cfg.config
+        cls.uploaders = {up.uid: up for up in raw_cfg.uploaders}
+        cls.users = {f"{u.platform}-_-{u.user_id}": u for u in raw_cfg.users}
+
+        # 清理无订阅的UP
+        for uploader in cls.uploaders.values():
+            if not uploader.subscribed_users:
+                del SubscriptionSystem.uploaders[uploader.uid]
+
+        # 添加缺失的UP
+        for user in cls.users.values():
+            for sub in user.subscriptions.keys():
+                if sub not in cls.uploaders:
+                    cls.uploaders[sub] = Uploader(nickname="", uid=sub)
+
+        cls.save_to_file()
+        cls.refresh_activate_uploaders()
 
     @classmethod
     def load_from_file(cls):
         """Load data from the JSON file."""
-        data = json.loads(subscribe_file.read_text() or '{"uploaders":{},"users":{}}')
-        cls.uploaders = {int(k): Uploader(**v) for k, v in data["uploaders"].items()}
-        cls.users = {}
-        for k, v in data["users"].items():
-            user = User(**v)
-            id_ = k if "-_-" in k else f"{user.platfrom}-_-{user.user_id}"
-            cls.users[id_] = user
+        cls.load(json.loads(subscribe_file.read_text() or "{}"))
 
     @classmethod
     def save_to_file(cls):
@@ -237,7 +315,7 @@ class SubscriptionSystem:
         return at_ups
 
     @classmethod
-    async def refresh_activate_uploaders(cls):
+    def refresh_activate_uploaders(cls):
         """通过当前 Bot 覆盖的平台，激活需要推送的UP"""
         logger.debug("refreshing activate uploaders")
         cls.activate_uploaders = {}
@@ -245,7 +323,7 @@ class SubscriptionSystem:
             target = user.create_saa_target()
             try:
                 get_bot(target)
-                cls.activate_uploaders.update({up: cls.uploaders[up] for up in user.subscriptions.keys()})
+                cls.activate_uploaders.update({int(up): cls.uploaders[int(up)] for up in user.subscriptions.keys()})
             except NoBotFound:
                 logger.debug(f"no bot found for user {user._id}")
                 continue
@@ -259,11 +337,11 @@ SubscriptionSystem.load_from_file()
 async def _(bot: Bot):
     while bot not in BOT_CACHE.keys():
         await asyncio.sleep(0.5)
-    await SubscriptionSystem.refresh_activate_uploaders()
+    SubscriptionSystem.refresh_activate_uploaders()
 
 
 @driver.on_bot_disconnect
 async def _(bot: Bot):
     while bot in BOT_CACHE.keys():
         await asyncio.sleep(0.5)
-    await SubscriptionSystem.refresh_activate_uploaders()
+    SubscriptionSystem.refresh_activate_uploaders()
