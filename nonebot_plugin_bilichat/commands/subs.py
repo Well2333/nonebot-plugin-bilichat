@@ -26,7 +26,6 @@ async def add_sub(uid: Message = CommandArg(), user: User = Depends(get_user)):
         msg = await uid_extract(uid.extract_plain_text())
         if isinstance(msg, str):
             await bili_add_sub.finish(msg)
-            raise FinishedException
         up = SubscriptionSystem.uploaders.get(msg.mid, Uploader(nickname=msg.nickname, uid=msg.mid))
 
         msg = user.add_subscription(up) or f"已经成功关注 {up} 啦\n(*^▽^*)"
