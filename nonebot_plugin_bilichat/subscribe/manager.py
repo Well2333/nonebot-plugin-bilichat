@@ -23,6 +23,7 @@ from pydantic import BaseModel, Extra, Field, validator
 
 from ..lib.store import data_dir
 from ..lib.tools import calc_time_total
+from ..lib.uid_extract import uid_extract_sync
 from ..optional import capture_exception
 
 subscribe_file = data_dir.joinpath("subscribe.json")
@@ -39,6 +40,19 @@ class Uploader(BaseModel):
     living: int = -1
     dyn_offset: int = 0
 
+    def __init__(self, **values):
+        super().__init__(**values)
+        # 没有昵称的则搜索昵称
+        if not self.nickname:
+            up = uid_extract_sync(f"UID: {self.uid}")
+            if isinstance(up, str):
+                raise ValueError(f"未找到 uid 为 {self.uid} 的 UP")
+            self.nickname = up.nickname
+        # 获取较大值的 living 与 dyn_offset
+        if up := SubscriptionSystem.uploaders.get(values["uid"]):
+            self.living = max(self.living, up.living)
+            self.dyn_offset = max(self.dyn_offset, up.dyn_offset)
+
     @property
     def subscribed_users(self) -> List["User"]:
         """Get a list of user IDs subscribed to this uploader."""
@@ -46,7 +60,10 @@ class Uploader(BaseModel):
 
     def dict(self, **kwargs) -> Dict[str, Any]:
         exclude_properties = {name for name, value in type(self).__dict__.items() if isinstance(value, property)}
-        return super().dict(**{**kwargs, "exclude": exclude_properties})
+        exclude_properties.add("living")
+        exclude_properties.add("dyn_offset")
+        dict_ = super().dict(**{**kwargs, "exclude": exclude_properties})
+        return dict_
 
     def __str__(self) -> str:
         if self.living > 100000:
@@ -330,7 +347,7 @@ class SubscriptionSystem:
         cls.get_activate_uploaders()
 
 
-SubscriptionSystem.load_from_file()
+driver.on_startup(SubscriptionSystem.load_from_file)
 
 
 @driver.on_bot_connect
