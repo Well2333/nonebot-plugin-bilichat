@@ -5,7 +5,7 @@ from nonebot.log import logger
 from ..config import plugin_config, raw_config
 
 if plugin_config.bilichat_api_path:
-    from . import base, bilibili_cookies, subs_config  # noqa: F401
+    from . import base, bilibili_auth, subs_config  # noqa: F401
 
     def generate_framed_text(content: List[str], width=88, padding=4):
         """
