@@ -1,64 +1,71 @@
 import json
-from pathlib import Path
-from typing import Any, Dict
+import random
+from typing import Any, Dict, List, Union
 
 from bilireq.auth import Auth
 from nonebot import get_driver
 from nonebot.log import logger
 
-from ...config import plugin_config
 from ..store import cache_dir
 
-gRPC_Auth: Auth = Auth()
-bili_grpc_auth = cache_dir.joinpath("bili_grpc_auth.json")
-bili_grpc_auth.touch(0o700, exist_ok=True)
+bili_grpc_auth_file = cache_dir.joinpath("bili_grpc_auth.json")
+bili_grpc_auth_file.touch(0o700, exist_ok=True)
 
 
-async def login_from_cache() -> bool:
-    global gRPC_Auth
-    try:
-        data = json.loads(bili_grpc_auth.read_bytes())
-        gRPC_Auth.update(data)
-        gRPC_Auth = await gRPC_Auth.refresh()
-        bili_grpc_auth.write_text(json.dumps(gRPC_Auth.data))
-    except Exception as e:
-        logger.error(f"缓存登录失败，请使用验证码登录: {e}")
-        gRPC_Auth = Auth()
-        return False
-    else:
-        logger.success("缓存登录成功")
-        return True
+class AuthManager:
+    grpc_auths: List[Auth] = []
+
+    @classmethod
+    async def load_grpc_auths(cls) -> None:
+        data: Union[List[Dict], Dict] = json.loads(bili_grpc_auth_file.read_bytes()) or []
+        data = data if isinstance(data, list) else [data]
+        cls.grpc_auths.clear()
+        for raw_auth in data:
+            auth = Auth(raw_auth)
+            try:
+                auth = await auth.refresh()
+                cls.grpc_auths.append(auth)
+                logger.success(f"{auth.uid} 缓存登录成功")
+            except Exception as e:
+                logger.error(f"{auth.uid} 缓存登录失败，请使用验证码登录: {e}")
+        cls.dump_grpc_auths()
+
+    @classmethod
+    def dump_grpc_auths(cls):
+        bili_grpc_auth_file.write_text(json.dumps(cls.grpc_auths, indent=2, ensure_ascii=False), encoding="utf-8")
+
+    @classmethod
+    def get_cookies(cls) -> Dict[str, Any]:
+        if auths := cls.grpc_auths.copy():
+            random.shuffle(auths)
+            for auth in auths:
+                if auth.cookies:
+                    return auth.cookies
+        logger.warning("没有可用的 bilibili cookies，请求可能风控")
+        return {}
+
+    @classmethod
+    def get_auth(cls)->Union[Auth, None]:
+        return random.choice(cls.grpc_auths) if cls.grpc_auths else None
+
+    @classmethod
+    def add_auth(cls, auth: Auth) -> None:
+        for old_auth in cls.grpc_auths:
+            if old_auth.uid == auth.uid:
+                cls.grpc_auths.remove(old_auth)
+                break
+        cls.grpc_auths.append(auth)
+        cls.dump_grpc_auths()
+
+    @classmethod
+    def remove_auth(cls, uid: int) -> Union[str, None]:
+        for old_auth in cls.grpc_auths:
+            if old_auth.uid == uid:
+                cls.grpc_auths.remove(old_auth)
+                cls.dump_grpc_auths()
+                return
+        logger.warning(f"没有找到 uid 为 {uid} 的 bilibili auth")
+        return f"没有找到 uid 为 {uid} 的 bilibili auth"
 
 
-browser_cookies: Dict = {}
-if plugin_config.bilichat_bilibili_cookie:
-    browser_cookies_file = Path(plugin_config.bilichat_bilibili_cookie)
-else:
-    browser_cookies_file = cache_dir.joinpath("bilibili_browser_cookies.json")
-
-
-def load_browser_cookies():
-    global browser_cookies
-    try:
-        browser_cookies = json.loads(browser_cookies_file.read_bytes())
-        if isinstance(browser_cookies, list):
-            browser_cookies = {cookie["name"]: cookie["value"] for cookie in browser_cookies}
-            dump_browser_cookies()
-    except Exception:
-        browser_cookies = {}
-
-
-def dump_browser_cookies():
-    browser_cookies_file.write_text(json.dumps(browser_cookies, ensure_ascii=False, indent=2))
-
-
-def get_cookies() -> Dict[str, Any]:
-    if gRPC_Auth:
-        return gRPC_Auth.cookies
-    if browser_cookies:
-        return browser_cookies
-    return {}
-
-
-load_browser_cookies()
-get_driver().on_startup(login_from_cache)
+get_driver().on_startup(AuthManager.load_grpc_auths)

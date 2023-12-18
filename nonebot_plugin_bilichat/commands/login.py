@@ -1,26 +1,56 @@
-import json
+import time
+from asyncio import Lock
 from typing import Optional
 
 from bilireq.login import Login
-from nonebot.adapters import Message
 from nonebot.log import logger
-from nonebot.matcher import Matcher
-from nonebot.params import ArgPlainText, CommandArg
+from nonebot.params import CommandArg, Depends
 from nonebot.permission import SUPERUSER
-from nonebot.typing import T_State
 from nonebot_plugin_saa import Image, MessageFactory
 
-from ..lib.bilibili_request.auth import bili_grpc_auth, gRPC_Auth, login_from_cache
-from ..subscribe import LOCK
-from .base import bilichat
+from ..lib.bilibili_request.auth import AuthManager
+from ..lib.tools import calc_time_total
+from .base import bilichat, check_lock
 
-bili_login_sms = bilichat.command(
-    "smslogin",
-    aliases={
-        "验证码登录",
-    },
+# bili_login_sms = bilichat.command(
+#     "smslogin",
+#     aliases={
+#         "验证码登录",
+#     },
+#     permission=SUPERUSER,
+# )
+
+
+# @bili_login_sms.got("username", prompt="请输入B站账号(电话号码)")
+# async def bili_send_sms(state: T_State, username: str = ArgPlainText()):
+#     login = Login()
+#     state["_username_"] = username
+#     state["_login_"] = login
+#     try:
+#         state["_captcha_key_"] = await login.send_sms(username)
+#     except Exception as e:
+#         await bili_login_sms.finish(f"无法发送验证码: {e}")
+#
+#
+# @bili_login_sms.got("sms", prompt="验证码已发送，请在120秒内输入验证码")
+# async def bili_handle_login(state: T_State, sms: str = ArgPlainText()):
+#     login: Login = state["_login_"]
+#     try:
+#         auth = await login.sms_login(code=sms, tel=state["_username_"], cid=86, captcha_key=state["_captcha_key_"])
+#         assert auth, "登录失败，返回数据为空"
+#         logger.debug(auth.data)
+#         AuthManager.grpc_auths.append(auth)
+#         AuthManager.dump_grpc_auths()
+#     except Exception as e:
+#         await bili_login_sms.finish(f"登录失败: {e}")
+#     await bili_login_sms.finish("登录成功，已将验证信息缓存至文件")
+
+bili_check_login = bilichat.command(
+    "checklogin",
+    aliases={"登录"},
     permission=SUPERUSER,
 )
+
 
 bili_login_qrcode = bilichat.command(
     "qrlogin",
@@ -29,61 +59,53 @@ bili_login_qrcode = bilichat.command(
     },
     permission=SUPERUSER,
 )
+bili_logout = bilichat.command(
+    "logout",
+    aliases={
+        "登出",
+    },
+    permission=SUPERUSER,
+)
+
+
+@bili_check_login.handle()
+async def bili_login_handle():
+    await bili_check_login.finish(
+        "\n----------\n".join(
+            [
+                (
+                    f"账号uid: {auth.uid}\n"
+                    f"token有效期: {calc_time_total(auth.tokens_expired-int(time.time()))}\n"
+                    f"cookie有效期: {calc_time_total(auth.cookies_expired-int(time.time()))}"
+                )
+                for auth in AuthManager.grpc_auths
+            ]
+        )
+    )
 
 
 @bili_login_qrcode.handle()
-@bili_login_sms.handle()
-async def bili_login_from_cache(
-    matcher: Matcher,
-    msg: Optional[Message] = CommandArg(),
-):
-    if LOCK.locked():
-        await matcher.finish("正在刷取动态/直播呢，稍等几秒再试吧\n`(*>﹏<*)′")
-    if msg and msg.extract_plain_text().strip() in ["-f", "force", "强制登录", "强制"]:
-        logger.info("skip login verify, force login")
-        return
-    logger.info("try verify login")
-    if await login_from_cache():
-        await matcher.finish(f"账号 uid:{gRPC_Auth.uid} 已登录")
-    else:
-        await matcher.send("当前登录已失效，尝试重新登陆")
+async def bili_qrcode_login(lock: Lock = Depends(check_lock)):
+    async with lock:
+        login = Login()
+        qr_url = await login.get_qrcode_url()
+        logger.debug(f"qrcode login url: {qr_url}")
+        data = "base64://" + await login.get_qrcode(qr_url, base64=True)  # type: ignore
+        await MessageFactory(Image(data)).send()
+        try:
+            auth = await login.qrcode_login(interval=5)
+            assert auth, "登录失败，返回数据为空"
+            logger.debug(auth.data)
+            AuthManager.grpc_auths.append(auth)
+            AuthManager.dump_grpc_auths()
+        except Exception as e:
+            await bili_login_qrcode.finish(f"登录失败: {e}")
+        await bili_login_qrcode.finish("登录成功，已将验证信息缓存至文件")
 
 
-@bili_login_sms.got("username", prompt="请输入B站账号(电话号码)")
-async def bili_send_sms(state: T_State, username: str = ArgPlainText()):
-    login = Login()
-    state["_username_"] = username
-    state["_login_"] = login
-    try:
-        state["_captcha_key_"] = await login.send_sms(username)
-    except Exception as e:
-        await bili_login_sms.finish(f"无法发送验证码: {e}")
-
-
-@bili_login_sms.got("sms", prompt="验证码已发送，请在120秒内输入验证码")
-async def bili_handle_login(state: T_State, sms: str = ArgPlainText()):
-    global gRPC_Auth
-    login: Login = state["_login_"]
-    try:
-        gRPC_Auth = await login.sms_login(code=sms, tel=state["_username_"], cid=86, captcha_key=state["_captcha_key_"])
-        logger.debug(gRPC_Auth.data)
-        bili_grpc_auth.write_text(json.dumps(gRPC_Auth.data, indent=2, ensure_ascii=False), encoding="utf-8")
-    except Exception as e:
-        await bili_login_sms.finish(f"登录失败: {e}")
-    await bili_login_sms.finish("登录成功，已将验证信息缓存至文件")
-
-
-@bili_login_qrcode.handle()
-async def bili_qrcode_login():
-    login = Login()
-    qr_url = await login.get_qrcode_url()
-    logger.debug(f"qrcode login url: {qr_url}")
-    data = "base64://" + await login.get_qrcode(qr_url, base64=True)  # type: ignore
-    await MessageFactory(Image(data)).send()
-    try:
-        gRPC_Auth.update(await login.qrcode_login(interval=5))  # type: ignore
-        logger.debug(gRPC_Auth.data)
-        bili_grpc_auth.write_text(json.dumps(gRPC_Auth.data, indent=2, ensure_ascii=False), encoding="utf-8")
-    except Exception as e:
-        await bili_login_qrcode.finish(f"登录失败: {e}")
-    await bili_login_qrcode.finish("登录成功，已将验证信息缓存至文件")
+@bili_logout.handle()
+async def bili_logout_handle(lock: Lock = Depends(check_lock), uid: int = CommandArg()):
+    async with lock:
+        if msg := AuthManager.remove_auth(uid):
+            await bili_logout.finish(msg)
+        await bili_logout.finish(f"账号 {uid} 已退出登录")

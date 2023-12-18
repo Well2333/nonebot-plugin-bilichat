@@ -1,15 +1,14 @@
+from asyncio import Lock
 from typing import Optional
 
 from nonebot.adapters import Message
-from nonebot.exception import FinishedException
 from nonebot.params import CommandArg, Depends
 from nonebot.permission import SUPERUSER
 
 from ..config import plugin_config
 from ..lib.uid_extract import uid_extract
-from ..subscribe import LOCK
 from ..subscribe.manager import SubscriptionSystem, Uploader, User, UserSubConfig
-from .base import bilichat, get_user
+from .base import bilichat, check_lock, get_user
 
 bili_add_sub = bilichat.command("sub", permission=SUPERUSER, aliases=set(plugin_config.bilichat_cmd_add_sub))
 bili_remove_sub = bilichat.command("unsub", permission=SUPERUSER, aliases=set(plugin_config.bilichat_cmd_remove_sub))
@@ -18,8 +17,8 @@ bili_reset_sub = bilichat.command("reset", permission=SUPERUSER, aliases=set(plu
 
 
 @bili_add_sub.handle()
-async def add_sub(uid: Message = CommandArg(), user: User = Depends(get_user)):
-    async with LOCK:
+async def add_sub(uid: Message = CommandArg(), user: User = Depends(get_user), lock: Lock = Depends(check_lock)):
+    async with lock:
         # 获取 UP 对象
         if not uid:
             await bili_add_sub.finish("请输入UP主的昵称呢\n`(*>﹏<*)′")
@@ -33,8 +32,8 @@ async def add_sub(uid: Message = CommandArg(), user: User = Depends(get_user)):
 
 
 @bili_remove_sub.handle()
-async def remove_sub(msg: Message = CommandArg(), user: User = Depends(get_user)):
-    async with LOCK:
+async def remove_sub(msg: Message = CommandArg(), user: User = Depends(get_user), lock: Lock = Depends(check_lock)):
+    async with lock:
         # 获取 UP 对象
         if not msg:
             await bili_add_sub.finish("请输入UP主的昵称或 UID 呢\n`(*>﹏<*)′")
@@ -52,10 +51,9 @@ async def remove_sub(msg: Message = CommandArg(), user: User = Depends(get_user)
 
 @bili_check_sub.handle()
 async def check_sub(
-    user: User = Depends(get_user),
-    msg: Optional[Message] = CommandArg(),
+    user: User = Depends(get_user), msg: Optional[Message] = CommandArg(), lock: Lock = Depends(check_lock)
 ):
-    async with LOCK:
+    async with lock:
         if not user.subscriptions:
             await bili_check_sub.finish("本群并未订阅任何UP主呢...\n`(*>﹏<*)′")
         # 查看本群的订阅
@@ -90,10 +88,9 @@ async def check_sub(
 
 @bili_reset_sub.handle()
 async def reset_sub(
-    user: User = Depends(get_user),
-    msg: Optional[Message] = CommandArg(),
+    user: User = Depends(get_user), msg: Optional[Message] = CommandArg(), lock: Lock = Depends(check_lock)
 ):
-    async with LOCK:
+    async with lock:
         if not msg:
             await bili_reset_sub.finish("请输入UP主的昵称或 UID 呢\n`(*>﹏<*)′")
         keyword = msg.extract_plain_text().lower()

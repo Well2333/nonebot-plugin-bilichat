@@ -14,6 +14,6 @@ class MongoCache(Document,BaseCache):
     async def load(cls, id: str, **kwargs) -> "MongoCache":
         if cache := await cls.get(id):
             return cache
-        if cache := await cls.insert_one(MongoCache(_id=id)):
+        if cache := await cls.insert_one(cls(_id=id)):
             return cache
         raise RuntimeError(f"Unable to insert cache {cache}")

@@ -6,8 +6,7 @@ from nonebot_plugin_htmlrender.browser import get_browser
 from playwright.async_api import Page, Request, Route
 from yarl import URL
 
-from ..config import plugin_config
-from .bilibili_request.auth import get_cookies, gRPC_Auth
+from .bilibili_request.auth import AuthManager
 from .fonts_provider import get_font
 from .store import static_dir
 
@@ -49,7 +48,7 @@ async def get_new_page(device_scale_factor: float = 2, mobile_style: bool = Fals
             "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Mobile Safari/537.36  uacq"
         )
     page = await browser.new_page(device_scale_factor=device_scale_factor, **kwargs)
-    if gRPC_Auth:
+    if cookies := AuthManager.get_cookies():
         logger.debug("正在为浏览器添加cookies")
         await page.context.add_cookies(  # type: ignore
             [
@@ -59,7 +58,7 @@ async def get_new_page(device_scale_factor: float = 2, mobile_style: bool = Fals
                     "path": "/",
                     "value": value,
                 }
-                for name, value in get_cookies().items()
+                for name, value in cookies
             ]
         )
     try:

@@ -1,8 +1,27 @@
 import datetime
 import re
+from typing import Union
 
 
-def calc_time_total(t):
+def calc_time_total(t: Union[float, int]):
+    """
+    Calculate the total time in a human-readable format.
+
+    Args:
+        t (float | int): The time in seconds.
+
+    Returns:
+        str: The total time in a human-readable format.
+
+    Example:
+        >>> calc_time_total(4.5)
+        '4500 毫秒'
+        >>> calc_time_total(3600)
+        '1 小时'
+        >>> calc_time_total(3660)
+        '1 小时 1 分钟'
+
+    """
     t = int(t * 1000)
     if t < 5000:
         return f"{t} 毫秒"

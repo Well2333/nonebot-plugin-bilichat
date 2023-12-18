@@ -12,13 +12,13 @@ from httpx import TimeoutException
 from nonebot.log import logger
 
 from ..adapters.base_content_parsing import check_cd
-from ..config import plugin_config
 from ..content.dynamic import Dynamic
 from ..lib.bilibili_request import get_b23_url, get_user_dynamics
-from ..lib.bilibili_request.auth import gRPC_Auth
+from ..lib.bilibili_request.auth import AuthManager
 from ..lib.uid_extract import SearchUp
 from ..model.exception import AbortError
 from ..optional import capture_exception
+from ..subscribe.manager import SubscriptionSystem
 
 DYNAMIC_TYPE_MAP = {
     "DYNAMIC_TYPE_FORWARD": DynamicType.forward,
@@ -42,7 +42,7 @@ DYNAMIC_TYPE_IGNORE = {
 
 
 async def fetch_last_dynamic(up: SearchUp) -> Union[Dynamic, None]:
-    if plugin_config.bilichat_dynamic_grpc:
+    if SubscriptionSystem.config.dynamic_grpc:
         try:
             return await _fetch_grpc(up.mid, up.nickname)
         except AbortError:
@@ -80,7 +80,7 @@ async def _fetch_rest(up_mid: int, up_name: str) -> Union[Dynamic, None]:
 
 async def _fetch_grpc(up_mid: int, up_name: str) -> Union[Dynamic, None]:
     try:
-        resp = await asyncio.wait_for(grpc_get_user_dynamics(up_mid, auth=gRPC_Auth), timeout=10)
+        resp = await asyncio.wait_for(grpc_get_user_dynamics(up_mid, auth=AuthManager.get_auth()), timeout=10)
     except asyncio.TimeoutError:
         logger.error(f"[Dynamic] fetch {up_name}({up_mid}) timeout")
         raise AbortError("Dynamic Abort")

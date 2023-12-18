@@ -8,7 +8,7 @@ from nonebot.log import logger
 from pydantic import BaseModel
 
 from ..lib.bilibili_request import get_b23_url, get_dynamic
-from ..lib.bilibili_request.auth import gRPC_Auth
+from ..lib.bilibili_request.auth import AuthManager
 from ..lib.draw.dynamic import draw_dynamic
 from ..model.exception import AbortError
 from ..optional import capture_exception
@@ -31,7 +31,7 @@ class Dynamic(BaseModel):
 
     async def _grpc(self):
         logger.debug("正在使用 gRPC 获取动态信息")
-        _dyn = await grpc_get_dynamic_detail(dynamic_id=self.id, auth=gRPC_Auth)
+        _dyn = await grpc_get_dynamic_detail(dynamic_id=self.id, auth=AuthManager.get_auth())
         dyn = _dyn.item
         self.raw = MessageToDict(dyn)
         self.raw_type = "grpc"
