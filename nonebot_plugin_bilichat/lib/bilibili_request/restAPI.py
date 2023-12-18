@@ -1,7 +1,7 @@
 from bilireq.utils import DEFAULT_HEADERS, get, post
 from nonebot.log import logger
 
-from .auth import get_cookies, gRPC_Auth
+from .auth import AuthManager
 
 
 async def get_b23_url(burl: str) -> str:
@@ -36,7 +36,7 @@ async def get_user_space_info(uid: int):
         "build": 6840300,
         "ps": 1,
     }
-    return await get(url, params=params, cookies=get_cookies())
+    return await get(url, params=params, cookies=AuthManager.get_cookies())
 
 
 async def get_player(aid: int, cid: int):
@@ -48,7 +48,7 @@ async def get_player(aid: int, cid: int):
         "aid": aid,
         "cid": cid,
     }
-    return await get(url, params=params, cookies=get_cookies())
+    return await get(url, params=params, cookies=AuthManager.get_cookies())
 
 
 async def get_dynamic(dyn_id: str):
@@ -63,7 +63,7 @@ async def get_dynamic(dyn_id: str):
             "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36 uacq"
         ),
     }
-    return await get(url=url, headers=headers, cookies=get_cookies())
+    return await get(url=url, headers=headers, cookies=AuthManager.get_cookies())
 
 
 async def search_user(keyword: str):
@@ -73,7 +73,7 @@ async def search_user(keyword: str):
     url = "https://app.bilibili.com/x/v2/search/type"
     data = {"build": "6840300", "keyword": keyword, "type": "2", "ps": 5}
 
-    return await get(url, params=data, cookies=get_cookies())
+    return await get(url, params=data, cookies=AuthManager.get_cookies())
 
 
 async def get_user_dynamics(uid: int):
@@ -91,4 +91,4 @@ async def get_user_dynamics(uid: int):
             "Referer": f"https://space.bilibili.com/{uid}/dynamic",
         },
     }
-    return await get(url, params=data, headers=headers, cookies=get_cookies())
+    return await get(url, params=data, headers=headers, cookies=AuthManager.get_cookies())

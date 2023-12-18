@@ -1,11 +1,12 @@
+from asyncio import Lock
+
 from nonebot.adapters import Message
 from nonebot.params import CommandArg, Depends
 from nonebot.permission import SUPERUSER
 
 from ..config import plugin_config
-from ..subscribe import LOCK
 from ..subscribe.manager import SubscriptionSystem, User, UserSubConfig
-from .base import bilichat, get_user
+from .base import bilichat, check_lock, get_user
 
 bili_at_all = bilichat.command("atall", permission=SUPERUSER, aliases=set(plugin_config.bilichat_cmd_at_all))
 bili_dynamic = bilichat.command("dynamic", permission=SUPERUSER, aliases=set(plugin_config.bilichat_cmd_dynamic))
@@ -13,11 +14,8 @@ bili_live = bilichat.command("live", permission=SUPERUSER, aliases=set(plugin_co
 
 
 @bili_at_all.handle()
-async def at_all(
-    user: User = Depends(get_user),
-    msg: Message = CommandArg(),
-):
-    async with LOCK:
+async def at_all(user: User = Depends(get_user), msg: Message = CommandArg(), lock: Lock = Depends(check_lock)):
+    async with lock:
         keyword = msg.extract_plain_text().lower().strip()
         if keyword in ("全局", "全体", "all"):
             if user.at_all:
@@ -52,11 +50,8 @@ async def at_all(
 
 
 @bili_dynamic.handle()
-async def dynamic(
-    user: User = Depends(get_user),
-    msg: Message = CommandArg(),
-):
-    async with LOCK:
+async def dynamic(user: User = Depends(get_user), msg: Message = CommandArg(), lock: Lock = Depends(check_lock)):
+    async with lock:
         keyword = msg.extract_plain_text().lower().strip()
         re_msg = "未找到该 UP 主呢\n`(*>﹏<*)′"
         for up in SubscriptionSystem.uploaders.values():
@@ -79,11 +74,8 @@ async def dynamic(
 
 
 @bili_live.handle()
-async def live(
-    user: User = Depends(get_user),
-    msg: Message = CommandArg(),
-):
-    async with LOCK:
+async def live(user: User = Depends(get_user), msg: Message = CommandArg(), lock: Lock = Depends(check_lock)):
+    async with lock:
         keyword = msg.extract_plain_text().lower().strip()
         re_msg = "未找到该 UP 主呢\n`(*>﹏<*)′"
         for up in SubscriptionSystem.uploaders.values():
