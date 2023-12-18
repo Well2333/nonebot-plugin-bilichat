@@ -1,4 +1,6 @@
 import asyncio
+import threading
+from queue import Queue
 from typing import Union
 
 from nonebot.log import logger
@@ -40,11 +42,21 @@ async def uid_extract(text: str) -> Union[str, SearchUp]:
 
 
 def uid_extract_sync(text: str) -> Union[str, SearchUp]:
-    try:
-        loop = asyncio.get_event_loop()
-        if loop.is_closed():
-            raise RuntimeError
-    except RuntimeError:
+    # 创建一个队列用于从线程中获取结果
+    queue = Queue()
+
+    # 定义一个运行异步函数并将结果放入队列的函数
+    def run_and_store_result():
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-    return loop.run_until_complete(uid_extract(text))
+        result = loop.run_until_complete(uid_extract(text))
+        queue.put(result)
+        loop.close()
+
+    # 创建并启动线程
+    thread = threading.Thread(target=run_and_store_result)
+    thread.start()
+    thread.join()
+
+    # 从队列中获取返回结果
+    return queue.get()

@@ -1,7 +1,6 @@
 import asyncio
 import json
 import time
-from dataclasses import field
 from typing import Any, Dict, List, Optional, Union
 
 from nonebot import get_driver
@@ -48,10 +47,6 @@ class Uploader(BaseModel):
             if isinstance(up, str):
                 raise ValueError(f"未找到 uid 为 {self.uid} 的 UP")
             self.nickname = up.nickname
-        # 获取较大值的 living 与 dyn_offset
-        if up := SubscriptionSystem.uploaders.get(values["uid"]):
-            self.living = max(self.living, up.living)
-            self.dyn_offset = max(self.dyn_offset, up.dyn_offset)
 
     @property
     def subscribed_users(self) -> List["User"]:
@@ -291,7 +286,7 @@ class SubscriptionSystem:
     def load(cls, data: Dict[str, Union[Dict[str, Any], List[Dict[str, Any]]]]):
         raw_cfg = SubscriptionCfgFile.parse_obj(data)
         cls.config = raw_cfg.config
-        cls.uploaders = {up.uid: up for up in raw_cfg.uploaders}
+        cls.uploaders.update({up.uid: up for up in raw_cfg.uploaders})
         cls.users = {f"{u.platform}-_-{u.user_id}": u for u in raw_cfg.users}
 
         # 清理无订阅的UP
