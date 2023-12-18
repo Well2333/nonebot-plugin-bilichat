@@ -1,3 +1,4 @@
+import asyncio
 from typing import Union
 
 from nonebot.log import logger
@@ -36,3 +37,14 @@ async def uid_extract(text: str) -> Union[str, SearchUp]:
     if isinstance(up, str) and text_u.isdigit():
         up = await search("UID: " + text_u)
     return up
+
+
+def uid_extract_sync(text: str) -> Union[str, SearchUp]:
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_closed():
+            raise RuntimeError
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+    return loop.run_until_complete(uid_extract(text))
