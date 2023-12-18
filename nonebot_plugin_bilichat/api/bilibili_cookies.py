@@ -35,7 +35,8 @@ async def add_auth(raw_auth: Dict):
 
 @app.delete("/bili_grpc_auth")
 async def remove_auth(uid: int):
-    AuthManager.remove_auth(uid)
+    if msg := AuthManager.remove_auth(uid):
+        raise HTTPException(status_code=404, detail=msg)
     return Response(status_code=204)
 
 

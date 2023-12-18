@@ -50,6 +50,9 @@ class Config(BaseModel):
     bilichat_cmd_dynamic: List[str] = ["动态通知", "动态订阅"]
     bilichat_cmd_live: List[str] = ["直播通知", "直播订阅"]
     bilichat_cmd_checkdynamic: List[str] = ["查看动态"]
+    bilichat_cmd_check_login: List[str] = ["查看登录账号"]
+    bilichat_cmd_login_qrcode: List[str] = ["扫码登录"]
+    bilichat_cmd_logout: List[str] = ["登出账号"]
 
     # basic info
     bilichat_basic_info: bool = True

@@ -1,13 +1,14 @@
 import time
 from asyncio import Lock
-from typing import Optional
 
 from bilireq.login import Login
+from nonebot.adapters import Message
 from nonebot.log import logger
 from nonebot.params import CommandArg, Depends
 from nonebot.permission import SUPERUSER
 from nonebot_plugin_saa import Image, MessageFactory
 
+from ..config import plugin_config
 from ..lib.bilibili_request.auth import AuthManager
 from ..lib.tools import calc_time_total
 from .base import bilichat, check_lock
@@ -47,23 +48,19 @@ from .base import bilichat, check_lock
 
 bili_check_login = bilichat.command(
     "checklogin",
-    aliases={"登录"},
+    aliases=set(plugin_config.bilichat_cmd_check_login),
     permission=SUPERUSER,
 )
 
 
 bili_login_qrcode = bilichat.command(
     "qrlogin",
-    aliases={
-        "二维码登录",
-    },
+    aliases=set(plugin_config.bilichat_cmd_login_qrcode),
     permission=SUPERUSER,
 )
 bili_logout = bilichat.command(
     "logout",
-    aliases={
-        "登出",
-    },
+    aliases=set(plugin_config.bilichat_cmd_logout),
     permission=SUPERUSER,
 )
 
@@ -96,7 +93,7 @@ async def bili_qrcode_login(lock: Lock = Depends(check_lock)):
             auth = await login.qrcode_login(interval=5)
             assert auth, "登录失败，返回数据为空"
             logger.debug(auth.data)
-            AuthManager.grpc_auths.append(auth)
+            AuthManager.add_auth(auth)
             AuthManager.dump_grpc_auths()
         except Exception as e:
             await bili_login_qrcode.finish(f"登录失败: {e}")
@@ -104,8 +101,10 @@ async def bili_qrcode_login(lock: Lock = Depends(check_lock)):
 
 
 @bili_logout.handle()
-async def bili_logout_handle(lock: Lock = Depends(check_lock), uid: int = CommandArg()):
+async def bili_logout_handle(lock: Lock = Depends(check_lock), uid: Message = CommandArg()):
     async with lock:
-        if msg := AuthManager.remove_auth(uid):
+        if not uid.extract_plain_text().isdigit():
+            await bili_logout.finish("请输入正确的uid")
+        if msg := AuthManager.remove_auth(int(uid.extract_plain_text())):
             await bili_logout.finish(msg)
         await bili_logout.finish(f"账号 {uid} 已退出登录")

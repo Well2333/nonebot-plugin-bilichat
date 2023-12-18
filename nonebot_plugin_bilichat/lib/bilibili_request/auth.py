@@ -66,8 +66,8 @@ class AuthManager:
                 cls.grpc_auths.remove(old_auth)
                 cls.dump_grpc_auths()
                 return
-        logger.warning(f"没有找到 uid 为 {uid} 的 bilibili auth")
-        return f"没有找到 uid 为 {uid} 的 bilibili auth"
+        logger.warning(f"没有找到 uid 为 {uid} 的账号")
+        return f"没有找到 uid 为 {uid} 的账号"
 
 
 get_driver().on_startup(AuthManager.load_grpc_auths)

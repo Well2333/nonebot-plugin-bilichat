@@ -207,6 +207,9 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 |   bilichat_cmd_dynamic    | List[str] | ["动态通知", "动态订阅"] |    "dynamic"命令的别名    |
 |     bilichat_cmd_live     | List[str] | ["直播通知", "直播订阅"] |     "live"命令的别名      |
 | bilichat_cmd_checkdynamic | List[str] |       ["查看动态"]       | "checkdynamic" 命令的别名 |
+| bilichat_cmd_check_login  | List[str] |     ["查看登录账号"]     |  "checklogin" 命令的别名  |
+| bilichat_cmd_login_qrcode | List[str] |       ["扫码登录"]       |   "qrlogin" 命令的别名    |
+|    bilichat_cmd_logout    | List[str] |       ["登出账号"]       |    "logout" 命令的别名    |
 
 ### 基础信息配置项
 
@@ -327,16 +330,17 @@ bilichat_cmd_start=""
 
 |     指令     |  权限  |  范围  |                  参数                  |                   说明                   |
 | :----------: | :----: | :----: | :------------------------------------: | :--------------------------------------: |
-|   smslogin   |  主人  | 无限制 |                   无                   |      使用验证码登录 B 站，防止风控       |
-|   qrlogin    |  主人  | 无限制 |                   无                   |      使用二维码登录 B 站，防止风控       |
 |     sub      |  主人  |  群聊  |           UP 主的昵称或 UID            |                 添加订阅                 |
 |    unsub     |  主人  |  群聊  |      UP 主的昵称或 UID，或 `all`       |         移除订阅，all 时为全移除         |
 |    check     | 无限制 |  群聊  |       UP 主的昵称或 UID，或留空        |    查看本群订阅列表或指定 UP 主的配置    |
 |    reset     |  主人  |  群聊  |      UP 主的昵称或 UID，或 `all`       | 重置指定 UP 主的推送配置，all 时为全重置 |
-|    atall     |  主人  |  群聊  | UP 主的昵称或 UID `全局` `动态` `直播` |    设置是否 at 全体成员，仅 OB11 有效    |
+|    atall     |  主人  |  群聊  | UP 主的昵称或 UID `全局` `动态` `直播` |           设置是否 at 全体成员           |
 |   dynamic    |  主人  |  群聊  |           UP 主的昵称或 UID            |         是否开启该 UP 的动态通知         |
 |     live     |  主人  |  群聊  |           UP 主的昵称或 UID            |         是否开启该 UP 的直播通知         |
 | checkdynamic | 无限制 | 无限制 |           UP 主的昵称或 UID            |       查看指定 UP 主的最新一条动态       |
+|  checklogin  |  主人  | 无限制 |                   无                   |         查看当前已登录的全部账号         |
+|   qrlogin    |  主人  | 无限制 |                   无                   |      使用二维码登录 B 站，防止风控       |
+|    logout    |  主人  | 无限制 |               账号的 UID               |              登出指定的账号              |
 
 ## 🙏 感谢
 
