@@ -32,7 +32,9 @@ class AuthManager:
 
     @classmethod
     def dump_grpc_auths(cls):
-        bili_grpc_auth_file.write_text(json.dumps(cls.grpc_auths, indent=2, ensure_ascii=False), encoding="utf-8")
+        bili_grpc_auth_file.write_text(
+            json.dumps([auth.data for auth in cls.grpc_auths], indent=2, ensure_ascii=False), encoding="utf-8"
+        )
 
     @classmethod
     def get_cookies(cls) -> Dict[str, Any]:
@@ -45,7 +47,7 @@ class AuthManager:
         return {}
 
     @classmethod
-    def get_auth(cls)->Union[Auth, None]:
+    def get_auth(cls) -> Union[Auth, None]:
         return random.choice(cls.grpc_auths) if cls.grpc_auths else None
 
     @classmethod
