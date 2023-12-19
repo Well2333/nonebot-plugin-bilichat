@@ -62,9 +62,8 @@ async def check_sub(
             ups_prompt = []
             for index, up in enumerate(ups):
                 text = f"{index+1}."
-                cfg = UserSubConfig(uid=up.uid)
-                cfg.update(user.subscriptions.get(up.uid, {}))  # type: ignore
-                if cfg.is_defualt_val():
+                cfg = user.subscriptions.get(up.uid, UserSubConfig(uid=up.uid))
+                if not cfg.is_defualt_val():
                     text += "⚙️"
                 text += f" {str(up)}"
                 ups_prompt.append(text)

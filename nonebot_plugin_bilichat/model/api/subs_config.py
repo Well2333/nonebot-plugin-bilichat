@@ -40,15 +40,10 @@ class User(BaseModel):
 
 class Uploader(BaseModel):
     uid: int
-    nickname: Literal[""] = ""
+    nickname: str = ""
 
     class Config:
         extra = Extra.ignore
-
-    @validator("nickname", pre=True, always=True)
-    def remove_nickname(cls, v):
-        # 移除由 API 传入的昵称，此目的为后续触发 UID 的校验
-        return ""
 
 
 class Subs(BaseModel):
