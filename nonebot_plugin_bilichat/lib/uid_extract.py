@@ -1,6 +1,5 @@
 import asyncio
-import threading
-from queue import Queue
+from concurrent.futures import ThreadPoolExecutor
 from typing import List, Union
 
 from nonebot.log import logger
@@ -41,22 +40,20 @@ async def uid_extract(text: str) -> Union[str, SearchUp]:
     return up
 
 
-def uid_extract_sync(text: str) -> Union[str, SearchUp]:
-    # 创建一个队列用于从线程中获取结果
-    queue = Queue()
-
-    # 定义一个运行异步函数并将结果放入队列的函数
-    def run_and_store_result():
+def run_async_in_thread(func, *args):
+    # 在新线程中运行异步函数
+    async def thread_func():
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        result = loop.run_until_complete(uid_extract(text))
-        queue.put(result)
-        loop.close()
+        try:
+            return await func(*args)
+        finally:
+            loop.close()  # 关闭事件循环
 
-    # 创建并启动线程
-    thread = threading.Thread(target=run_and_store_result)
-    thread.start()
-    thread.join()
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(asyncio.run, thread_func())
+        return future.result()
 
-    # 从队列中获取返回结果
-    return queue.get()
+def uid_extract_sync(text: str) -> Union[str, SearchUp]:
+    # 调用 run_async_in_thread 来运行异步函数并获取结果
+    return run_async_in_thread(uid_extract, text)
