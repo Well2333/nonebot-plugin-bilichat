@@ -1,7 +1,7 @@
-from typing import List
+from typing import List, Literal
 
 from nonebot_plugin_saa.utils.const import SupportedPlatform
-from pydantic import BaseModel, Extra, Field
+from pydantic import BaseModel, Extra, Field, validator
 
 from . import Response
 
@@ -40,10 +40,15 @@ class User(BaseModel):
 
 class Uploader(BaseModel):
     uid: int
-    nickname: str
+    nickname: Literal[""] = ""
 
     class Config:
         extra = Extra.ignore
+
+    @validator("nickname", pre=True, always=True)
+    def remove_nickname(cls, v):
+        # 移除由 API 传入的昵称，此目的为后续触发 UID 的校验
+        return ""
 
 
 class Subs(BaseModel):
