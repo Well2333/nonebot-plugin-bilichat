@@ -3,7 +3,6 @@ import asyncio
 from nonebot.log import logger
 from nonebot_plugin_apscheduler import scheduler
 
-from ..config import plugin_config
 from ..model.exception import AbortError
 from ..optional import capture_exception
 from .dynamic import fetch_dynamics_grpc, fetch_dynamics_rest

@@ -1,7 +1,7 @@
 import asyncio
 import threading
 from queue import Queue
-from typing import Union
+from typing import List, Union
 
 from nonebot.log import logger
 from pydantic import BaseModel, Extra, Field
@@ -18,7 +18,7 @@ class SearchUp(BaseModel, extra=Extra.ignore):
 
 
 class SearchResult(BaseModel, extra=Extra.ignore):
-    items: list[SearchUp] = []
+    items: List[SearchUp] = []
 
 
 async def search(text_u: str) -> Union[str, SearchUp]:
