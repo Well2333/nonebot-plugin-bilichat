@@ -1,3 +1,4 @@
+import asyncio
 from asyncio import Lock
 
 from nonebot.matcher import Matcher
@@ -16,8 +17,8 @@ bilichat = CommandGroup(
 
 
 async def check_lock(matcher: Matcher) -> Lock:
-    if CONFIG_LOCK.locked():
-        await matcher.finish("正在刷取动态/直播呢，稍等几秒再试吧\n`(*>﹏<*)′")
+    while CONFIG_LOCK.locked():
+        await asyncio.sleep(0)
     return CONFIG_LOCK
 
 
