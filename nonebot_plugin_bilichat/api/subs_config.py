@@ -1,9 +1,10 @@
-from typing import Dict
+from typing import Union
 
 import nonebot
 from pydantic.error_wrappers import ValidationError
 
-from ..model.api import Response
+from ..model.api import FaildResponse
+from ..model.api.subs_config import Subs, SubsResponse
 from ..subscribe.manager import SubscriptionSystem
 from .base import app
 
@@ -11,16 +12,16 @@ config = nonebot.get_driver().config
 
 
 @app.get("/subs_config")
-async def get_subs() -> Response:
-    return Response(data=SubscriptionSystem.dict())
+async def get_subs() -> SubsResponse:
+    return SubsResponse(data=Subs(**SubscriptionSystem.dict()))
 
 
 @app.put("/subs_config")
-async def update_subs(data: Dict) -> Response:
+async def update_subs(data: Subs) -> Union[SubsResponse, FaildResponse]:
     try:
-        SubscriptionSystem.load(data)
-        return Response(data=SubscriptionSystem.dict())
+        SubscriptionSystem.load(data.dict())
+        return SubsResponse(data=Subs(**SubscriptionSystem.dict()))
     except (ValueError, ValidationError) as e:
-        return Response(code=422, message=str(e))
+        return FaildResponse(code=422, message=str(e))
     except Exception as e:
-        return Response(code=400, message=str(e))
+        return FaildResponse(code=400, message=str(e))

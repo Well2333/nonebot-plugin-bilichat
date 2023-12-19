@@ -4,6 +4,10 @@ from pydantic import BaseModel
 
 
 class Response(BaseModel):
-    code :int = 200
+    code: int = 0
     message: str = ""
     data: Any = {}
+
+class FaildResponse(BaseModel):
+    code: int
+    message: str
