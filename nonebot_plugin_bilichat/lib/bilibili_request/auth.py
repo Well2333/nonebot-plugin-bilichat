@@ -17,7 +17,7 @@ class AuthManager:
 
     @classmethod
     async def load_grpc_auths(cls) -> None:
-        data: Union[List[Dict], Dict] = json.loads(bili_grpc_auth_file.read_bytes()) or []
+        data: Union[List[Dict], Dict] = json.loads(bili_grpc_auth_file.read_bytes() or "[]")
         data = data if isinstance(data, list) else [data]
         cls.grpc_auths.clear()
         for raw_auth in data:
