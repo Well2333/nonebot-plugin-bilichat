@@ -3,9 +3,11 @@ import json
 import time
 from typing import Any, Dict, List, Optional, Union
 
+from apscheduler.job import Job
 from nonebot import get_driver
 from nonebot.adapters import Bot
 from nonebot.log import logger
+from nonebot_plugin_apscheduler import scheduler
 from nonebot_plugin_saa import (
     Image,
     Mention,
@@ -287,6 +289,8 @@ class SubscriptionSystem:
     @classmethod
     async def load(cls, data: Dict[str, Union[Dict[str, Any], List[Dict[str, Any]]]]):
         raw_cfg = SubscriptionCfgFile.parse_obj(data)
+        while CONFIG_LOCK.locked():
+            await asyncio.sleep(0)
         async with CONFIG_LOCK:
             cls.config = raw_cfg.config
             cls.uploaders.update({up.uid: up for up in raw_cfg.uploaders})
@@ -303,13 +307,24 @@ class SubscriptionSystem:
                     if sub not in cls.uploaders:
                         cls.uploaders[sub] = Uploader(nickname="", uid=sub)
 
+            # 更新定时任务
+            dyn_job: Job = scheduler.get_job("dynamic_update")  # type: ignore
+            dyn_job.reschedule("interval", seconds=cls.config.dynamic_interval)
+            live_job: Job = scheduler.get_job("live_update")  # type: ignore
+            live_job.reschedule("interval", seconds=cls.config.live_interval)
+
             cls.save_to_file()
             cls.refresh_activate_uploaders()
 
     @classmethod
     async def load_from_file(cls):
         """Load data from the JSON file."""
-        await cls.load(json.loads(subscribe_file.read_text() or "{}"))
+        try:
+            text = subscribe_file.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            logger.warning("subscribe.json is not UTF-8 encoded, trying to decode with system default encoding")
+            text = subscribe_file.read_text()
+        await cls.load(json.loads(text or "{}"))
 
     @classmethod
     def save_to_file(cls):
@@ -320,7 +335,8 @@ class SubscriptionSystem:
                 ensure_ascii=False,
                 indent=2,
                 sort_keys=True,
-            )
+            ),
+            encoding="utf-8",
         )
 
     @classmethod

@@ -42,13 +42,13 @@ class AuthManager:
             random.shuffle(auths)
             for auth in auths:
                 if auth.cookies:
-                    return auth.cookies
+                    return auth.cookies.copy()
         logger.warning("没有可用的 bilibili cookies，请求可能风控")
         return {}
 
     @classmethod
     def get_auth(cls) -> Union[Auth, None]:
-        return random.choice(cls.grpc_auths) if cls.grpc_auths else None
+        return random.choice(cls.grpc_auths).copy() if cls.grpc_auths else None
 
     @classmethod
     def add_auth(cls, auth: Auth) -> None:
