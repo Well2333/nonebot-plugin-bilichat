@@ -1,5 +1,6 @@
 from typing import List
 
+from nonebot_plugin_saa.utils.const import SupportedPlatform
 from pydantic import BaseModel, Extra, Field
 
 from . import Response
@@ -29,7 +30,7 @@ class UserSubConfig(BaseModel):
 
 class User(BaseModel):
     user_id: str
-    platform: str
+    platform: SupportedPlatform
     at_all: bool = False
     subscriptions: List[UserSubConfig]
 
@@ -52,6 +53,7 @@ class Subs(BaseModel):
 
     class Config:
         extra = Extra.ignore
+
 
 class SubsResponse(Response):
     data: Subs
