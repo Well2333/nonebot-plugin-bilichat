@@ -1,5 +1,3 @@
-import asyncio
-
 from nonebot.log import logger
 from nonebot_plugin_apscheduler import scheduler
 
@@ -9,45 +7,43 @@ from .dynamic import fetch_dynamics_grpc, fetch_dynamics_rest
 from .live import fetch_live
 from .manager import SubscriptionSystem
 
-LOCK = asyncio.Lock()
-
 
 @scheduler.scheduled_job(
     "interval",
     seconds=SubscriptionSystem.config.dynamic_interval,
     id="dynamic_update",
     jitter=SubscriptionSystem.config.dynamic_interval // 5,
+    max_instances=1,
 )
 async def run_dynamic_update():
-    async with LOCK:
-        if not SubscriptionSystem.activate_uploaders:
-            logger.debug("no activate uploaders to check, skip...")
-            return
-        # 动态
-        logger.debug("[Dynamic] Updating start")
-        up_groups = SubscriptionSystem.activate_uploaders.values()
-        for up in up_groups:
-            if SubscriptionSystem.config.dynamic_grpc:
-                try:
-                    logger.debug(f"[Dynamic] fetch {up.nickname}({up.uid}) by gRPC")
-                    await fetch_dynamics_grpc(up)
-                    continue
-                except AbortError:
-                    logger.error(f"[Dynamic] fetch dynamic for {up} failed.")
-                except Exception:
-                    capture_exception()
-                    logger.exception(f"[Dynamic] fetch dynamic for {up} failed.")
-
+    if not SubscriptionSystem.activate_uploaders:
+        logger.debug("no activate uploaders to check, skip...")
+        return
+    # 动态
+    logger.debug("[Dynamic] Updating start")
+    up_groups = SubscriptionSystem.activate_uploaders.copy().values()
+    for up in up_groups:
+        if SubscriptionSystem.config.dynamic_grpc:
             try:
-                logger.debug(f"[Dynamic] fetch {up.nickname}({up.uid}) by RestAPI")
-                await fetch_dynamics_rest(up)
+                logger.debug(f"[Dynamic] fetch {up.nickname}({up.uid}) by gRPC")
+                await fetch_dynamics_grpc(up)
                 continue
             except AbortError:
-                logger.error(f"[Dynamic] fetch dynamic for {up} failed, skip...")
+                logger.error(f"[Dynamic] fetch dynamic for {up} failed.")
             except Exception:
                 capture_exception()
-                logger.exception(f"[Dynamic] fetch dynamic for {up} failed, skip...")
-        logger.debug("[Dynamic] Updating finished")
+                logger.exception(f"[Dynamic] fetch dynamic for {up} failed.")
+
+        try:
+            logger.debug(f"[Dynamic] fetch {up.nickname}({up.uid}) by RestAPI")
+            await fetch_dynamics_rest(up)
+            continue
+        except AbortError:
+            logger.error(f"[Dynamic] fetch dynamic for {up} failed, skip...")
+        except Exception:
+            capture_exception()
+            logger.exception(f"[Dynamic] fetch dynamic for {up} failed, skip...")
+    logger.debug("[Dynamic] Updating finished")
 
 
 @scheduler.scheduled_job(
@@ -55,18 +51,18 @@ async def run_dynamic_update():
     seconds=SubscriptionSystem.config.live_interval,
     id="live_update",
     jitter=SubscriptionSystem.config.live_interval // 5,
+    max_instances=1,
 )
 async def run_live_update():
-    async with LOCK:
-        if not SubscriptionSystem.activate_uploaders:
-            logger.debug("no activate uploaders to check, skip...")
-            return
-        try:
-            logger.debug("[Live] Updating start")
-            await fetch_live(SubscriptionSystem.activate_uploaders)
-        except AbortError:
-            logger.error("[Live] fetch live failed.")
-        except Exception:
-            capture_exception()
-            logger.exception("[Live] fetch live failed.")
-        logger.debug("[Live] Updating finished")
+    if not SubscriptionSystem.activate_uploaders:
+        logger.debug("no activate uploaders to check, skip...")
+        return
+    try:
+        logger.debug("[Live] Updating start")
+        await fetch_live(SubscriptionSystem.activate_uploaders.copy())
+    except AbortError:
+        logger.error("[Live] fetch live failed.")
+    except Exception:
+        capture_exception()
+        logger.exception("[Live] fetch live failed.")
+    logger.debug("[Live] Updating finished")

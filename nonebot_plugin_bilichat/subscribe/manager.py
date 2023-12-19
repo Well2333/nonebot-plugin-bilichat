@@ -25,6 +25,8 @@ from ..lib.tools import calc_time_total
 from ..lib.uid_extract import uid_extract_sync
 from ..optional import capture_exception
 
+CONFIG_LOCK = asyncio.Lock()
+
 subscribe_file = data_dir.joinpath("subscribe.json")
 subscribe_file.touch(0o755, True)
 
@@ -283,30 +285,31 @@ class SubscriptionSystem:
         }
 
     @classmethod
-    def load(cls, data: Dict[str, Union[Dict[str, Any], List[Dict[str, Any]]]]):
+    async def load(cls, data: Dict[str, Union[Dict[str, Any], List[Dict[str, Any]]]]):
         raw_cfg = SubscriptionCfgFile.parse_obj(data)
-        cls.config = raw_cfg.config
-        cls.uploaders.update({up.uid: up for up in raw_cfg.uploaders})
-        cls.users = {f"{u.platform}-_-{u.user_id}": u for u in raw_cfg.users}
+        async with CONFIG_LOCK:
+            cls.config = raw_cfg.config
+            cls.uploaders.update({up.uid: up for up in raw_cfg.uploaders})
+            cls.users = {f"{u.platform}-_-{u.user_id}": u for u in raw_cfg.users}
 
-        # 清理无订阅的UP
-        for uploader in cls.uploaders.values():
-            if not uploader.subscribed_users:
-                del SubscriptionSystem.uploaders[uploader.uid]
+            # 清理无订阅的UP
+            for uploader in cls.uploaders.copy().values():
+                if not uploader.subscribed_users:
+                    del SubscriptionSystem.uploaders[uploader.uid]
 
-        # 添加缺失的UP
-        for user in cls.users.values():
-            for sub in user.subscriptions.keys():
-                if sub not in cls.uploaders:
-                    cls.uploaders[sub] = Uploader(nickname="", uid=sub)
+            # 添加缺失的UP
+            for user in cls.users.values():
+                for sub in user.subscriptions.keys():
+                    if sub not in cls.uploaders:
+                        cls.uploaders[sub] = Uploader(nickname="", uid=sub)
 
-        cls.save_to_file()
-        cls.refresh_activate_uploaders()
+            cls.save_to_file()
+            cls.refresh_activate_uploaders()
 
     @classmethod
-    def load_from_file(cls):
+    async def load_from_file(cls):
         """Load data from the JSON file."""
-        cls.load(json.loads(subscribe_file.read_text() or "{}"))
+        await cls.load(json.loads(subscribe_file.read_text() or "{}"))
 
     @classmethod
     def save_to_file(cls):

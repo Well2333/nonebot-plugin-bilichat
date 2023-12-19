@@ -7,8 +7,7 @@ from nonebot.rule import to_me
 from nonebot_plugin_saa import SaaTarget
 
 from ..config import plugin_config
-from ..subscribe import LOCK
-from ..subscribe.manager import SubscriptionSystem, User
+from ..subscribe.manager import CONFIG_LOCK, SubscriptionSystem, User
 
 bilichat = CommandGroup(
     plugin_config.bilichat_cmd_start,
@@ -17,9 +16,9 @@ bilichat = CommandGroup(
 
 
 async def check_lock(matcher: Matcher) -> Lock:
-    if LOCK.locked():
+    if CONFIG_LOCK.locked():
         await matcher.finish("正在刷取动态/直播呢，稍等几秒再试吧\n`(*>﹏<*)′")
-    return LOCK
+    return CONFIG_LOCK
 
 
 async def get_user(matcher: Matcher, target: SaaTarget, lock: Lock = Depends(check_lock)):
