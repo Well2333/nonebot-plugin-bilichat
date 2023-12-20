@@ -37,7 +37,7 @@ class Config(BaseModel):
     bilichat_cache_serive: Literal["json", "mongodb"] = Field(default="Auto")
     bilichat_text_fonts: str = "default"
     bilichat_emoji_fonts: str = "default"
-    bilichat_api_path: Optional[str] = "bilichat"
+    bilichat_webui_path: Optional[str] = "bilichat"
 
     # command and subscribe
     bilichat_command_to_me: bool = True
@@ -229,13 +229,13 @@ class Config(BaseModel):
                 "use **pip install nonebot-plugin-bilichat[wordcloud]** to install required dependencies"
             )
 
-    @validator("bilichat_api_path", always=True)
+    @validator("bilichat_webui_path", always=True)
     def check_api(cls, v: str):
         if not v:
             return v
         v = v.strip("/")
         if "/" in v:
-            raise ValueError("bilichat_api_path should not contain '/'")
+            raise ValueError("bilichat_webui_path should not contain '/'")
         return v
 
     def verify_permission(self, uid: Union[str, int]):
