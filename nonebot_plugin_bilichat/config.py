@@ -235,7 +235,7 @@ class Config(BaseModel):
             return v
         v = v.strip("/")
         if "/" in v:
-            raise ValueError("bilichat_webui_url should not contain '/'")
+            raise ValueError("bilichat_api_path should not contain '/'")
         return v
 
     def verify_permission(self, uid: Union[str, int]):

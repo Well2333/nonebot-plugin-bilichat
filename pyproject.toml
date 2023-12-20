@@ -1,7 +1,7 @@
 [project]
 name = "nonebot-plugin-bilichat"
 
-version = "5.0.0a9"
+version = "5.0.0a10"
 
 description = "多种B站链接解析，视频词云，AI总结，你想要的都在 bilichat"
 authors = [
@@ -56,6 +56,7 @@ dev = [
     "nonebot-adapter-mirai2>=0.0.22",
     "nonebot-adapter-qq>=1.0.1",
     "viztracer>=0.16.1",
+    "nb-cli>=1.2.8",
 ]
 
 [build-system]

@@ -183,7 +183,7 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 |  bilichat_cache_serive  |    str    |   Auto   |         使用的缓存类型，可用类型包含 `json` 和 `mongodb`         |
 |   bilichat_text_fonts   |    str    | default  |          可供自定义的字体，仅作用于 dynamicrender 绘图           |
 |  bilichat_emoji_fonts   |    str    | default  |          可供自定义的字体，仅作用于 dynamicrender 绘图           |
-|   bilichat_webui_url    |    str    | bilichat |                 Webui 的路径，留空则不开启 webui                 |
+|    bilichat_api_path    |    str    | bilichat |                   API 的路径，留空则不开启 API                   |
 
 注:
 
