@@ -10,7 +10,7 @@ from ..model.api.bilibili_auth import AuthInfo, Qrcode
 from .base import app
 
 
-@app.get("/bili_grpc_auth")
+@app.get("/api/bili_grpc_auth")
 async def list_auth() -> Response[List[AuthInfo]]:
     return Response[List[AuthInfo]](
         data=[
@@ -20,7 +20,7 @@ async def list_auth() -> Response[List[AuthInfo]]:
     )
 
 
-@app.post("/bili_grpc_auth")
+@app.post("/api/bili_grpc_auth")
 async def add_auth(raw_auth: Dict) -> Union[Response, FaildResponse]:
     try:
         auth = Auth(raw_auth)
@@ -33,20 +33,20 @@ async def add_auth(raw_auth: Dict) -> Union[Response, FaildResponse]:
     )
 
 
-@app.delete("/bili_grpc_auth")
+@app.delete("/api/bili_grpc_auth")
 async def remove_auth(uid: int) -> Union[Response, FaildResponse]:
     if msg := AuthManager.remove_auth(uid):
         return FaildResponse(code=404, message=msg)
     return Response(data={})
 
 
-@app.get("/bili_grpc_login/qrcode")
+@app.get("/api/bili_grpc_login/qrcode")
 async def generate_qrcode() -> Response[Qrcode]:
     r = await get_qrcode_login_info()
     return Response[Qrcode](data=Qrcode(qrcode_url=r["url"], auth_code=r["auth_code"]))
 
 
-@app.post("/bili_grpc_login/qrcode")
+@app.post("/api/bili_grpc_login/qrcode")
 async def login_by_qrcode(auth_code: str) -> Union[Response[AuthInfo], FaildResponse]:
     try:
         resp = await get_qrcode_login_result(auth_code)

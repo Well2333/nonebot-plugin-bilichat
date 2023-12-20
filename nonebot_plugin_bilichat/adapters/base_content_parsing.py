@@ -33,7 +33,7 @@ try:
 except RuntimeError:
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    lock = asyncio.Lock(loop=loop)
+    lock = asyncio.Lock(loop=loop) # type: ignore
 
 
 def check_cd(uid: Union[int, str], check: bool = True):

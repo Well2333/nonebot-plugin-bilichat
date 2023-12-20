@@ -5,7 +5,7 @@
 groups = ["default", "all", "dev", "extra", "summary", "wordcloud"]
 strategy = ["cross_platform"]
 lock_version = "4.4.1"
-content_hash = "sha256:4221c173085001c235ada39afc201c8c77b70493e399d5d65d9f17d09137fc4d"
+content_hash = "sha256:f6a1bba3e65d936c46e5333cf517609b794775c3027ef2c1faab54ade5ee20bf"
 
 [[package]]
 name = "aiofiles"

@@ -33,7 +33,7 @@ try:
 except RuntimeError:
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    CONFIG_LOCK = asyncio.Lock(loop=loop)
+    CONFIG_LOCK = asyncio.Lock(loop=loop) # type: ignore
 
 subscribe_file = data_dir.joinpath("subscribe.json")
 subscribe_file.touch(0o755, True)

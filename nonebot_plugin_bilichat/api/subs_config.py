@@ -13,12 +13,12 @@ from .base import app
 config = nonebot.get_driver().config
 
 
-@app.get("/subs_config")
+@app.get("/api/subs_config")
 async def get_subs() -> Response[Subs]:
     return Response[Subs](data=Subs(**SubscriptionSystem.dict()))
 
 
-@app.put("/subs_config")
+@app.put("/api/subs_config")
 async def update_subs(data: Subs) -> Union[Response[Subs], FaildResponse]:
     try:
         # 不接收来自前端的 uploaders，由后端自行推导并校验
@@ -37,7 +37,7 @@ async def update_subs(data: Subs) -> Union[Response[Subs], FaildResponse]:
         return FaildResponse(code=400, message=str(e))
 
 
-@app.get("/subs_config/platform")
+@app.get("/api/subs_config/platform")
 async def get_supported_platform() -> Response[List[Dict[str, str]]]:
     return Response[List[Dict[str, str]]](
         data=[
