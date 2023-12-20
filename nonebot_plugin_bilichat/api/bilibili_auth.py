@@ -1,18 +1,18 @@
-from typing import Dict, Union
+from typing import Dict, List, Union
 
 from bilireq.auth import Auth
-from bilireq.login import Login, ResponseCodeError
+from bilireq.login import ResponseCodeError
 from bilireq.login.qrcode_login import get_qrcode_login_info, get_qrcode_login_result
 
 from ..lib.bilibili_request.auth import AuthManager
 from ..model.api import FaildResponse, Response
-from ..model.api.bilibili_auth import AuthInfo, GenQrcodeResponse, ListAuthResponse, Qrcode, SingleAuthResponse
+from ..model.api.bilibili_auth import AuthInfo, Qrcode
 from .base import app
 
 
 @app.get("/bili_grpc_auth")
-async def list_auth() -> ListAuthResponse:
-    return ListAuthResponse(
+async def list_auth() -> Response[List[AuthInfo]]:
+    return Response[List[AuthInfo]](
         data=[
             AuthInfo(id=auth.uid, token_expired=auth.tokens_expired, cookie_expired=auth.cookies_expired)
             for auth in AuthManager.grpc_auths
@@ -28,7 +28,7 @@ async def add_auth(raw_auth: Dict) -> Union[Response, FaildResponse]:
     except Exception as e:
         return FaildResponse(code=400, message=str(e))
     AuthManager.add_auth(auth)
-    return SingleAuthResponse(
+    return Response[AuthInfo](
         data=AuthInfo(id=auth.uid, token_expired=auth.tokens_expired, cookie_expired=auth.cookies_expired),
     )
 
@@ -41,20 +41,20 @@ async def remove_auth(uid: int) -> Union[Response, FaildResponse]:
 
 
 @app.get("/bili_grpc_login/qrcode")
-async def generate_qrcode() -> GenQrcodeResponse:
+async def generate_qrcode() -> Response[Qrcode]:
     r = await get_qrcode_login_info()
-    return GenQrcodeResponse(data=Qrcode(qrcode_url=r["url"], auth_code=r["auth_code"]))
+    return Response[Qrcode](data=Qrcode(qrcode_url=r["url"], auth_code=r["auth_code"]))
 
 
 @app.post("/bili_grpc_login/qrcode")
-async def login_by_qrcode(auth_code: str) -> Union[SingleAuthResponse, FaildResponse]:
+async def login_by_qrcode(auth_code: str) -> Union[Response[AuthInfo], FaildResponse]:
     try:
         resp = await get_qrcode_login_result(auth_code)
         auth = Auth()
         auth.data = auth.refresh_handler(resp)
         auth = await auth.refresh()
         AuthManager.add_auth(auth)
-        return SingleAuthResponse(
+        return Response[AuthInfo](
             data=AuthInfo(id=auth.uid, token_expired=auth.tokens_expired, cookie_expired=auth.cookies_expired),
         )
     except ResponseCodeError as e:
