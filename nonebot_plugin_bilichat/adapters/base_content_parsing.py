@@ -26,7 +26,14 @@ FUTUER_FUCTIONS = ENABLE_SUMMARY or plugin_config.bilichat_word_cloud or plugin_
 
 cd: Dict[str, int] = {}
 cd_size_limit = plugin_config.bilichat_cd_time // 2
-lock = asyncio.Lock()
+
+# 临时解决方案
+try:
+    lock = asyncio.Lock()
+except RuntimeError:
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    lock = asyncio.Lock(loop=loop)
 
 
 def check_cd(uid: Union[int, str], check: bool = True):

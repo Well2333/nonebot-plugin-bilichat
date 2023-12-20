@@ -7,7 +7,7 @@ from playwright.async_api import Page, Request, Route
 from yarl import URL
 
 from .bilibili_request.auth import AuthManager
-from .fonts_provider import get_font
+from .fonts_provider import get_font_async
 from .store import static_dir
 
 font_mime_map = {
@@ -27,7 +27,7 @@ async def pw_font_injecter(route: Route, request: Request):
     try:
         logger.debug(f"Font {url.query['name']} requested")
         await route.fulfill(
-            path=await get_font(url.query["name"]),
+            path=await get_font_async(url.query["name"]),
             content_type=font_mime_map.get(url.suffix),
         )
         return

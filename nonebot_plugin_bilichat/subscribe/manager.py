@@ -27,7 +27,13 @@ from ..lib.tools import calc_time_total
 from ..lib.uid_extract import uid_extract_sync
 from ..optional import capture_exception
 
-CONFIG_LOCK = asyncio.Lock()
+# 临时解决方案
+try:
+    CONFIG_LOCK = asyncio.Lock()
+except RuntimeError:
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    CONFIG_LOCK = asyncio.Lock(loop=loop)
 
 subscribe_file = data_dir.joinpath("subscribe.json")
 subscribe_file.touch(0o755, True)
