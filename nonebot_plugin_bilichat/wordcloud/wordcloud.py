@@ -6,8 +6,8 @@ from jieba.analyse.tfidf import TFIDF
 from nonebot.log import logger
 from wordcloud import WordCloud
 
-from ..lib.fonts_provider import get_font
 from ..lib.cache import BaseCache
+from ..lib.fonts_provider import get_font_async
 from ..model.exception import AbortError
 from ..optional import capture_exception  # type: ignore
 
@@ -40,7 +40,7 @@ def get_frequencies(msg_list) -> Dict[str, float]:
 
 async def get_worldcloud_image(frequencies):
     wc = WordCloud(
-        font_path=str(await get_font()),
+        font_path=str(await get_font_async()),
         background_color="white",
         width=1000,
         height=800,
