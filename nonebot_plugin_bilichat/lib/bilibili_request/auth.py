@@ -37,7 +37,7 @@ class AuthManager:
         )
 
     @classmethod
-    def get_cookies(cls) -> Dict[str, Any]:
+    def get_cookies(cls) -> Dict[str, str]:
         if auths := cls.grpc_auths.copy():
             random.shuffle(auths)
             for auth in auths:
