@@ -1,9 +1,7 @@
-from typing import List, Literal
+from typing import List
 
 from nonebot_plugin_saa.utils.const import SupportedPlatform
-from pydantic import BaseModel, Extra, Field, validator
-
-from . import Response
+from pydantic import BaseModel, Extra, Field
 
 
 class SubsConfig(BaseModel):
@@ -53,7 +51,3 @@ class Subs(BaseModel):
 
     class Config:
         extra = Extra.ignore
-
-
-class SubsResponse(Response):
-    data: Subs
