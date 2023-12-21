@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Bilichat WebUI 更新</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+                text-align: center;
+                padding: 50px;
+            }
+
+            .container {
+                background-color: #fff;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                width: 300px;
+                margin: 0 auto;
+                margin-bottom: 20px;
+            }
+
+            .info-text {
+                color: #555;
+            }
+
+            .download-link {
+                display: block;
+                margin-top: 10px;
+            }
+
+            button {
+                margin-top: 10px;
+                width: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Bilichat WebUI 更新</h2>
+            <p class="info-text">
+                请手动下载包含 WebUI 的压缩文件（例如 <b>dist.tar.gz</b>
+                ）并通过此页面上传。
+            </p>
+            <p class="info-text">
+                如果上传的 WebUI 不兼容当前版本的 Bilichat，请使用
+                <b>重置为默认WebUI</b> 恢复默认 WebUI。
+            </p>
+            <a
+                class="download-link"
+                href="https://github.com/wosiwq/nonebot-plugin-bilichat-webui/releases/latest/"
+                target="_blank"
+                >BiliChat WebUI 下载</a
+            >
+        </div>
+
+        <div class="container">
+            <h1>文件上传</h1>
+            <form
+                id="uploadForm"
+                action=""
+                method="post"
+                enctype="multipart/form-data"
+            >
+                <input
+                    type="file"
+                    id="file"
+                    name="file"
+                    accept=".zip,.tar.gz"
+                    required
+                />
+                <button type="button" onclick="submitForm()">上传文件</button>
+            </form>
+            <button type="button" onclick="resetWebUI()">
+                重置为默认WebUI
+            </button>
+        </div>
+
+        <script>
+            document.getElementById("uploadForm").action =
+                window.location.pathname + "/update";
+
+            function submitForm() {
+                var fileInput = document.getElementById("file");
+                if (fileInput.files.length > 0) {
+                    var formData = new FormData(
+                        document.getElementById("uploadForm")
+                    );
+                    fetchData(
+                        document.getElementById("uploadForm").action,
+                        "POST",
+                        formData
+                    );
+                }
+            }
+
+            function resetWebUI() {
+                fetchData(
+                    document.getElementById("uploadForm").action,
+                    "DELETE"
+                );
+            }
+
+            function fetchData(url, method, body = null) {
+                fetch(url, {
+                    method: method,
+                    body: body,
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        if (data.code === 0) {
+                            alert("操作成功！");
+                            window.location.href =
+                                window.location.href.substring(
+                                    0,
+                                    window.location.href.lastIndexOf("/")
+                                );
+                        } else {
+                            alert("操作失败: " + data.message);
+                        }
+                    })
+                    .catch((error) => {
+                        alert("错误: " + error.message);
+                    });
+            }
+        </script>
+    </body>
+</html>
