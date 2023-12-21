@@ -50,7 +50,6 @@ async def get_new_page(device_scale_factor: float = 2, mobile_style: bool = Fals
     page = await browser.new_page(device_scale_factor=device_scale_factor, **kwargs)
     if cookies := AuthManager.get_cookies():
         logger.debug("正在为浏览器添加cookies")
-        print(cookies)
         await page.context.add_cookies(
             [
                 {
