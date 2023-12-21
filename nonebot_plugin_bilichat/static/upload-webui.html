@@ -1,129 +1,207 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <title>Bilichat WebUI 更新</title>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                background-color: #f4f4f4;
-                text-align: center;
-                padding: 50px;
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Bilichat WebUI 更新</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 50px;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 500px;
+            margin: 0 auto;
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .info,
+        .upload {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            background-color: #e9ecef;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .button-group form {
+            display: flex;
+            width: calc(100%);
+            /* 调整宽度确保间隔均匀 */
+            justify-content: space-between;
+        }
+
+        .button,
+        .upload button,
+        .upload label.button {
+            flex: 1;
+            margin: 0 5px;
+            /* 统一按钮之间的间隔 */
+            padding: 12px 20px;
+            font-size: 16px;
+            line-height: 1.5;
+            text-align: center;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            text-decoration: none;
+            box-sizing: border-box;
+        }
+
+        #resetButton {
+            background-color: #FF5722;
+            margin: 0 5px;
+            /* 保持与其他按钮相同的间隔 */
+        }
+
+        .button:hover,
+        .upload label.button:hover,
+        #resetButton:hover {
+            background-color: #388E3C;
+        }
+
+        .button-disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        #uploadButton {
+            background-color: #cccccc;
+            /* 禁用状态的背景颜色 */
+            cursor: not-allowed;
+            /* 禁用状态的光标 */
+        }
+
+        #uploadButton.enabled {
+            background-color: #4CAF50;
+            /* 启用状态的背景颜色 */
+        }
+
+        #uploadButton.enabled:hover {
+            background-color: #388E3C;
+            /* 启用状态且悬停时的背景颜色 */
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Bilichat WebUI 更新</h1>
+        </header>
+
+        <section class="info">
+            <p>请手动下载包含 WebUI 的压缩文件（如 <b>dist.tar.gz</b>），然后通过此页面上传。</p>
+            <a class="button" href="https://github.com/wosiwq/nonebot-plugin-bilichat-webui/releases/latest/"
+                target="_blank">下载 BiliChat WebUI</a>
+        </section>
+
+        <section class="upload">
+            <h2>文件上传</h2>
+            <div class="button-group">
+                <form id="uploadForm" action="" method="post" enctype="multipart/form-data">
+                    <input type="file" id="file" name="file" accept=".zip,.tar.gz" required hidden
+                        onchange="fileSelected()" />
+                    <label for="file" class="button">选择文件</label>
+                    <button type="button" id="uploadButton" class="button button-disabled" onclick="submitForm()"
+                        disabled>上传文件</button>
+                </form>
+            </div>
+            <div class="button-group">
+                <button type="button" id="resetButton" onclick="resetWebUI()">重置为默认WebUI</button>
+            </div>
+            <p id="fileName"></p> <!-- 用于显示文件名 -->
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            updateUploadButton();
+        });
+
+        function updateUploadButton() {
+            var fileInput = document.getElementById("file");
+            var uploadButton = document.getElementById("uploadButton");
+
+            if (fileInput.files.length > 0) {
+                uploadButton.disabled = false;
+                uploadButton.classList.add("enabled");
+                uploadButton.title = ""; // 清除提示
+            } else {
+                uploadButton.disabled = true;
+                uploadButton.classList.remove("enabled");
+                uploadButton.title = "请选择一个文件后才能上传"; // 设置提示
             }
+        }
 
-            .container {
-                background-color: #fff;
-                padding: 20px;
-                border-radius: 8px;
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                width: 300px;
-                margin: 0 auto;
-                margin-bottom: 20px;
+        function fileSelected() {
+            var fileInput = document.getElementById("file");
+            var fileNameDisplay = document.getElementById("fileName");
+            updateUploadButton();
+
+            if (fileInput.files.length > 0) {
+                fileNameDisplay.textContent = '已选择文件：' + fileInput.files[0].name;
+            } else {
+                fileNameDisplay.textContent = '';
             }
+        }
+        document.getElementById("uploadForm").action = window.location.pathname + "/update";
 
-            .info-text {
-                color: #555;
+        function submitForm() {
+            var fileInput = document.getElementById("file");
+            if (fileInput.files.length > 0) {
+                var formData = new FormData(document.getElementById("uploadForm"));
+                fetchData(document.getElementById("uploadForm").action, "POST", formData);
             }
+        }
 
-            .download-link {
-                display: block;
-                margin-top: 10px;
-            }
+        function resetWebUI() {
+            fetchData(document.getElementById("uploadForm").action, "DELETE");
+        }
 
-            button {
-                margin-top: 10px;
-                width: 100%;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h2>Bilichat WebUI 更新</h2>
-            <p class="info-text">
-                请手动下载包含 WebUI 的压缩文件（例如 <b>dist.tar.gz</b>
-                ）并通过此页面上传。
-            </p>
-            <p class="info-text">
-                如果上传的 WebUI 不兼容当前版本的 Bilichat，请使用
-                <b>重置为默认WebUI</b> 恢复默认 WebUI。
-            </p>
-            <a
-                class="download-link"
-                href="https://github.com/wosiwq/nonebot-plugin-bilichat-webui/releases/latest/"
-                target="_blank"
-                >BiliChat WebUI 下载</a
-            >
-        </div>
-
-        <div class="container">
-            <h1>文件上传</h1>
-            <form
-                id="uploadForm"
-                action=""
-                method="post"
-                enctype="multipart/form-data"
-            >
-                <input
-                    type="file"
-                    id="file"
-                    name="file"
-                    accept=".zip,.tar.gz"
-                    required
-                />
-                <button type="button" onclick="submitForm()">上传文件</button>
-            </form>
-            <button type="button" onclick="resetWebUI()">
-                重置为默认WebUI
-            </button>
-        </div>
-
-        <script>
-            document.getElementById("uploadForm").action =
-                window.location.pathname + "/update";
-
-            function submitForm() {
-                var fileInput = document.getElementById("file");
-                if (fileInput.files.length > 0) {
-                    var formData = new FormData(
-                        document.getElementById("uploadForm")
-                    );
-                    fetchData(
-                        document.getElementById("uploadForm").action,
-                        "POST",
-                        formData
-                    );
-                }
-            }
-
-            function resetWebUI() {
-                fetchData(
-                    document.getElementById("uploadForm").action,
-                    "DELETE"
-                );
-            }
-
-            function fetchData(url, method, body = null) {
-                fetch(url, {
-                    method: method,
-                    body: body,
+        function fetchData(url, method, body = null) {
+            fetch(url, { method: method, body: body })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 0) {
+                        alert("操作成功！");
+                        window.location.href = window.location.href.substring(0, window.location.href.lastIndexOf("/"));
+                    } else {
+                        alert("操作失败: " + data.message);
+                    }
                 })
-                    .then((response) => response.json())
-                    .then((data) => {
-                        if (data.code === 0) {
-                            alert("操作成功！");
-                            window.location.href =
-                                window.location.href.substring(
-                                    0,
-                                    window.location.href.lastIndexOf("/")
-                                );
-                        } else {
-                            alert("操作失败: " + data.message);
-                        }
-                    })
-                    .catch((error) => {
-                        alert("错误: " + error.message);
-                    });
-            }
-        </script>
-    </body>
+                .catch(error => {
+                    alert("错误: " + error.message);
+                });
+        }
+    </script>
+</body>
+
 </html>
