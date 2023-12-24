@@ -59,7 +59,10 @@ async def fetch_live(ups: Sequence[int]):
                             f"标题：{room.title}"
                         )
                         url = await get_b23_url(f"https://live.bilibili.com/{room.room_id}")
-                        live_image = (await hc.get(room.cover_from_user)).content
+                        try:
+                            live_image = (await hc.get(room.cover_from_user)).content
+                        except Exception:
+                            live_image = "[无法获取直播间封面]"
                         logger.info(f"{live_prompt}")
                         content = [live_prompt, live_image, url]
                         for user in up.subscribed_users:
