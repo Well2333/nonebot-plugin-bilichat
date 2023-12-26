@@ -62,7 +62,7 @@ async def fetch_live(ups: Sequence[int]):
                         try:
                             live_image = (await hc.get(room.cover_from_user)).content
                         except Exception:
-                            live_image = "[无法获取直播间封面]"
+                            live_image = "\n"
                         logger.info(f"{live_prompt}")
                         content = [live_prompt, live_image, url]
                         for user in up.subscribed_users:
