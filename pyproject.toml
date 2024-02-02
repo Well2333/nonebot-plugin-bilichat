@@ -51,6 +51,9 @@ include = '\.pyi?$'
 extend-exclude = '''
 '''
 
+[tool.ruff]
+line-length = 120
+
 [tool.pdm.dev-dependencies]
 dev = [
     "black>=23.3.0",

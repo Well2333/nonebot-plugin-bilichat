@@ -41,6 +41,7 @@ class Config(BaseModel):
 
     # command and subscribe
     bilichat_command_to_me: bool = True
+    bilichat_cmd_allowGroupAdmin: bool = False
     bilichat_cmd_start: str = "bilichat"
     bilichat_cmd_add_sub: List[str] = ["订阅", "关注"]
     bilichat_cmd_remove_sub: List[str] = ["退订", "取关"]

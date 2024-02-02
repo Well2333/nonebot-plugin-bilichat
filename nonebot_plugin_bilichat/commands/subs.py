@@ -10,10 +10,19 @@ from ..lib.uid_extract import uid_extract
 from ..subscribe.manager import SubscriptionSystem, Uploader, User, UserSubConfig
 from .base import bilichat, check_lock, get_user
 
-bili_add_sub = bilichat.command("sub", permission=SUPERUSER, aliases=set(plugin_config.bilichat_cmd_add_sub))
-bili_remove_sub = bilichat.command("unsub", permission=SUPERUSER, aliases=set(plugin_config.bilichat_cmd_remove_sub))
+PERM_EDIT = SUPERUSER
+try:
+    from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
+
+    if plugin_config.bilichat_cmd_allowGroupAdmin:
+        PERM_EDIT |= GROUP_ADMIN | GROUP_OWNER
+except ImportError:
+    pass
+
+bili_add_sub = bilichat.command("sub", permission=PERM_EDIT, aliases=set(plugin_config.bilichat_cmd_add_sub))
+bili_remove_sub = bilichat.command("unsub", permission=PERM_EDIT, aliases=set(plugin_config.bilichat_cmd_remove_sub))
 bili_check_sub = bilichat.command("check", aliases=set(plugin_config.bilichat_cmd_check_sub))
-bili_reset_sub = bilichat.command("reset", permission=SUPERUSER, aliases=set(plugin_config.bilichat_cmd_reset_sub))
+bili_reset_sub = bilichat.command("reset", permission=PERM_EDIT, aliases=set(plugin_config.bilichat_cmd_reset_sub))
 
 
 @bili_add_sub.handle()
