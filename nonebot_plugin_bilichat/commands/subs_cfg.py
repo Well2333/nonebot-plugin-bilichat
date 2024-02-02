@@ -8,9 +8,19 @@ from ..config import plugin_config
 from ..subscribe.manager import SubscriptionSystem, User, UserSubConfig
 from .base import bilichat, check_lock, get_user
 
-bili_at_all = bilichat.command("atall", permission=SUPERUSER, aliases=set(plugin_config.bilichat_cmd_at_all))
-bili_dynamic = bilichat.command("dynamic", permission=SUPERUSER, aliases=set(plugin_config.bilichat_cmd_dynamic))
-bili_live = bilichat.command("live", permission=SUPERUSER, aliases=set(plugin_config.bilichat_cmd_live))
+
+PERM_EDIT = SUPERUSER
+try:
+    from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
+
+    if plugin_config.bilichat_cmd_allowGroupAdmin:
+        PERM_EDIT |= GROUP_ADMIN | GROUP_OWNER
+except ImportError:
+    pass
+
+bili_at_all = bilichat.command("atall", permission=PERM_EDIT, aliases=set(plugin_config.bilichat_cmd_at_all))
+bili_dynamic = bilichat.command("dynamic", permission=PERM_EDIT, aliases=set(plugin_config.bilichat_cmd_dynamic))
+bili_live = bilichat.command("live", permission=PERM_EDIT, aliases=set(plugin_config.bilichat_cmd_live))
 
 
 @bili_at_all.handle()
