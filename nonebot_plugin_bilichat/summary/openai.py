@@ -1,17 +1,16 @@
-import asyncio
 import random
 from collections import OrderedDict
 from typing import Dict, List, Literal, Optional
 
 import httpx
-import tiktoken_async
+import tiktoken
 from nonebot.log import logger
 
 from ..config import plugin_config
 from ..model.openai import OpenAI, TokenUsage
 
-logger.info("Loading OpenAI Token enc model")
-tiktoken_enc = asyncio.run(tiktoken_async.encoding_for_model(plugin_config.bilichat_openai_model))
+logger.info("Loading OpenAI Token enc model, this may take a few minutes to download")
+tiktoken_enc = tiktoken.encoding_for_model(plugin_config.bilichat_openai_model)
 logger.success(f"Enc model {tiktoken_enc.name} load successfully")
 
 
