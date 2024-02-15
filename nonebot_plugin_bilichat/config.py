@@ -211,7 +211,7 @@ class Config(BaseModel):
 
     @validator("bilichat_openai_token", always=True)
     def check_pypackage_openai(cls, v):
-        if importlib.util.find_spec("tiktoken_async") or not v:
+        if importlib.util.find_spec("tiktoken") or not v:
             return v
         else:
             raise RuntimeError(
