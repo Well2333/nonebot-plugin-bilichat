@@ -1,7 +1,7 @@
 from typing import List
 
 from nonebot_plugin_saa.utils.const import SupportedPlatform
-from pydantic import BaseModel, Extra, Field
+from pydantic import BaseModel, Field
 
 
 class SubsConfig(BaseModel):
@@ -11,9 +11,6 @@ class SubsConfig(BaseModel):
     push_delay: int = Field(3, ge=0)
     dynamic_grpc: bool = False
 
-    class Config:
-        extra = Extra.ignore
-
 
 class UserSubConfig(BaseModel):
     uid: int
@@ -22,9 +19,6 @@ class UserSubConfig(BaseModel):
     live: bool = True
     live_at_all: bool = False
 
-    class Config:
-        extra = Extra.ignore
-
 
 class User(BaseModel):
     user_id: str
@@ -32,22 +26,13 @@ class User(BaseModel):
     at_all: bool = False
     subscriptions: List[UserSubConfig]
 
-    class Config:
-        extra = Extra.ignore
-
 
 class Uploader(BaseModel):
     uid: int
     nickname: str = ""
-
-    class Config:
-        extra = Extra.ignore
 
 
 class Subs(BaseModel):
     config: SubsConfig
     uploaders: List[Uploader] = []
     users: List[User] = []
-
-    class Config:
-        extra = Extra.ignore

@@ -103,7 +103,7 @@ class BcutASR:
         resp = resp.json()
         if code := resp["code"]:
             raise APIError(code, resp["message"])
-        resp_data = ResourceCreateRspSchema.parse_obj(resp["data"])
+        resp_data = ResourceCreateRspSchema(**resp["data"])
         self.__in_boss_key = resp_data.in_boss_key
         self.__resource_id = resp_data.resource_id
         self.__upload_id = resp_data.upload_id
@@ -148,7 +148,7 @@ class BcutASR:
         resp = resp.json()
         if code := resp["code"]:
             raise APIError(code, resp["message"])
-        resp_data = ResourceCompleteRspSchema.parse_obj(resp["data"])
+        resp_data = ResourceCompleteRspSchema(**resp["data"])
         self.__download_url = resp_data.download_url
         logger.debug("commit complete")
 
@@ -159,7 +159,7 @@ class BcutASR:
         resp = resp.json()
         if code := resp["code"]:
             raise APIError(code, resp["message"])
-        resp_data = TaskCreateRspSchema.parse_obj(resp["data"])
+        resp_data = TaskCreateRspSchema(**resp["data"])
         self.task_id = resp_data.task_id
         logger.info(f"Conversion task created: {self.task_id}")
         return self.task_id
@@ -171,4 +171,4 @@ class BcutASR:
         resp = resp.json()
         if code := resp["code"]:
             raise APIError(code, resp["message"])
-        return ResultRspSchema.parse_obj(resp["data"])
+        return ResultRspSchema(**resp["data"])

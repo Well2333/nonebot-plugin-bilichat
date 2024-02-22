@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import List, Tuple
 
+from nonebot.compat import PYDANTIC_V2
 from pydantic import BaseModel
 
 
@@ -65,8 +66,7 @@ class ASRData(BaseModel):
         "转成lrc格式字幕"
         return "\n".join(f"{seg.to_lrc_ts()}{seg.transcript}" for seg in self.utterances)
 
-    def to_ass(self) -> str:
-        ...
+    def to_ass(self) -> str: ...
 
 
 class ResourceCreateRspSchema(BaseModel):
@@ -111,4 +111,7 @@ class ResultRspSchema(BaseModel):
 
     def parse(self) -> ASRData:
         "解析结果数据"
-        return ASRData.parse_raw(self.result)
+        if PYDANTIC_V2:
+            return ASRData.model_validate_json(self.result)  # type: ignore
+        else:
+            return ASRData.parse_raw(self.result)  # type: ignore

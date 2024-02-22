@@ -1,7 +1,7 @@
 import time
 from typing import List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class PartOutline(BaseModel):
@@ -40,7 +40,7 @@ class ModelResult(BaseModel):
 
 class SummaryApiResponse(BaseModel):
     code: int
-    model_result: ModelResult
+    result: ModelResult = Field(alias="model_result")
     stid: str
     status: int
     like_num: int

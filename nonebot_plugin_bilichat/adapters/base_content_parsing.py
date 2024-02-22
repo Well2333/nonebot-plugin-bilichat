@@ -33,7 +33,7 @@ try:
 except RuntimeError:
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    lock = asyncio.Lock(loop=loop) # type: ignore
+    lock = asyncio.Lock(loop=loop)  # type: ignore
 
 
 def check_cd(uid: Union[int, str], check: bool = True):
@@ -111,7 +111,7 @@ async def get_futuer_fuctions(content: Union[Video, Column, Any]):
     if isinstance(content, Video) and plugin_config.bilichat_official_summary:
         try:
             official_summary_response = await content.get_offical_summary()
-            official_summary = await t2i(data=official_summary_response.model_result.markdown(), src="bilibili")
+            official_summary = await t2i(data=official_summary_response.result.markdown(), src="bilibili")
         except Exception as e:
             if plugin_config.bilichat_summary_ignore_null:
                 official_summary = ""
