@@ -1,9 +1,10 @@
 from typing import Dict, List, Union
 
 import nonebot
+from nonebot.compat import model_dump
 from nonebot.log import logger
 from nonebot_plugin_saa.utils.const import SupportedPlatform
-from pydantic.error_wrappers import ValidationError
+from pydantic import ValidationError
 
 from ..model.api import FaildResponse, Response
 from ..model.api.subs_config import Subs
@@ -23,10 +24,11 @@ async def update_subs(data: Subs) -> Union[Response[Subs], FaildResponse]:
     try:
         # 不接收来自前端的 uploaders，由后端自行推导并校验
         await SubscriptionSystem.load(
-            data.dict(
+            model_dump(
+                data,
                 exclude={
                     "uploaders",
-                }
+                },
             )
         )
         return Response[Subs](data=Subs(**SubscriptionSystem.dict()))
