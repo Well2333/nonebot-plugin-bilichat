@@ -145,10 +145,14 @@ async def _bili_check(state: T_State, event: Event, bot: Bot, msg: UniMsg) -> bo
         return False
 
 
+async def _pre_check(state: T_State, event: Event, bot: Bot, msg: UniMsg, target: MsgTarget):
+    return await _permission_check(bot, event, target, state) and await _bili_check(state, event, bot, msg)
+
+
 bilichat = on_message(
     block=plugin_config.bilichat_block,
     priority=1,
-    rule=Rule(_permission_check, _bili_check),
+    rule=Rule(_pre_check),
 )
 
 
@@ -160,10 +164,10 @@ async def content_info(event: Event, origin_msg: UniMsg, state: T_State):
         content_image = await content.get_image(plugin_config.bilichat_basic_info_style)
 
         msgs = UniMessage()
+        msgs.append(reply)
         if content_image:
             msgs.append(Image(raw=content_image))
         msgs.append(content.url if plugin_config.bilichat_basic_info_url else content.bili_id)
-        msgs.append(reply)
         receipt = await msgs.send()
         reply = receipt.get_reply() if plugin_config.bilichat_reply_to_basic_info else reply
 

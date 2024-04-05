@@ -5,7 +5,7 @@
 groups = ["default", "all", "dev", "summary"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:5b1cd5d1c1bf2591aaf2851a64231a1e8e82ff8660c6e19dd1d811425cb7d35d"
+content_hash = "sha256:3811a851d818e9405ef9cb293d507f5cc545c37862e89e01800d8cba18f46995"
 
 [[package]]
 name = "aiofiles"
@@ -1610,6 +1610,20 @@ dependencies = [
 files = [
     {file = "nonebot_adapter_qq-1.4.3-py3-none-any.whl", hash = "sha256:49fe5c6db2d1654c3e75b13088ae37931606dab4e994bcf447c35d06a98152cd"},
     {file = "nonebot_adapter_qq-1.4.3.tar.gz", hash = "sha256:f4777cd20ca8ecd4d35b4e3844e151269181faf2cda1e5eee319a90277ded299"},
+]
+
+[[package]]
+name = "nonebot-adapter-satori"
+version = "0.10.3"
+requires_python = ">=3.8"
+summary = "Satori Protocol Adapter for Nonebot2"
+groups = ["dev"]
+dependencies = [
+    "nonebot2>=2.2.0",
+]
+files = [
+    {file = "nonebot_adapter_satori-0.10.3-py3-none-any.whl", hash = "sha256:33e7fa44966a5e9a4c1e27a6da777554db69e86cd0124ef41c87718014c59ca0"},
+    {file = "nonebot_adapter_satori-0.10.3.tar.gz", hash = "sha256:e73c2572f1608caeaf98c7bf260fbc24cccec5ca05242a585dd3db554a15eb9d"},
 ]
 
 [[package]]
