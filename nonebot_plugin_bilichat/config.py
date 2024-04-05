@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 from typing import List, Literal, Optional, Union
 
-from nonebot import get_driver, require
+from nonebot import get_driver, get_plugin_config, require
 from nonebot.log import logger
 from pydantic import BaseModel, Field, validator
 
@@ -248,4 +248,4 @@ class Config(BaseModel):
 
 
 raw_config = get_driver().config
-plugin_config = Config.parse_obj(raw_config)
+plugin_config = get_plugin_config(Config)

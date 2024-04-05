@@ -3,12 +3,12 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import List, Union
 
 from nonebot.log import logger
-from pydantic import BaseModel, Extra, Field
+from pydantic import BaseModel, Field
 
 from .bilibili_request import search_user
 
 
-class SearchUp(BaseModel, extra=Extra.ignore):
+class SearchUp(BaseModel):
     nickname: str = Field(alias="title")
     mid: int
 
@@ -16,7 +16,7 @@ class SearchUp(BaseModel, extra=Extra.ignore):
         return f"{self.nickname}({self.mid})"
 
 
-class SearchResult(BaseModel, extra=Extra.ignore):
+class SearchResult(BaseModel):
     items: List[SearchUp] = []
 
 
@@ -53,6 +53,7 @@ def run_async_in_thread(func, *args):
     with ThreadPoolExecutor(max_workers=1) as executor:
         future = executor.submit(asyncio.run, thread_func())
         return future.result()
+
 
 def uid_extract_sync(text: str) -> Union[str, SearchUp]:
     # 调用 run_async_in_thread 来运行异步函数并获取结果

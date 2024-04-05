@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Optional, Union
 from apscheduler.job import Job
 from nonebot import get_driver
 from nonebot.adapters import Bot
+from nonebot.compat import PYDANTIC_V2
 from nonebot.log import logger
 from nonebot_plugin_apscheduler import scheduler
 from nonebot_plugin_saa import (
@@ -20,7 +21,7 @@ from nonebot_plugin_saa import (
 from nonebot_plugin_saa.auto_select_bot import BOT_CACHE, get_bot
 from nonebot_plugin_saa.utils.const import SupportedPlatform
 from nonebot_plugin_saa.utils.exceptions import NoBotFound
-from pydantic import BaseModel, Extra, Field, validator
+from pydantic import BaseModel, Field, validator
 
 from ..lib.store import data_dir
 from ..lib.tools import calc_time_total
@@ -33,7 +34,7 @@ try:
 except RuntimeError:
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    CONFIG_LOCK = asyncio.Lock(loop=loop) # type: ignore
+    CONFIG_LOCK = asyncio.Lock(loop=loop)  # type: ignore
 
 subscribe_file = data_dir.joinpath("subscribe.json")
 subscribe_file.touch(0o755, True)
@@ -67,7 +68,10 @@ class Uploader(BaseModel):
         exclude_properties = {name for name, value in type(self).__dict__.items() if isinstance(value, property)}
         exclude_properties.add("living")
         exclude_properties.add("dyn_offset")
-        dict_ = super().dict(**{**kwargs, "exclude": exclude_properties})
+        if PYDANTIC_V2:
+            dict_ = super().model_dump(**{**kwargs, "exclude": exclude_properties})  # type: ignore
+        else:
+            dict_ = super().dict(**{**kwargs, "exclude": exclude_properties})  # type: ignore
         return dict_
 
     def __str__(self) -> str:
@@ -87,9 +91,6 @@ class UserSubConfig(BaseModel):
     live: bool = True
     live_at_all: bool = False
 
-    class Config:
-        extra = Extra.ignore
-
     def is_defualt_val(self) -> bool:
         """
         Checks if all the attributes of the object have their default values.
@@ -97,11 +98,24 @@ class UserSubConfig(BaseModel):
         Returns:
             bool: True if all attributes have their default values, False otherwise.
         """
-
-        return not any(
-            self.__getattribute__(field_name) != self.__fields__[field_name].default if field_name != "uid" else False
-            for field_name in self.__fields__
-        )
+        if PYDANTIC_V2:
+            return not any(
+                (
+                    self.__getattribute__(field_name) != self.model_fields[field_name].default  # type: ignore
+                    if field_name != "uid"
+                    else False
+                )
+                for field_name in self.model_fields  # type: ignore
+            )
+        else:
+            return not any(
+                (
+                    self.__getattribute__(field_name) != self.__fields__[field_name].default  # type: ignore
+                    if field_name != "uid"
+                    else False
+                )
+                for field_name in self.__fields__  # type: ignore
+            )
 
 
 class User(BaseModel):
@@ -162,7 +176,10 @@ class User(BaseModel):
     def dict(self, **kwargs) -> Dict[str, Any]:
         exclude_properties = {name for name, value in type(self).__dict__.items() if isinstance(value, property)}
         exclude_properties.add("subscriptions")
-        dict_ = super().dict(**{**kwargs, "exclude": exclude_properties})
+        if PYDANTIC_V2:
+            dict_ = super().model_dump(**{**kwargs, "exclude": exclude_properties})  # type: ignore
+        else:
+            dict_ = super().dict(**{**kwargs, "exclude": exclude_properties})  # type: ignore
         dict_["subscriptions"] = [sub.dict() for sub in self.subscriptions.values()]
         return dict_
 
@@ -255,7 +272,7 @@ class SubscriptionCfgFile(BaseModel):
         if not v:
             return []
         ups = v.values() if isinstance(v, dict) else v
-        return [Uploader.parse_obj(up) for up in ups]
+        return [Uploader(**up) for up in ups]
 
     @validator("users", always=True, pre=True)
     def validate_users(cls, v: Union[Dict[str, Dict[str, Any]], List[Dict[str, Any]]]):

@@ -1,5 +1,4 @@
 from nonebot import require
-from nonebot.log import logger
 from nonebot.plugin import PluginMetadata
 
 from .config import __version__, plugin_config, raw_config
