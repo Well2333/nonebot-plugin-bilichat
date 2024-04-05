@@ -12,7 +12,7 @@ from grpc.aio import AioRpcError
 from httpx import TimeoutException
 from nonebot.log import logger
 
-from ..adapters.base_content_parsing import check_cd
+from ..base_content_parsing import check_cd
 from ..config import plugin_config
 from ..content.dynamic import Dynamic
 from ..lib.bilibili_request import get_b23_url, get_user_dynamics

@@ -15,13 +15,13 @@ from nonebot.plugin import on_message
 from nonebot.rule import Rule
 from nonebot.typing import T_State
 
-from ..config import plugin_config
-from ..content import Column, Dynamic, Video
-from ..lib.b23_extract import b23_extract
-from ..lib.tools import obfuscate_urls_in_text
-from ..model.arguments import Options, parser
-from ..model.exception import AbortError
-from ..optional import capture_exception
+from ...config import plugin_config
+from ...content import Column, Dynamic, Video
+from ...lib.b23_extract import b23_extract
+from ...lib.tools import obfuscate_urls_in_text
+from ...model.arguments import Options, parser
+from ...model.exception import AbortError
+from ...optional import capture_exception
 from .base_content_parsing import get_content_info_from_state, get_futuer_fuctions
 
 

@@ -7,19 +7,19 @@ from nonebot.exception import FinishedException
 from nonebot.log import logger
 from nonebot.typing import T_State
 
-from ..config import plugin_config
-from ..content import Column, Dynamic, Video
-from ..lib.text_to_image import t2i
-from ..model.exception import AbortError
+from ...config import plugin_config
+from ...content import Column, Dynamic, Video
+from ...lib.text_to_image import t2i
+from ...model.exception import AbortError
 
 if plugin_config.bilichat_openai_token:
     ENABLE_SUMMARY = True
-    from ..summary import summarization
+    from ...summary import summarization
 else:
     ENABLE_SUMMARY = False
 
 if plugin_config.bilichat_word_cloud:
-    from ..wordcloud.wordcloud import wordcloud
+    from ...wordcloud.wordcloud import wordcloud
 
 FUTUER_FUCTIONS = ENABLE_SUMMARY or plugin_config.bilichat_word_cloud or plugin_config.bilichat_official_summary
 
