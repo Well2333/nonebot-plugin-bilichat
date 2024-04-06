@@ -5,7 +5,7 @@ from nonebot.log import logger
 from ..config import plugin_config
 from ..lib.cache import BaseCache
 from ..lib.text_to_image import t2i
-from ..model.exception import AbortError
+from ..model.exception import ProssesError
 from ..optional import capture_exception  # type: ignore
 from .openai import get_small_size_transcripts, get_summarise_prompt, openai_req
 
@@ -32,28 +32,23 @@ async def openai_summarization(cache: BaseCache):
             elif cache.id[:2].lower() == "cv":
                 ai_summary = await column_summarise(cache.title, cache.content)  # type: ignore
             else:
-                raise ValueError(f"Illegal Video(Column) types {cache.id}")
+                raise ValueError(f"未知内容类型 {cache.id}")
 
             if ai_summary.response:
                 cache.openai = ai_summary.response
+                summary = ai_summary.response
                 await cache.save()
             else:
-                logger.warning(f"Video(Column) {cache.id} summary failure: {ai_summary.raw}")
+                logger.warning(f"视频(专栏) {cache.id} 总结失败: {ai_summary.raw}")
                 if plugin_config.bilichat_summary_ignore_null:
-                    return ""
+                    return
                 else:
-                    return f"视频(专栏) {cache.id} 总结失败: 响应内容异常\n{ai_summary.raw}"
-        return await t2i(cache.openai or "视频无法总结", plugin_config.bilichat_openai_model)
-    except AbortError as e:
-        logger.exception(f"Video(Column) {cache.id} summary aborted: {e}")
-        if plugin_config.bilichat_summary_ignore_null:
-            return ""
+                    summary = f"视频(专栏) {cache.id} 总结失败: 响应内容异常\n{ai_summary.raw}"
         else:
-            return f"视频(专栏) {cache.id} 总结中止: {e}"
+            summary = cache.openai
+        return await t2i(summary or "视频无法总结", plugin_config.bilichat_openai_model)
     except Exception as e:
         capture_exception()
-        logger.exception(f"Video(Column) {cache.id} summary failed: {e}")
-        if plugin_config.bilichat_summary_ignore_null:
-            return ""
-        else:
-            return f"视频(专栏) {cache.id} 总结失败: {e}"
+        logger.exception(f"视频(专栏) {cache.id} 总结失败: {e}")
+        if not plugin_config.bilichat_summary_ignore_null:
+            raise ProssesError(f"视频(专栏) {cache.id} 总结失败: {e}")

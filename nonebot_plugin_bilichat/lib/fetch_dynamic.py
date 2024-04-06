@@ -55,11 +55,11 @@ async def _fetch_rest(up_mid: int, up_name: str) -> Union[Dynamic, None]:
     try:
         resp: List = (await get_user_dynamics(up_mid))["items"]
     except TimeoutException:
-        logger.error(f"[Dynamic] fetch {up_name}({up_mid}) timeout")
+        logger.error(f"[Dynamic] 获取 {up_name}({up_mid}) 超时")
         raise AbortError("Dynamic Abort")
     except ResponseCodeError as e:
         logger.error(
-            f"[Dynamic] fetch {up_name}({up_mid}) failed: "
+            f"[Dynamic] 获取 {up_name}({up_mid}) 失败: "
             f"[{e.code}] {e.details() if isinstance(e, AioRpcError) else e.msg}"
         )
         raise AbortError("Dynamic Abort")
@@ -82,11 +82,11 @@ async def _fetch_grpc(up_mid: int, up_name: str) -> Union[Dynamic, None]:
     try:
         resp = await asyncio.wait_for(grpc_get_user_dynamics(up_mid, auth=AuthManager.get_auth()), timeout=10)
     except asyncio.TimeoutError:
-        logger.error(f"[Dynamic] fetch {up_name}({up_mid}) timeout")
+        logger.error(f"[Dynamic] 获取 {up_name}({up_mid}) 超时")
         raise AbortError("Dynamic Abort")
     except (GrpcError, AioRpcError) as e:
         logger.error(
-            f"[Dynamic] fetch {up_name}({up_mid}) failed: "
+            f"[Dynamic] 获取 {up_name}({up_mid}) 失败: "
             f"[{e.code}] {e.details() if isinstance(e, AioRpcError) else e.msg}"
         )
         raise AbortError("Dynamic Abort")

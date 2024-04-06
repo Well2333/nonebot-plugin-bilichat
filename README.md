@@ -75,16 +75,6 @@ _✨ 多功能的 B 站视频解析工具 ✨_
 
 </details>
 
-## 🔌 适配器
-
-| 项目       | 视频解析 | 关注订阅 |
-| ---------- | -------- | -------- |
-| Onebot V11 | ✅       | ✅(SAA)  |
-| Onebot V12 | ✅       | ✅(SAA)  |
-| mirai2     | ✅       | ✅(SAA)  |
-| qq (频道)  | ✅       | ⏳(SAA)  |
-| qq (群)    | ⏳       | ❌       |
-
 ## 💿 安装
 
 > Linux 用户在安装时如果出现 `libGL.so.1: cannot open shared object file: No such file or directory` 错误，说明缺少 OpenGL 的运行环境，可以参考 [dynamicrender](https://pypi.org/project/dynrender-skia/) 中的 README 安装对应的依赖后重试
@@ -266,11 +256,10 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 
 开启此功能需要安装对应的依赖 `nonebot-plugin-bilichat[wordcloud]`
 
-|       配置项        | 类型 | 默认值 |       说明       |
-| :-----------------: | :--: | :----: | :--------------: |
-| bilichat_word_cloud | bool | False  | 是否开启词云功能 |
-
-注：词云功能在 python3.11 中由于 `wordcloud` 包安装失败暂时无法启用，请不要在 3.11 中开启此功能
+|          配置项          |   类型    |   默认值    |       说明       |
+| :----------------------: | :-------: | :---------: | :--------------: |
+|   bilichat_word_cloud    |   bool    |    False    | 是否开启词云功能 |
+| bilichat_word_cloud_size | List[int] | [1000, 800] |   词云图片尺寸   |
 
 ### AI 视频总结配置项
 
@@ -314,8 +303,6 @@ BV12v4y1E7NT -r --no-cache # 可以多个参数混用
 
 ### 指令表
 
-> 此部分当前仅适配了 OneBot 11 ，如果有其他适配器的需求可以新建 issue 来提出
-
 指令部分由 `指令前缀` 和 `指令名` 组成，其中 `指令前缀` 包含 `COMMAND_START` `bilichat_cmd_start` `COMMAND_SEP` 三部分，默认的 `指令前缀` 为 `/bilichat.` ，即完整的指令为 `/bilichat.xxx`
 
 `指令前缀` 部分也是可以修改的，例如 .env 中填入如下设置即可实现无 `指令前缀`
@@ -348,13 +335,16 @@ bilichat_cmd_start=""
 
 -   [BibiGPT](https://github.com/JimmyLv/BibiGPT) 项目灵感来源
 -   [bilibili-API-collect](https://github.com/SocialSisterYi/bilibili-API-collect) 易姐收集的各种 BiliBili Api 及其提供的 gRPC Api 调用方案
+-   [HarukaBot](https://github.com/SK-415/HarukaBot) 功能来源
 -   [BBot-Graia](https://github.com/djkcyl/BBot-Graia) 功能来源 ~~(我 牛 我 自 己)~~
 -   [ABot-Graia](https://github.com/djkcyl/ABot-Graia) 永远怀念最好的 ABot 🙏
+-   [bilireq](https://github.com/SK-415/bilireq) 项目使用的 bilibili 请求库
 -   [nonebot-plugin-template](https://github.com/A-kirami/nonebot-plugin-template): 项目的 README 模板
 -   [Misaka-Mikoto-Tech](https://github.com/Misaka-Mikoto-Tech) 为本项目提交了多项 BUG 修复和代码参考
 -   [hamo-reid](https://github.com/hamo-reid) 为 style_blue 绘制了界面
 -   [dynamicrender](https://pypi.org/project/dynrender-skia/) 提供 t2i 和动态渲染
 -   [SAA](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere) 提供指令及订阅部分的跨平台支持
+-   [ALC](https://github.com/nonebot/plugin-alconna) 提供跨平台支持
 
 ## ⏳ Star 趋势
 

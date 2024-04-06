@@ -103,25 +103,25 @@ async def screenshot(dynid: str, retry: bool = True, **kwargs):
             raise
         except TimeoutError:
             if retry:
-                logger.error(f"Dynamic {dynid} screenshot timed out, retrying...")
+                logger.error(f"动态 {dynid} 截图超时, 重试...")
                 return await screenshot(dynid, retry=False)
             raise AbortError(f"{dynid} 动态截图超时")
         except NotFindAbortError:
             if retry:
-                logger.error(f"Dynamic {dynid} screenshot not found, retry in 3 secs...")
+                logger.error(f"动态 {dynid} 截图超时, 3秒后重试...")
                 await asyncio.sleep(3)
                 return await screenshot(dynid, retry=False)
             raise
         except Exception as e:  # noqa
             if "waiting until" in str(e):
                 if retry:
-                    logger.error(f"Dynamic {dynid} screenshot timed out, retrying...")
+                    logger.error(f"动态 {dynid} 截图超时, 3秒后重试...")
                     await asyncio.sleep(3)
                     return await screenshot(dynid, retry=False)
                 raise AbortError(f"{dynid} 动态截图超时")
             else:
                 capture_exception()
                 if retry:
-                    logger.exception(f"Dynamic {dynid} screenshot not found, retrying...")
+                    logger.exception(f"动态 {dynid} 截图超时, 重试...")
                     return await screenshot(dynid, retry=False)
                 raise AbortError(f"{dynid} 动态截图失败")

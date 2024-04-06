@@ -16,17 +16,14 @@ from .content import Column, Dynamic, Video
 from .lib.b23_extract import b23_extract
 from .lib.text_to_image import t2i
 from .model.arguments import Options
-from .model.exception import AbortError
+from .model.exception import AbortError, ProssesError
 from .optional import capture_exception
 
 if plugin_config.bilichat_openai_token:
-    ENABLE_SUMMARY = True
     from .summary import summarization
-else:
-    ENABLE_SUMMARY = False
 
 if plugin_config.bilichat_word_cloud:
-    from .wordcloud.wordcloud import wordcloud
+    from .wordcloud import wordcloud
 
 cd: Dict[str, int] = {}
 cd_size_limit = plugin_config.bilichat_cd_time // 2
@@ -54,10 +51,10 @@ def check_cd(uid: Union[int, str], check: bool = True):
     # check cd
     session, id_ = uid.split("_-_")
     if cd.get(uid, 0) > now:
-        logger.warning(f"Duplicate content {id_} from session {session}. Skip the video parsing process")
+        logger.warning(f"会话 [{session}] 的重复内容 [{id_}]. 跳过解析")
         raise FinishedException
     elif cd.get(id_, 0) > now:
-        logger.warning(f"Duplicate content {id_} from global. Skip the video parsing process")
+        logger.warning(f"会话 [全局] 的重复内容 [{id_}]. 跳过解析")
         raise FinishedException
     else:
         cd[uid] = now + plugin_config.bilichat_cd_time
@@ -181,19 +178,17 @@ async def content_info(event: Event, origin_msg: UniMsg, state: T_State):
         # 获取官方总结内容
         try:
             official_summary_response = await content.get_offical_summary()
-            official_summary = await t2i(data=official_summary_response.result.markdown(), src="bilibili")
-            if isinstance(official_summary, str):
+            official_summary = official_summary_response.result.markdown()
+            try:
+                future_msg.append(Image(raw=await t2i(data=official_summary, src="bilibili")))
+            except ProssesError:
                 future_msg.append(Text(official_summary))
-            elif isinstance(official_summary, bytes):
-                future_msg.append(Image(raw=official_summary))
-            else:
-                raise TypeError(f"未知的 official_summary 类型: {type(official_summary)}")
         except Exception as e:
             if not plugin_config.bilichat_summary_ignore_null:
                 future_msg.append(Text(f"当前视频不支持AI视频总结: {e}"))
     try:
         async with lock:
-            if ENABLE_SUMMARY or plugin_config.bilichat_word_cloud:
+            if plugin_config.bilichat_openai_token or plugin_config.bilichat_word_cloud:
                 subtitle = await content.get_subtitle()
                 if not subtitle:
                     raise AbortError("视频无有效字幕")
@@ -204,18 +199,17 @@ async def content_info(event: Event, origin_msg: UniMsg, state: T_State):
                         future_msg.append(Image(raw=wc_image))
 
                 # summary
-                if ENABLE_SUMMARY:
+                if plugin_config.bilichat_openai_token:
                     if summary := await summarization(cache=content.cache):
-                        if isinstance(summary, str):
-                            future_msg.append(Text(summary))
-                        elif isinstance(summary, bytes):
-                            future_msg.append(Image(raw=summary))
+                        future_msg.append(Image(raw=summary))
 
     except FinishedException:
         raise
     except AbortError as e:
         if plugin_config.bilichat_show_error_msg:
             future_msg.append(Text(str(e)))
+    except ProssesError as e:
+        future_msg.append(Text(str(e)))
     except Exception as e:
         capture_exception()
         logger.exception(e)

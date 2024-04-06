@@ -214,7 +214,7 @@ class User(BaseModel):
         except NoBotFound:
             pass
         except Exception as e:
-            logger.exception("Failed to push message to user")
+            logger.exception(f"无法为用户 {self.user_id} 推送消息")
             capture_exception(e)
 
         await asyncio.sleep(SubscriptionSystem.config.push_delay)
@@ -345,7 +345,7 @@ class SubscriptionSystem:
         try:
             text = subscribe_file.read_text(encoding="utf-8")
         except UnicodeDecodeError:
-            logger.warning("subscribe.json is not UTF-8 encoded, trying to decode with system default encoding")
+            logger.warning("subscribe.json 非 UTF-8 编码, 尝试使用系统默认编码")
             text = subscribe_file.read_text()
         await cls.load(json.loads(text or "{}"))
 
@@ -365,13 +365,13 @@ class SubscriptionSystem:
     @classmethod
     def get_activate_uploaders(cls):
         at_ups = "\n".join([str(up) for up in cls.activate_uploaders.values()])
-        logger.debug("activate uploaders:\n" + (at_ups or "None activate uploaders"))
+        logger.debug("已激活的UP:\n" + (at_ups or "无已激活的UP"))
         return at_ups
 
     @classmethod
     def refresh_activate_uploaders(cls):
         """通过当前 Bot 覆盖的平台，激活需要推送的UP"""
-        logger.debug("refreshing activate uploaders")
+        logger.debug("刷新已激活的UP")
         cls.activate_uploaders = {}
         for user in cls.users.values():
             target = user.create_saa_target()
@@ -379,7 +379,7 @@ class SubscriptionSystem:
                 get_bot(target)
                 cls.activate_uploaders.update({int(up): cls.uploaders[int(up)] for up in user.subscriptions.keys()})
             except NoBotFound:
-                logger.debug(f"no bot found for user {user._id}")
+                logger.debug(f"用户 {user._id} 无可用推送 Bot")
                 continue
         cls.get_activate_uploaders()
 

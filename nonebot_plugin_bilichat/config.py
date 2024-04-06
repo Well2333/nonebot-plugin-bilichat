@@ -70,6 +70,7 @@ class Config(BaseModel):
 
     # Word Cloud
     bilichat_word_cloud: bool = False
+    bilichat_word_cloud_size: List[int] = [1000, 800]
 
     # AI Summary
     bilichat_summary_ignore_null: bool = True
@@ -97,15 +98,14 @@ class Config(BaseModel):
         try:
             require("nonebot_plugin_mongodb")
             if v == "Auto":
-                logger.info("bilichat_cache_serive can use MongoDB as cache serive")
+                logger.info("bilichat_cache_serive 可以使用 MongoDB 作为缓存服务")
             return "mongodb"
         except Exception as e:
             if v == "Auto":
-                logger.info("bilichat_cache_serive can't use MongoDB as cache serive, using JsonFile")
+                logger.info("bilichat_cache_serive 无法使用 MongoDB 作为缓存服务, 使用 JSON 文件作为缓存服务")
                 return "json"
             raise RuntimeError(
-                "Package(s) of MongoDB not installed, "
-                "use **pip install nonebot-plugin-bilichat[all]** to install required dependencies"
+                "未安装 MongoDB 所需依赖, 使用 **pip install nonebot-plugin-bilichat[all]** 来安装所需依赖"
             ) from e
 
     @validator("bilichat_use_browser", always=True, pre=True)
@@ -115,15 +115,14 @@ class Config(BaseModel):
         try:
             require("nonebot_plugin_htmlrender")
             if v == "Auto":
-                logger.info("bilichat_use_browser dependencies have been satisfied, enable bilichat_use_browser")
+                logger.info("bilichat_use_browser 所需依赖已安装，采用浏览器渲染模式")
             return True
         except Exception as e:
             if v == "Auto":
-                logger.info("bilichat_use_browser's dependency is not satisfied, disable bilichat_use_browser")
+                logger.info("bilichat_use_browser 所需依赖未安装，采用绘图渲染模式")
                 return False
             raise RuntimeError(
-                "Package(s) of fuction styles not installed, "
-                "use **pip install nonebot-plugin-bilichat[all]** to install required dependencies"
+                "浏览器渲染依赖未安装, 请选择其他渲染模式或使用 **pip install nonebot-plugin-bilichat[all]** 来安装所需依赖"
             ) from e
 
     @validator("bilichat_basic_info_style", always=True, pre=True)
@@ -135,7 +134,7 @@ class Config(BaseModel):
             if v == "Auto":
                 return "bbot_default"
             raise RuntimeError(
-                f"style {v} require browser to work, please enable **bilichat_use_browser** or set style to Auto"
+                f"样式 {v} 需要浏览器渲染, 请开启 **bilichat_use_browser** 或设置 bilichat_basic_info_style 为 Auto"
             )
         # 包含浏览器
         return "style_blue" if v == "Auto" else v
@@ -149,7 +148,7 @@ class Config(BaseModel):
             if v == "Auto":
                 return "dynamicrender"
             raise RuntimeError(
-                f"style {v} require browser to work, please enable **bilichat_use_browser** or set style to Auto"
+                f"样式 {v} 需要浏览器渲染, 请开启 **bilichat_use_browser** 或设置 bilichat_dynamic_style 为 Auto"
             )
         # 包含浏览器
         return "browser_mobile" if v == "Auto" else v
@@ -163,19 +162,19 @@ class Config(BaseModel):
             try:
                 json.loads(Path(v).read_text("utf-8"))
             except Exception as e:
-                raise ValueError("Config bilichat_browser_cookie got a problem occurred") from e
+                raise ValueError(f"无法读取 bilichat_bilibili_cookie: {v}") from e
 
         elif Path(v).is_dir():
-            raise ValueError(f"Config bilichat_browser_cookie requires a file, but {v} is a folder")
+            raise ValueError(f"bilichat_browser_cookie 需要一个文件, 而 {v} 是一个文件夹")
 
         elif v == "api":
             cookie_file = cache_dir.joinpath("bilibili_browser_cookies.json").absolute()
             cookie_file.touch(0o755)
-            logger.info(f"create bilibili cookies file at {cookie_file.as_posix()}")
+            logger.info(f"在 {cookie_file.as_posix()} 创建 bilichat_bilibili_cookie 文件")
             return cookie_file.as_posix()
 
         else:
-            raise ValueError(f"Path {v} is not recognized")
+            raise ValueError(f"路径 {v} 无法识别")
 
         return v
 
@@ -184,9 +183,7 @@ class Config(BaseModel):
         if not values["bilichat_openai_token"]:
             return v
         if v is None:
-            logger.warning(
-                "you have enabled openai or newbing summary without a proxy, this may cause request failure."
-            )
+            logger.warning("你设置了 bilichat_openai_token 但未设置 bilichat_openai_proxy ，这可能会导致请求失败.")
         return v
 
     @validator("bilichat_openai_token_limit")
@@ -203,9 +200,7 @@ class Config(BaseModel):
         else:
             max_limit = 3500
         if v > max_limit:
-            logger.error(
-                f"Model {model} has a token cap of {max_limit} instead of {v}, token will be replaced with {max_limit}"
-            )
+            logger.error(f"模型 {model} 的 token 上限为 {max_limit} 而不是 {v}, token 将被重置为 {max_limit}")
             v = max_limit
         return v
 
@@ -215,8 +210,7 @@ class Config(BaseModel):
             return v
         else:
             raise RuntimeError(
-                "Package(s) of fuction openai summary not installed, "
-                "use **pip install nonebot-plugin-bilichat[summary]** to install required dependencies"
+                "openai 依赖未安装, 使用 **pip install nonebot-plugin-bilichat[summary]** 来安装所需依赖"
             )
 
     @validator("bilichat_word_cloud", always=True)
@@ -225,8 +219,7 @@ class Config(BaseModel):
             return v
         else:
             raise RuntimeError(
-                "Package(s) of fuction wordcloud not installed, "
-                "use **pip install nonebot-plugin-bilichat[wordcloud]** to install required dependencies"
+                "wordcloud 依赖未安装, 使用 **pip install nonebot-plugin-bilichat[wordcloud]** 来安装所需依赖"
             )
 
     @validator("bilichat_webui_path", always=True)
@@ -235,7 +228,7 @@ class Config(BaseModel):
             return v
         v = v.strip("/")
         if "/" in v:
-            raise ValueError("bilichat_webui_path should not contain '/'")
+            raise ValueError("bilichat_webui_path 不应包含 '/'")
         return v
 
     def verify_permission(self, uid: Union[str, int]):

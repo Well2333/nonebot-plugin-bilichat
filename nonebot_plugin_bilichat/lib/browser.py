@@ -25,7 +25,7 @@ async def pw_font_injecter(route: Route, request: Request):
     if not url.is_absolute():
         raise ValueError("字体地址不合法")
     try:
-        logger.debug(f"Font {url.query['name']} requested")
+        logger.debug(f"请求字体文件 {url.query['name']}")
         await route.fulfill(
             path=await get_font_async(url.query["name"]),
             content_type=font_mime_map.get(url.suffix),

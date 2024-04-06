@@ -42,25 +42,25 @@ async def screenshot(cvid: str, retry: bool = True, **kwargs):
             raise
         except TimeoutError:
             if retry:
-                logger.error(f"Column cv{cvid} screenshot timed out, retrying...")
+                logger.error(f"专栏 cv{cvid} 截图超时, 重试...")
                 return await screenshot(cvid, retry=False)
             raise AbortError(f"cv{cvid} 专栏截图超时")
         except NotFindAbortError:
             if retry:
-                logger.error(f"Column cv{cvid} screenshot not found, retry in 3 secs...")
+                logger.error(f"专栏 cv{cvid} 不存在, 3秒后重试...")
                 await asyncio.sleep(3)
                 return await screenshot(cvid, retry=False)
             raise
         except Exception as e:  # noqa
             if "waiting until" in str(e):
                 if retry:
-                    logger.error(f"Column cv{cvid} screenshot timed out, retrying...")
+                    logger.error(f"专栏 cv{cvid} 截图超时, 3秒后重试...")
                     await asyncio.sleep(3)
                     return await screenshot(cvid, retry=False)
                 raise AbortError(f"cv{cvid} 专栏截图超时")
             else:
                 capture_exception()
                 if retry:
-                    logger.exception(f"Column cv{cvid} screenshot not found, retrying...")
+                    logger.exception(f"专栏 cv{cvid} 截图失败, 重试...")
                     return await screenshot(cvid, retry=False)
                 raise AbortError(f"cv{cvid} 专栏截图失败")

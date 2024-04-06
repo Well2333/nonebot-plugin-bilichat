@@ -9,9 +9,9 @@ from nonebot.log import logger
 from ..config import plugin_config
 from ..model.openai import OpenAI, TokenUsage
 
-logger.info("Loading OpenAI Token enc model, this may take a few minutes to download")
+logger.info("加载 OpenAI Token enc 模型, 这可能需要一段时间进行下载")
 tiktoken_enc = tiktoken.encoding_for_model(plugin_config.bilichat_openai_model)
-logger.success(f"Enc model {tiktoken_enc.name} load successfully")
+logger.success(f"Enc 模型 {tiktoken_enc.name} 加载成功")
 
 
 def get_summarise_prompt(title: str, transcript: str, type_: Literal["视频字幕", "专栏文章"] = "视频字幕"):

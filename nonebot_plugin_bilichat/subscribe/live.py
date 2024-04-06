@@ -20,10 +20,10 @@ async def fetch_live(ups: Sequence[int]):
     try:
         status_infos = await get_rooms_info_by_uids(list(ups))
     except (TransportError, ConnectError, JSONDecodeError, ResponseCodeError) as e:
-        logger.error(f"[Live] fetch live status failed: {type(e)} {e}")
+        logger.error(f"[Live] 获取直播状态失败: {type(e)} {e}")
         raise AbortError("Live Abort")
     except RuntimeError as e:
-        logger.error(f"[Live] fetch live status failed: {type(e)} {e}")
+        logger.error(f"[Live] 获取直播状态失败: {type(e)} {e}")
         if "The connection pool was closed while" not in str(e):
             capture_exception(e)
         raise AbortError("Live Abort")
@@ -44,7 +44,7 @@ async def fetch_live(ups: Sequence[int]):
             await asyncio.sleep(0)
         async with CONFIG_LOCK:
             try:
-                logger.debug(f"[Live] {up.nickname}({up.uid}) live_status: {room.live_status}")
+                logger.debug(f"[Live] {up.nickname}({up.uid}) 直播状态: {room.live_status}")
                 # 已开播
                 if room.live_status == 1:
                     # 如果是 -1 则为第一次刷取，跳过后续推送部分
