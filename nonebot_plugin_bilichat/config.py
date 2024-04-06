@@ -34,6 +34,7 @@ class Config(BaseModel):
     bilichat_neterror_retry: int = 3
     bilichat_show_error_msg: bool = True
     bilichat_use_browser: bool = Field(default="Auto")
+    bilichat_browser_shot_quality: int = Field(default=75, ge=10, le=100)
     bilichat_cache_serive: Literal["json", "mongodb"] = Field(default="Auto")
     bilichat_text_fonts: str = "default"
     bilichat_emoji_fonts: str = "default"

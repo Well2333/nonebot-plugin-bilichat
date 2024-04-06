@@ -3,6 +3,8 @@ import re
 
 from nonebot.log import logger
 
+from ....config import plugin_config
+
 try:
     from playwright._impl._errors import TimeoutError  # type: ignore
 except ImportError:
@@ -36,7 +38,9 @@ async def screenshot(cvid: str, retry: bool = True, **kwargs):
             await page.set_viewport_size({"width": 1080, "height": int(clip["height"] + 720)})
             await asyncio.sleep(1)
             await page.wait_for_load_state(state="networkidle")
-            if picture := await page.screenshot(clip=clip, full_page=True, type="jpeg", quality=98):
+            if picture := await page.screenshot(
+                clip=clip, full_page=True, type="jpeg", quality=plugin_config.bilichat_browser_shot_quality
+            ):
                 return picture
         except CaptchaAbortError:
             raise

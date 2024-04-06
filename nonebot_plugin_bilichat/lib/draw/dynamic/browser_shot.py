@@ -26,9 +26,9 @@ async def get_mobile_screenshot(page: Page, dynid: str):
 
     page.on(
         "response",
-        lambda response: detect_captcha(response)
-        if response.url.startswith("https://static.geetest.com/captcha_v3/")
-        else None,
+        lambda response: (
+            detect_captcha(response) if response.url.startswith("https://static.geetest.com/captcha_v3/") else None
+        ),
     )
 
     url = f"https://m.bilibili.com/dynamic/{dynid}"
@@ -97,7 +97,9 @@ async def screenshot(dynid: str, retry: bool = True, **kwargs):
             else:
                 page, clip = await get_pc_screenshot(page, dynid)
             clip["height"] = min(clip["height"], 32766)  # 限制高度
-            if picture := await page.screenshot(clip=clip, full_page=True, type="jpeg", quality=98):
+            if picture := await page.screenshot(
+                clip=clip, full_page=True, type="jpeg", quality=plugin_config.bilichat_browser_shot_quality
+            ):
                 return picture
         except CaptchaAbortError:
             raise

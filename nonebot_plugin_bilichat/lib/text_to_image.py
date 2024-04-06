@@ -88,7 +88,7 @@ async def pw_text2image(data: str, src: str):
         await page.set_content(html, wait_until="networkidle")
         await page.wait_for_timeout(5)
         img_raw = await page.get_by_alt_text("main").screenshot(
-            type="png",
+            type="jpeg", quality=plugin_config.bilichat_browser_shot_quality
         )
     return img_raw
 

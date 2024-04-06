@@ -4,6 +4,7 @@ from nonebot.plugin import PluginMetadata
 from .config import __version__, plugin_config, raw_config
 
 require("nonebot_plugin_apscheduler")
+require("nonebot_plugin_alconna")
 require("nonebot_plugin_saa")
 
 from nonebot_plugin_saa import enable_auto_select_bot  # noqa: E402
@@ -18,7 +19,7 @@ __plugin_meta__ = PluginMetadata(
     usage="视频、专栏、动态解析直接发送链接、小程序、xml卡片即可，指令请参考 https://github.com/Well2333/nonebot-plugin-bilichat",
     homepage="https://github.com/Well2333/nonebot-plugin-bilichat",
     type="application",
-    supported_adapters={"~onebot.v11", "~onebot.v12", "~qqguild", "~mirai2"},
+    supported_adapters={"~onebot.v11", "~onebot.v12", "~qq", "~mirai2"},
     extra={
         "author": "djkcyl & Well404",
         "version": __version__,

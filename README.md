@@ -156,24 +156,25 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 
 ### 通用配置项
 
-|         配置项          |   类型    |  默认值  |                               说明                               |
-| :---------------------: | :-------: | :------: | :--------------------------------------------------------------: |
-|     bilichat_block      |   bool    |  False   |                是否拦截事件(防止其他插件二次解析)                |
-|  bilichat_enable_self   |   bool    |  False   |                      是否允许响应自身的消息                      |
-|   bilichat_only_self    |   bool    |  False   | 是否仅响应自身的消息，开启后会**覆盖全部其他规则**(人机合一特供) |
-|   bilichat_only_to_me   |   bool    |  False   |      非自身消息是否需要 `@机器人` 或使用机器人的昵称才响应       |
-|   bilichat_whitelist    | list[str] |    []    |                 **响应**的会话名单, 会覆盖黑名单                 |
-|   bilichat_blacklist    | list[str] |    []    |                       **不响应**的会话名单                       |
-|  bilichat_dynamic_font  |    str    |   None   |                   视频信息及词云图片使用的字体                   |
-|    bilichat_cd_time     |    int    |   120    |                对同一视频的响应冷却时间(防止刷屏)                |
-| bilichat_neterror_retry |    int    |    3     |                   对部分网络请求错误的尝试次数                   |
-|  bilichat_use_bcut_asr  |   bool    |   True   |             是否在**没有字幕时**调用必剪接口生成字幕             |
-| bilichat_show_error_msg |   bool    |   True   |                   是否在解析失败时发送错误信息                   |
-|  bilichat_use_browser   |   bool    |   Auto   |     是否使用浏览器，`Auto` 会根据是否含有相应的依赖进行选择      |
-|  bilichat_cache_serive  |    str    |   Auto   |         使用的缓存类型，可用类型包含 `json` 和 `mongodb`         |
-|   bilichat_text_fonts   |    str    | default  |          可供自定义的字体，仅作用于 dynamicrender 绘图           |
-|  bilichat_emoji_fonts   |    str    | default  |          可供自定义的字体，仅作用于 dynamicrender 绘图           |
-|   bilichat_webui_path   |    str    | bilichat |               WebUI 的路径，设置为空则不开启 WebUI               |
+|            配置项             |   类型    |  默认值  |                               说明                               |
+| :---------------------------: | :-------: | :------: | :--------------------------------------------------------------: |
+|        bilichat_block         |   bool    |  False   |                是否拦截事件(防止其他插件二次解析)                |
+|     bilichat_enable_self      |   bool    |  False   |                      是否允许响应自身的消息                      |
+|      bilichat_only_self       |   bool    |  False   | 是否仅响应自身的消息，开启后会**覆盖全部其他规则**(人机合一特供) |
+|      bilichat_only_to_me      |   bool    |  False   |      非自身消息是否需要 `@机器人` 或使用机器人的昵称才响应       |
+|      bilichat_whitelist       | list[str] |    []    |                 **响应**的会话名单, 会覆盖黑名单                 |
+|      bilichat_blacklist       | list[str] |    []    |                       **不响应**的会话名单                       |
+|     bilichat_dynamic_font     |    str    |   None   |                   视频信息及词云图片使用的字体                   |
+|       bilichat_cd_time        |    int    |   120    |                对同一视频的响应冷却时间(防止刷屏)                |
+|    bilichat_neterror_retry    |    int    |    3     |                   对部分网络请求错误的尝试次数                   |
+|     bilichat_use_bcut_asr     |   bool    |   True   |             是否在**没有字幕时**调用必剪接口生成字幕             |
+|    bilichat_show_error_msg    |   bool    |   True   |                   是否在解析失败时发送错误信息                   |
+|     bilichat_use_browser      |   bool    |   Auto   |     是否使用浏览器，`Auto` 会根据是否含有相应的依赖进行选择      |
+| bilichat_browser_shot_quality |    int    |    75    |      浏览器截图质量，取值范围 10-100，越高则截图的体积越大       |
+|     bilichat_cache_serive     |    str    |   Auto   |         使用的缓存类型，可用类型包含 `json` 和 `mongodb`         |
+|      bilichat_text_fonts      |    str    | default  |          可供自定义的字体，仅作用于 dynamicrender 绘图           |
+|     bilichat_emoji_fonts      |    str    | default  |          可供自定义的字体，仅作用于 dynamicrender 绘图           |
+|      bilichat_webui_path      |    str    | bilichat |               WebUI 的路径，设置为空则不开启 WebUI               |
 
 注:
 
