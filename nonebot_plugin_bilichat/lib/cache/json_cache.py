@@ -11,7 +11,7 @@ from .cache import BaseCache
 class JSONFileCache(BaseCache):
     async def save(self) -> None:
         file_path = cache_dir.joinpath(f"{self.id}.json")
-        logger.debug(f"saving cache of {self.id} to {file_path.absolute().as_posix()}")
+        logger.debug(f"保存 {self.id} 的缓存到 {file_path.absolute().as_posix()}")
         if PYDANTIC_V2:
             await Path(file_path).write_text(self.model_dump_json(), encoding="utf-8")  # type: ignore
         else:

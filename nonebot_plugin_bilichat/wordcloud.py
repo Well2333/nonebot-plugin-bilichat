@@ -1,22 +1,23 @@
 import asyncio
 from io import BytesIO
-from typing import Dict
+from typing import Dict, Optional
 
 from jieba.analyse.tfidf import TFIDF
 from nonebot.log import logger
 from wordcloud import WordCloud
 
-from ..lib.cache import BaseCache
-from ..lib.fonts_provider import get_font_async
-from ..model.exception import AbortError
-from ..optional import capture_exception  # type: ignore
+from .config import plugin_config
+from .lib.cache import BaseCache
+from .lib.fonts_provider import get_font_async
+from .model.exception import AbortError
+from .optional import capture_exception  # type: ignore
 
 tfidf = TFIDF()
 
 
-async def wordcloud(cache: BaseCache):
+async def wordcloud(cache: BaseCache) -> Optional[bytes]:
     try:
-        logger.info(f"Generation wordcloud of Video(Column) {cache.id}")
+        logger.info(f"生成 {cache.id} 的词云")
         if not cache.content:
             return None
         elif not cache.jieba:
@@ -24,12 +25,9 @@ async def wordcloud(cache: BaseCache):
             cache.jieba = await loop.run_in_executor(None, get_frequencies, cache.content)
             await cache.save()
         return await get_worldcloud_image(cache.jieba)
-    except AbortError as e:
-        logger.exception(f"Video(Column) {cache.id} wordcloud generation aborted: {e}")
-        return None
     except Exception as e:
         capture_exception()
-        logger.exception(f"Video(Column) {cache.id} wordcloud generation failed: {e}")
+        logger.exception(f"内容 {cache.id} 的词云生成失败: {e}")
         return None
 
 
@@ -42,8 +40,8 @@ async def get_worldcloud_image(frequencies):
     wc = WordCloud(
         font_path=str(await get_font_async()),
         background_color="white",
-        width=1000,
-        height=800,
+        width=plugin_config.bilichat_word_cloud_size[0],
+        height=plugin_config.bilichat_word_cloud_size[1],
         repeat=False,
         random_state=42,
     )

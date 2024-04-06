@@ -48,7 +48,7 @@ class Column(BaseModel):
         except AbortError:
             raise
         except TimeoutException:
-            logger.warning("Column parsing API call timeout")
+            logger.warning("专栏解析超时")
             raise AbortError(f"{bili_number} 专栏信息生成超时，请稍后再试。")
         except Exception as e:  # noqa
             logger.exception(f"Column parsing API call error: {e}")
@@ -56,10 +56,10 @@ class Column(BaseModel):
 
         if options:
             if options.no_cache:
-                logger.debug(f"parameter --no-cache of cv{cvid} detected, using temporary cache")
+                logger.debug(f"cv{cvid} 包含参数 --no-cache, 使用一次性缓存")
                 cache = BaseCache(id=f"cv{cvid}", title=cv_title, content=cv_text)
             elif options.refresh:
-                logger.debug(f"parameter --refresh of cv{cvid} detected, remove cache")
+                logger.debug(f"cv{cvid} 包含参数 --refresh, 刷新缓存")
                 cache = Cache(id=f"cv{cvid}", title=cv_title, content=cv_text)
                 await cache.save()
             else:

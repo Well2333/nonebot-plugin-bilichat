@@ -7,6 +7,7 @@ from nonebot_plugin_htmlrender.browser import get_new_page
 from qrcode.image.pil import PilImage
 from qrcode.main import QRCode
 
+from ....config import plugin_config
 from ...browser import pw_font_injecter
 from ...store import static_dir
 from . import VideoImage
@@ -75,6 +76,6 @@ async def style_blue(video_info: VideoImage):
         await page.set_content(html, wait_until="networkidle")
         await page.wait_for_timeout(5)
         img_raw = await page.locator(".video").screenshot(
-            type="png",
+            type="jpeg", quality=plugin_config.bilichat_browser_shot_quality
         )
     return img_raw

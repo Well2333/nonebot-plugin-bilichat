@@ -26,9 +26,9 @@ async def get_mobile_screenshot(page: Page, dynid: str):
 
     page.on(
         "response",
-        lambda response: detect_captcha(response)
-        if response.url.startswith("https://static.geetest.com/captcha_v3/")
-        else None,
+        lambda response: (
+            detect_captcha(response) if response.url.startswith("https://static.geetest.com/captcha_v3/") else None
+        ),
     )
 
     url = f"https://m.bilibili.com/dynamic/{dynid}"
@@ -97,31 +97,33 @@ async def screenshot(dynid: str, retry: bool = True, **kwargs):
             else:
                 page, clip = await get_pc_screenshot(page, dynid)
             clip["height"] = min(clip["height"], 32766)  # 限制高度
-            if picture := await page.screenshot(clip=clip, full_page=True, type="jpeg", quality=98):
+            if picture := await page.screenshot(
+                clip=clip, full_page=True, type="jpeg", quality=plugin_config.bilichat_browser_shot_quality
+            ):
                 return picture
         except CaptchaAbortError:
             raise
         except TimeoutError:
             if retry:
-                logger.error(f"Dynamic {dynid} screenshot timed out, retrying...")
+                logger.error(f"动态 {dynid} 截图超时, 重试...")
                 return await screenshot(dynid, retry=False)
             raise AbortError(f"{dynid} 动态截图超时")
         except NotFindAbortError:
             if retry:
-                logger.error(f"Dynamic {dynid} screenshot not found, retry in 3 secs...")
+                logger.error(f"动态 {dynid} 截图超时, 3秒后重试...")
                 await asyncio.sleep(3)
                 return await screenshot(dynid, retry=False)
             raise
         except Exception as e:  # noqa
             if "waiting until" in str(e):
                 if retry:
-                    logger.error(f"Dynamic {dynid} screenshot timed out, retrying...")
+                    logger.error(f"动态 {dynid} 截图超时, 3秒后重试...")
                     await asyncio.sleep(3)
                     return await screenshot(dynid, retry=False)
                 raise AbortError(f"{dynid} 动态截图超时")
             else:
                 capture_exception()
                 if retry:
-                    logger.exception(f"Dynamic {dynid} screenshot not found, retrying...")
+                    logger.exception(f"动态 {dynid} 截图超时, 重试...")
                     return await screenshot(dynid, retry=False)
                 raise AbortError(f"{dynid} 动态截图失败")

@@ -54,10 +54,10 @@ class Video(BaseModel):
 
         if options:
             if options.no_cache:
-                logger.debug(f"parameter --no-cache of av{aid} detected, using temporary cache")
+                logger.debug(f"av{aid} 包含参数 --no-cache, 使用一次性缓存")
                 cache = BaseCache(id=f"av{aid}", title=title)
             elif options.refresh:
-                logger.debug(f"parameter --refresh of av{aid} detected, remove cache")
+                logger.debug(f"av{aid} 包含参数 --refresh, 刷新缓存")
                 cache = Cache(id=f"av{aid}", title=title)
                 await cache.save()
             else:
@@ -73,9 +73,9 @@ class Video(BaseModel):
             self.raw.activity_season.pages[0].page.cid if self.raw.activity_season.pages else self.raw.pages[0].page.cid
         )
         if self.cache.content:
-            logger.debug(f"subtitle cache of av{self.id} exists, use cache")
+            logger.debug(f"av{self.id} 已有字幕缓存")
         else:
-            logger.debug(f"subtitle cache of av{self.id} not exists")
+            logger.debug(f"av{self.id} 无字幕缓存，获取字幕")
             subtitle = await get_subtitle(aid=self.id, cid=cid)
             self.cache.content = subtitle
             await self.cache.save()

@@ -27,11 +27,11 @@ async def fetch_dynamics_rest(up: Uploader):
     try:
         resp: List = (await get_user_dynamics(up.uid))["items"]
     except TimeoutException:
-        logger.error(f"[Dynamic] fetch {up.nickname}({up.uid}) timeout")
+        logger.error(f"[Dynamic] 获取 {up.nickname}({up.uid}) 超时")
         raise AbortError("Dynamic Abort")
     except ResponseCodeError as e:
         logger.error(
-            f"[Dynamic] fetch {up.nickname}({up.uid}) failed: "
+            f"[Dynamic] 获取 {up.nickname}({up.uid}) 失败: "
             f"[{e.code}] {e.details() if isinstance(e, AioRpcError) else e.msg}"
         )
         raise AbortError("Dynamic Abort")
@@ -50,7 +50,7 @@ async def fetch_dynamics_rest(up: Uploader):
         up.dyn_offset = max(up.dyn_offset, int(dyn["id_str"]))
         up_name = dyn["modules"]["module_author"]["name"]
         if up.nickname != up_name:
-            logger.info(f"[Dynamic] Up {up.nickname}({up.uid}) nickname changed to {up_name}")
+            logger.info(f"[Dynamic] Up {up.nickname}({up.uid}) 更改昵称为 {up_name}")
             up.nickname = up_name
 
         url = ""
@@ -97,11 +97,11 @@ async def fetch_dynamics_grpc(up: Uploader):
     try:
         resp = await asyncio.wait_for(grpc_get_user_dynamics(up.uid, auth=AuthManager.get_auth()), timeout=10)
     except asyncio.TimeoutError:
-        logger.error(f"[Dynamic] fetch {up.nickname}({up.uid}) timeout")
+        logger.error(f"[Dynamic] 获取 {up.nickname}({up.uid}) 超时")
         raise AbortError("Dynamic Abort")
     except (GrpcError, AioRpcError) as e:
         logger.error(
-            f"[Dynamic] fetch {up.nickname}({up.uid}) failed: "
+            f"[Dynamic] 获取 {up.nickname}({up.uid}) 失败: "
             f"[{e.code}] {e.details() if isinstance(e, AioRpcError) else e.msg}"
         )
         raise AbortError("Dynamic Abort")
@@ -122,7 +122,7 @@ async def fetch_dynamics_grpc(up: Uploader):
         up.dyn_offset = max(up.dyn_offset, int(dyn.extend.dyn_id_str))
         up_name = dyn.modules[0].module_author.author.name
         if up.nickname != up_name:
-            logger.info(f"[Dynamic] Up {up.nickname}({up.uid}) nickname changed to {up_name}")
+            logger.info(f"[Dynamic] Up {up.nickname}({up.uid}) 更改昵称为 {up_name}")
             up.nickname = up_name
 
         url = ""

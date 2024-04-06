@@ -75,16 +75,6 @@ _✨ 多功能的 B 站视频解析工具 ✨_
 
 </details>
 
-## 🔌 适配器
-
-| 项目       | 视频解析 | 关注订阅 |
-| ---------- | -------- | -------- |
-| Onebot V11 | ✅       | ✅(SAA)  |
-| Onebot V12 | ✅       | ✅(SAA)  |
-| mirai2     | ✅       | ✅(SAA)  |
-| qq (频道)  | ✅       | ⏳(SAA)  |
-| qq (群)    | ⏳       | ❌       |
-
 ## 💿 安装
 
 > Linux 用户在安装时如果出现 `libGL.so.1: cannot open shared object file: No such file or directory` 错误，说明缺少 OpenGL 的运行环境，可以参考 [dynamicrender](https://pypi.org/project/dynrender-skia/) 中的 README 安装对应的依赖后重试
@@ -166,24 +156,25 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 
 ### 通用配置项
 
-|         配置项          |   类型    |  默认值  |                               说明                               |
-| :---------------------: | :-------: | :------: | :--------------------------------------------------------------: |
-|     bilichat_block      |   bool    |  False   |                是否拦截事件(防止其他插件二次解析)                |
-|  bilichat_enable_self   |   bool    |  False   |                      是否允许响应自身的消息                      |
-|   bilichat_only_self    |   bool    |  False   | 是否仅响应自身的消息，开启后会**覆盖全部其他规则**(人机合一特供) |
-|   bilichat_only_to_me   |   bool    |  False   |      非自身消息是否需要 `@机器人` 或使用机器人的昵称才响应       |
-|   bilichat_whitelist    | list[str] |    []    |                 **响应**的会话名单, 会覆盖黑名单                 |
-|   bilichat_blacklist    | list[str] |    []    |                       **不响应**的会话名单                       |
-|  bilichat_dynamic_font  |    str    |   None   |                   视频信息及词云图片使用的字体                   |
-|    bilichat_cd_time     |    int    |   120    |                对同一视频的响应冷却时间(防止刷屏)                |
-| bilichat_neterror_retry |    int    |    3     |                   对部分网络请求错误的尝试次数                   |
-|  bilichat_use_bcut_asr  |   bool    |   True   |             是否在**没有字幕时**调用必剪接口生成字幕             |
-| bilichat_show_error_msg |   bool    |   True   |                   是否在解析失败时发送错误信息                   |
-|  bilichat_use_browser   |   bool    |   Auto   |     是否使用浏览器，`Auto` 会根据是否含有相应的依赖进行选择      |
-|  bilichat_cache_serive  |    str    |   Auto   |         使用的缓存类型，可用类型包含 `json` 和 `mongodb`         |
-|   bilichat_text_fonts   |    str    | default  |          可供自定义的字体，仅作用于 dynamicrender 绘图           |
-|  bilichat_emoji_fonts   |    str    | default  |          可供自定义的字体，仅作用于 dynamicrender 绘图           |
-|   bilichat_webui_path   |    str    | bilichat |               WebUI 的路径，设置为空则不开启 WebUI               |
+|            配置项             |   类型    |  默认值  |                               说明                               |
+| :---------------------------: | :-------: | :------: | :--------------------------------------------------------------: |
+|        bilichat_block         |   bool    |  False   |                是否拦截事件(防止其他插件二次解析)                |
+|     bilichat_enable_self      |   bool    |  False   |                      是否允许响应自身的消息                      |
+|      bilichat_only_self       |   bool    |  False   | 是否仅响应自身的消息，开启后会**覆盖全部其他规则**(人机合一特供) |
+|      bilichat_only_to_me      |   bool    |  False   |      非自身消息是否需要 `@机器人` 或使用机器人的昵称才响应       |
+|      bilichat_whitelist       | list[str] |    []    |                 **响应**的会话名单, 会覆盖黑名单                 |
+|      bilichat_blacklist       | list[str] |    []    |                       **不响应**的会话名单                       |
+|     bilichat_dynamic_font     |    str    |   None   |                   视频信息及词云图片使用的字体                   |
+|       bilichat_cd_time        |    int    |   120    |                对同一视频的响应冷却时间(防止刷屏)                |
+|    bilichat_neterror_retry    |    int    |    3     |                   对部分网络请求错误的尝试次数                   |
+|     bilichat_use_bcut_asr     |   bool    |   True   |             是否在**没有字幕时**调用必剪接口生成字幕             |
+|    bilichat_show_error_msg    |   bool    |   True   |                   是否在解析失败时发送错误信息                   |
+|     bilichat_use_browser      |   bool    |   Auto   |     是否使用浏览器，`Auto` 会根据是否含有相应的依赖进行选择      |
+| bilichat_browser_shot_quality |    int    |    75    |      浏览器截图质量，取值范围 10-100，越高则截图的体积越大       |
+|     bilichat_cache_serive     |    str    |   Auto   |         使用的缓存类型，可用类型包含 `json` 和 `mongodb`         |
+|      bilichat_text_fonts      |    str    | default  |          可供自定义的字体，仅作用于 dynamicrender 绘图           |
+|     bilichat_emoji_fonts      |    str    | default  |          可供自定义的字体，仅作用于 dynamicrender 绘图           |
+|      bilichat_webui_path      |    str    | bilichat |               WebUI 的路径，设置为空则不开启 WebUI               |
 
 注:
 
@@ -266,11 +257,10 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 
 开启此功能需要安装对应的依赖 `nonebot-plugin-bilichat[wordcloud]`
 
-|       配置项        | 类型 | 默认值 |       说明       |
-| :-----------------: | :--: | :----: | :--------------: |
-| bilichat_word_cloud | bool | False  | 是否开启词云功能 |
-
-注：词云功能在 python3.11 中由于 `wordcloud` 包安装失败暂时无法启用，请不要在 3.11 中开启此功能
+|          配置项          |   类型    |   默认值    |       说明       |
+| :----------------------: | :-------: | :---------: | :--------------: |
+|   bilichat_word_cloud    |   bool    |    False    | 是否开启词云功能 |
+| bilichat_word_cloud_size | List[int] | [1000, 800] |   词云图片尺寸   |
 
 ### AI 视频总结配置项
 
@@ -314,8 +304,6 @@ BV12v4y1E7NT -r --no-cache # 可以多个参数混用
 
 ### 指令表
 
-> 此部分当前仅适配了 OneBot 11 ，如果有其他适配器的需求可以新建 issue 来提出
-
 指令部分由 `指令前缀` 和 `指令名` 组成，其中 `指令前缀` 包含 `COMMAND_START` `bilichat_cmd_start` `COMMAND_SEP` 三部分，默认的 `指令前缀` 为 `/bilichat.` ，即完整的指令为 `/bilichat.xxx`
 
 `指令前缀` 部分也是可以修改的，例如 .env 中填入如下设置即可实现无 `指令前缀`
@@ -348,13 +336,16 @@ bilichat_cmd_start=""
 
 -   [BibiGPT](https://github.com/JimmyLv/BibiGPT) 项目灵感来源
 -   [bilibili-API-collect](https://github.com/SocialSisterYi/bilibili-API-collect) 易姐收集的各种 BiliBili Api 及其提供的 gRPC Api 调用方案
+-   [HarukaBot](https://github.com/SK-415/HarukaBot) 功能来源
 -   [BBot-Graia](https://github.com/djkcyl/BBot-Graia) 功能来源 ~~(我 牛 我 自 己)~~
 -   [ABot-Graia](https://github.com/djkcyl/ABot-Graia) 永远怀念最好的 ABot 🙏
+-   [bilireq](https://github.com/SK-415/bilireq) 项目使用的 bilibili 请求库
 -   [nonebot-plugin-template](https://github.com/A-kirami/nonebot-plugin-template): 项目的 README 模板
 -   [Misaka-Mikoto-Tech](https://github.com/Misaka-Mikoto-Tech) 为本项目提交了多项 BUG 修复和代码参考
 -   [hamo-reid](https://github.com/hamo-reid) 为 style_blue 绘制了界面
 -   [dynamicrender](https://pypi.org/project/dynrender-skia/) 提供 t2i 和动态渲染
 -   [SAA](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere) 提供指令及订阅部分的跨平台支持
+-   [ALC](https://github.com/nonebot/plugin-alconna) 提供跨平台支持
 
 ## ⏳ Star 趋势
 

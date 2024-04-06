@@ -26,7 +26,7 @@ logger.info("========= 重新启动 =========")
 
 driver = nonebot.get_driver()
 driver.register_adapter(ONEBOT_V11Adapter)
-driver.register_adapter(Satori_Adapter)
+# driver.register_adapter(Satori_Adapter)
 # driver.register_adapter(Mirai_Adapter)
 # driver.register_adapter(QQ_Adapter)
 

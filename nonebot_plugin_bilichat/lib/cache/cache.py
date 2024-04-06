@@ -13,5 +13,5 @@ class BaseCache(BaseModel):
     newbing: Optional[str] = None
 
     async def save(self, *args, **kwargs):
-        logger.debug(f"saving cache of {self.id} to memory")
+        logger.debug(f"保存 {self.id} 的缓存到内存")
         return

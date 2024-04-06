@@ -9,6 +9,7 @@ from dynrender_skia.DynText import BiliText
 from nonebot.log import logger
 
 from ..config import plugin_config
+from ..model.exception import ProssesError
 from .fonts_provider import get_font_sync
 from .store import cache_dir
 
@@ -87,18 +88,16 @@ async def pw_text2image(data: str, src: str):
         await page.set_content(html, wait_until="networkidle")
         await page.wait_for_timeout(5)
         img_raw = await page.get_by_alt_text("main").screenshot(
-            type="png",
+            type="jpeg", quality=plugin_config.bilichat_browser_shot_quality
         )
     return img_raw
 
 
-async def t2i(data: str, src: str):
+async def t2i(data: str, src: str) -> bytes:
     try:
-        if len(data.strip()) < 30:
-            return data
         if plugin_config.bilichat_use_browser:
             return await pw_text2image(data, src)
         return await rich_text2image(data, src)
     except Exception as e:
         logger.exception(e)
-        return f"总结图片生成失败 {e}\n {data}"
+        raise ProssesError(f"总结图片生成失败 {e}\n {data}") from e

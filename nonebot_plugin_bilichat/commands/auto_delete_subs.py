@@ -11,7 +11,7 @@ auto_delete_subs = on_notice(block=False)
 
 async def remove_sub(target: SaaTarget):
     platform, user_id = User.extract_saa_target(target)
-    logger.info(f"remove subs from {user_id}")
+    logger.info(f"移除用户 {user_id} 的全部订阅")
     async with CONFIG_LOCK:
         if user := SubscriptionSystem.users.get(f"{platform}-_-{user_id}"):
             for up in user.subscribe_ups:

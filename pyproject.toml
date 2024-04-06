@@ -1,7 +1,7 @@
 [project]
 name = "nonebot-plugin-bilichat"
 
-version = "5.3.1"
+version = "5.3.2"
 
 description = "多种B站链接解析，视频词云，AI总结，你想要的都在 bilichat"
 authors = [
@@ -21,7 +21,7 @@ dependencies = [
     "nonebot-plugin-send-anything-anywhere>=0.4.0",
     "packaging>=23.2",
     "python-multipart>=0.0.6",
-    "nonebot-plugin-alconna>=0.41.1",
+    "nonebot-plugin-alconna>=0.42.0",
 ]
 requires-python = ">=3.8,<4.0"
 readme = "README.md"

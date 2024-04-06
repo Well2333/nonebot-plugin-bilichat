@@ -133,7 +133,7 @@ files = [
 
 [[package]]
 name = "bilireq"
-version = "0.2.12"
+version = "0.2.13"
 requires_python = "<4.0,>=3.8"
 summary = "又一个哔哩哔哩请求库"
 groups = ["default"]
@@ -142,10 +142,11 @@ dependencies = [
     "httpx",
     "protobuf>=4.23.4",
     "pycryptodome>=3.19.0",
+    "qrcode>=7.4.2",
 ]
 files = [
-    {file = "bilireq-0.2.12-py3-none-any.whl", hash = "sha256:c5919e312a47a282c8f76df51811fd17d8b9373a354680e19e13194a09363f7a"},
-    {file = "bilireq-0.2.12.tar.gz", hash = "sha256:6ebcd12f6ab1b3e5e993d0e47c9f001dbfacacd9dc6d2019e72dfaa544223349"},
+    {file = "bilireq-0.2.13-py3-none-any.whl", hash = "sha256:7f76f55bb4b8bd5eb7ba920271dcab46f3e0544d23f75b9bdc6c2c547ab1fdca"},
+    {file = "bilireq-0.2.13.tar.gz", hash = "sha256:f36451d523d9c9564e32b97f38e0df030727dfeba97652ebc6669b47a24a6fa2"},
 ]
 
 [[package]]
@@ -1628,19 +1629,19 @@ files = [
 
 [[package]]
 name = "nonebot-plugin-alconna"
-version = "0.41.1"
+version = "0.42.0"
 requires_python = ">=3.8"
 summary = "Alconna Adapter for Nonebot"
 groups = ["default"]
 dependencies = [
-    "arclet-alconna-tools>=0.7.0",
-    "arclet-alconna>=1.8.5",
+    "arclet-alconna-tools>=0.7.2",
+    "arclet-alconna>=1.8.7",
     "nepattern>=0.6.5",
     "nonebot2>=2.2.1",
 ]
 files = [
-    {file = "nonebot_plugin_alconna-0.41.1-py3-none-any.whl", hash = "sha256:835ab5f2b3b2688bc90666318ff2f0aab03d2884847b815aa62b218009cc1cf8"},
-    {file = "nonebot_plugin_alconna-0.41.1.tar.gz", hash = "sha256:9041a961d0678dccfc9cbea8e415fd4fae639aabd4b6e6f2e82c99960293b6a3"},
+    {file = "nonebot_plugin_alconna-0.42.0-py3-none-any.whl", hash = "sha256:c4af1a58ed15e1418fb432e3e9187963351efc41db4bfe651d132c49589b7f57"},
+    {file = "nonebot_plugin_alconna-0.42.0.tar.gz", hash = "sha256:a43445c2faae53d34442fd8bd441f00555845a17e7f0f5f2a978816a504684d9"},
 ]
 
 [[package]]

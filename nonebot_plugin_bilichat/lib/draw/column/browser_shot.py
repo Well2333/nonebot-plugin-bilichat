@@ -3,6 +3,8 @@ import re
 
 from nonebot.log import logger
 
+from ....config import plugin_config
+
 try:
     from playwright._impl._errors import TimeoutError  # type: ignore
 except ImportError:
@@ -36,31 +38,33 @@ async def screenshot(cvid: str, retry: bool = True, **kwargs):
             await page.set_viewport_size({"width": 1080, "height": int(clip["height"] + 720)})
             await asyncio.sleep(1)
             await page.wait_for_load_state(state="networkidle")
-            if picture := await page.screenshot(clip=clip, full_page=True, type="jpeg", quality=98):
+            if picture := await page.screenshot(
+                clip=clip, full_page=True, type="jpeg", quality=plugin_config.bilichat_browser_shot_quality
+            ):
                 return picture
         except CaptchaAbortError:
             raise
         except TimeoutError:
             if retry:
-                logger.error(f"Column cv{cvid} screenshot timed out, retrying...")
+                logger.error(f"专栏 cv{cvid} 截图超时, 重试...")
                 return await screenshot(cvid, retry=False)
             raise AbortError(f"cv{cvid} 专栏截图超时")
         except NotFindAbortError:
             if retry:
-                logger.error(f"Column cv{cvid} screenshot not found, retry in 3 secs...")
+                logger.error(f"专栏 cv{cvid} 不存在, 3秒后重试...")
                 await asyncio.sleep(3)
                 return await screenshot(cvid, retry=False)
             raise
         except Exception as e:  # noqa
             if "waiting until" in str(e):
                 if retry:
-                    logger.error(f"Column cv{cvid} screenshot timed out, retrying...")
+                    logger.error(f"专栏 cv{cvid} 截图超时, 3秒后重试...")
                     await asyncio.sleep(3)
                     return await screenshot(cvid, retry=False)
                 raise AbortError(f"cv{cvid} 专栏截图超时")
             else:
                 capture_exception()
                 if retry:
-                    logger.exception(f"Column cv{cvid} screenshot not found, retrying...")
+                    logger.exception(f"专栏 cv{cvid} 截图失败, 重试...")
                     return await screenshot(cvid, retry=False)
                 raise AbortError(f"cv{cvid} 专栏截图失败")
