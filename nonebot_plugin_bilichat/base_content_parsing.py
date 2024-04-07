@@ -140,6 +140,8 @@ async def _bili_check(state: T_State, event: Event, bot: Bot, msg: UniMsg) -> bo
     except AbortError as e:
         logger.info(e)
         return False
+    except FinishedException:
+        return False
 
 
 async def _pre_check(state: T_State, event: Event, bot: Bot, msg: UniMsg, target: MsgTarget):

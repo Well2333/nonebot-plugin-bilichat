@@ -1,11 +1,12 @@
 import asyncio
 from asyncio import Lock
 
+from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import Depends
 from nonebot.plugin import CommandGroup
 from nonebot.rule import to_me
-from nonebot_plugin_saa import SaaTarget
+from nonebot_plugin_alconna.uniseg import MsgTarget
 
 from ..config import plugin_config
 from ..subscribe.manager import CONFIG_LOCK, SubscriptionSystem, User
@@ -22,9 +23,10 @@ async def check_lock(matcher: Matcher) -> Lock:
     return CONFIG_LOCK
 
 
-async def get_user(matcher: Matcher, target: SaaTarget, lock: Lock = Depends(check_lock)):
+async def get_user(matcher: Matcher, target: MsgTarget, lock: Lock = Depends(check_lock)):
+    logger.debug(target)
     async with lock:
-        platform, user_id = User.extract_saa_target(target)
+        platform, user_id = User.extract_alc_target(target)
         if not user_id:
             await matcher.finish("暂时还不支持当前会话呢\n`(*>﹏<*)′")
         return SubscriptionSystem.users.get(f"{platform}-_-{user_id}", User(user_id=user_id, platform=platform))

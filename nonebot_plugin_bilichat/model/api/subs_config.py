@@ -1,7 +1,8 @@
 from typing import List
 
-from nonebot_plugin_saa.utils.const import SupportedPlatform
 from pydantic import BaseModel, Field
+
+from ...bot_select.target import SupportedPlatform
 
 
 class SubsConfig(BaseModel):

@@ -1,6 +1,6 @@
 from nonebot.adapters import Message
 from nonebot.params import CommandArg
-from nonebot_plugin_saa import Image, MessageFactory
+from nonebot_plugin_alconna.uniseg import Image, MsgTarget, UniMessage
 
 from ..config import plugin_config
 from ..lib.fetch_dynamic import fetch_last_dynamic
@@ -11,7 +11,7 @@ bili_check_dyn = bilichat.command("checkdynamic", aliases=set(plugin_config.bili
 
 
 @bili_check_dyn.handle()
-async def check_dynamic_v11(uid: Message = CommandArg()):
+async def check_dynamic_v11(target: MsgTarget, uid: Message = CommandArg()):
     # 获取 UP 对象
     if not uid:
         await bili_check_dyn.finish("请输入UP主的昵称呢\n`(*>﹏<*)′")
@@ -20,4 +20,4 @@ async def check_dynamic_v11(uid: Message = CommandArg()):
         await bili_check_dyn.finish(up)
     if dyn := await fetch_last_dynamic(up):
         if image := await dyn.get_image(plugin_config.bilichat_dynamic_style):
-            await MessageFactory(Image(image)).send()
+            await UniMessage(Image(raw=image)).send(target=target)

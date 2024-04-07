@@ -9,7 +9,6 @@ from wordcloud import WordCloud
 from .config import plugin_config
 from .lib.cache import BaseCache
 from .lib.fonts_provider import get_font_async
-from .model.exception import AbortError
 from .optional import capture_exception  # type: ignore
 
 tfidf = TFIDF()
