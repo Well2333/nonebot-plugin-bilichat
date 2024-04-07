@@ -1,7 +1,7 @@
 [project]
 name = "nonebot-plugin-bilichat"
 
-version = "5.3.2"
+version = "5.4.0"
 
 description = "多种B站链接解析，视频词云，AI总结，你想要的都在 bilichat"
 authors = [
@@ -18,10 +18,9 @@ dependencies = [
     "httpx>=0.24.1",
     "dynrender-skia-opt>=0.3.8",
     "nonebot-plugin-apscheduler>=0.3.0",
-    "nonebot-plugin-send-anything-anywhere>=0.4.0",
     "packaging>=23.2",
     "python-multipart>=0.0.6",
-    "nonebot-plugin-alconna>=0.42.0",
+    "nonebot-plugin-alconna>=0.42.3",
 ]
 requires-python = ">=3.8,<4.0"
 readme = "README.md"
@@ -61,7 +60,6 @@ dev = [
     "nonebot-adapter-mirai2>=0.0.22",
     "nonebot-adapter-qq>=1.0.1",
     "viztracer>=0.16.1",
-    "nb-cli>=1.2.8",
     "nonebot-adapter-satori>=0.10.3",
 ]
 

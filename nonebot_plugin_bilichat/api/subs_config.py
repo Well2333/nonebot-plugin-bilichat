@@ -3,9 +3,9 @@ from typing import Dict, List, Union
 import nonebot
 from nonebot.compat import model_dump
 from nonebot.log import logger
-from nonebot_plugin_saa.utils.const import SupportedPlatform
 from pydantic import ValidationError
 
+from ..bot_select.target import SupportedPlatform
 from ..model.api import FaildResponse, Response
 from ..model.api.subs_config import Subs
 from ..subscribe.manager import SubscriptionSystem

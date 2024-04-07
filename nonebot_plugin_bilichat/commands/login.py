@@ -6,7 +6,7 @@ from nonebot.adapters import Message
 from nonebot.log import logger
 from nonebot.params import CommandArg, Depends
 from nonebot.permission import SUPERUSER
-from nonebot_plugin_saa import Image, MessageFactory
+from nonebot_plugin_alconna.uniseg import Image, MsgTarget, UniMessage
 
 from ..config import plugin_config
 from ..lib.bilibili_request.auth import AuthManager
@@ -82,13 +82,13 @@ async def bili_login_handle():
 
 
 @bili_login_qrcode.handle()
-async def bili_qrcode_login(lock: Lock = Depends(check_lock)):
+async def bili_qrcode_login(target: MsgTarget, lock: Lock = Depends(check_lock)):
     async with lock:
         login = Login()
         qr_url = await login.get_qrcode_url()
         logger.debug(f"qrcode login url: {qr_url}")
         data = "base64://" + await login.get_qrcode(qr_url, base64=True)  # type: ignore
-        await MessageFactory(Image(data)).send()
+        await UniMessage(Image(raw=data)).send(target=target)
         try:
             auth = await login.qrcode_login(interval=5)
             assert auth, "登录失败，返回数据为空"
