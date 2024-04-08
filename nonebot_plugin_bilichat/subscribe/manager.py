@@ -11,12 +11,24 @@ from nonebot.compat import PYDANTIC_V2
 from nonebot.log import logger
 from nonebot_plugin_alconna.uniseg import AtAll, Image, SupportScope, Target, UniMessage
 from nonebot_plugin_apscheduler import scheduler
+from nonebot_plugin_auto_bot_selector import get_bots
+from nonebot_plugin_auto_bot_selector.expection import NoBotFoundError
+from nonebot_plugin_auto_bot_selector.registries import BOT_CACHE
+from nonebot_plugin_auto_bot_selector.target import (
+    PlatformTarget,
+    SupportedPlatform,
+    TargetDoDoChannel,
+    TargetDoDoPrivate,
+    TargetKaiheilaChannel,
+    TargetKaiheilaPrivate,
+    TargetQQGroup,
+    TargetQQGuildChannel,
+    TargetQQGuildDirect,
+    TargetQQPrivate,
+)
+from nonebot_plugin_auto_bot_selector.utils.alconna import create_target, extract_target
 from pydantic import BaseModel, Field, validator
 
-from ..bot_select import get_bots
-from ..bot_select.expection import NoBotFoundError
-from ..bot_select.registries import BOT_CACHE, BOT_CACHE_LOCK
-from ..bot_select.target import PlatformTarget, SupportedPlatform, TargetQQGroup, TargetQQGuildChannel, TargetQQPrivate
 from ..lib.store import data_dir
 from ..lib.tools import calc_time_total
 from ..lib.uid_extract import uid_extract_sync
@@ -147,17 +159,8 @@ class User(BaseModel):
 
     @classmethod
     def extract_alc_target(cls, target: Target) -> Tuple[str, str]:
-
-        if target.scope == SupportScope.qq_client:
-            user_id = target.id
-            if target.private:
-                return SupportedPlatform.qq_private, user_id
-            else:
-                return SupportedPlatform.qq_group, user_id
-        elif target.scope == SupportScope.qq_guild:
-            return SupportedPlatform.qq_guild_channel, target.id
-        else:
-            raise NotImplementedError(f"Unsupported target type {target.scope}")
+        t = extract_target(target)
+        return t.platform_type, target.id
 
     def create_saa_target(self) -> PlatformTarget:
         if self.platform == SupportedPlatform.qq_group:
@@ -166,18 +169,14 @@ class User(BaseModel):
             return TargetQQPrivate(user_id=int(self.user_id))
         elif self.platform == SupportedPlatform.qq_guild_channel:
             return TargetQQGuildChannel(channel_id=int(self.user_id))
+        elif self.platform == SupportedPlatform.kaiheila_channel:
+            return TargetKaiheilaChannel(channel_id=self.user_id)
+        # Other
         else:
             raise NotImplementedError("Unsupported platform type")
-    
+
     def create_alc_target(self) -> Target:
-        if self.platform == SupportedPlatform.qq_group:
-            return Target(id=self.user_id, scope=SupportScope.qq_client, private=False)
-        elif self.platform == SupportedPlatform.qq_private:
-            return Target(id=self.user_id, scope=SupportScope.qq_client, private=True)
-        elif self.platform == SupportedPlatform.qq_guild_channel:
-            return Target(id=self.user_id, scope=SupportScope.qq_guild)
-        else:
-            raise NotImplementedError("Unsupported platform type")
+        return create_target(self.create_saa_target())
 
     def dict(self, **kwargs) -> Dict[str, Any]:
         exclude_properties = {name for name, value in type(self).__dict__.items() if isinstance(value, property)}
@@ -225,7 +224,7 @@ class User(BaseModel):
         for bot in bots:
             logger.debug(f"开始推送 -> {bot}")
             try:
-                await msg.send(bot=bot,target=self.create_alc_target())
+                await msg.send(bot=bot, target=self.create_alc_target())
                 logger.debug(f"推送成功 -> {bot}")
                 return
             except Exception as e:

@@ -1,7 +1,7 @@
 [project]
 name = "nonebot-plugin-bilichat"
 
-version = "5.4.0"
+version = "5.4.1"
 
 description = "多种B站链接解析，视频词云，AI总结，你想要的都在 bilichat"
 authors = [
@@ -21,6 +21,7 @@ dependencies = [
     "packaging>=23.2",
     "python-multipart>=0.0.6",
     "nonebot-plugin-alconna>=0.42.3",
+    "nonebot-plugin-auto-bot-selector>=0.2.0",
 ]
 requires-python = ">=3.8,<4.0"
 readme = "README.md"
@@ -33,9 +34,7 @@ extra = [
     "nonebot-plugin-mongodb>=0.1.0",
 ]
 wordcloud = ["jieba>=0.42.1", "wordcloud>=1.8.2.2"]
-summary = [
-    "tiktoken>=0.6.0",
-]
+summary = ["tiktoken>=0.6.0"]
 all = [
     "numpy>=1.20.1,<1.25.0",
     "jieba>=0.42.1",
