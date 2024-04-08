@@ -5,7 +5,7 @@
 groups = ["default", "all", "dev", "summary"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:a59ee1f11d1942a64a634db6de30299c604c1696a6f7ef3dc1d58a06f3a5f65e"
+content_hash = "sha256:92b979d1ed9dc9e3230417e5a992040b9ce0614270588172fb04a76ca19a8b71"
 
 [[package]]
 name = "aiofiles"
@@ -1516,6 +1516,21 @@ files = [
 ]
 
 [[package]]
+name = "nonebot-plugin-auto-bot-selector"
+version = "0.2.0"
+requires_python = ">=3.8"
+summary = "Default template for PDM package"
+groups = ["default"]
+dependencies = [
+    "nonebot2>=2.2.1",
+    "typing-extensions>=4.11.0",
+]
+files = [
+    {file = "nonebot_plugin_auto_bot_selector-0.2.0-py3-none-any.whl", hash = "sha256:aca8cede35823b0187f53e5d43e1465af837c68a1430e1882901f25696605c9c"},
+    {file = "nonebot_plugin_auto_bot_selector-0.2.0.tar.gz", hash = "sha256:e28f025ce667abdb2d9ec5694cae017cb2ebf4810117ae22d5690da981082632"},
+]
+
+[[package]]
 name = "nonebot-plugin-htmlrender"
 version = "0.3.1"
 requires_python = "<4.0,>=3.8"
@@ -2539,13 +2554,13 @@ files = [
 
 [[package]]
 name = "typing-extensions"
-version = "4.9.0"
+version = "4.11.0"
 requires_python = ">=3.8"
 summary = "Backported and Experimental Type Hints for Python 3.8+"
 groups = ["all", "default", "dev"]
 files = [
-    {file = "typing_extensions-4.9.0-py3-none-any.whl", hash = "sha256:af72aea155e91adfc61c3ae9e0e342dbc0cba726d6cba4b6c72c1f34e47291cd"},
-    {file = "typing_extensions-4.9.0.tar.gz", hash = "sha256:23478f88c37f27d76ac8aee6c905017a143b0b1b886c3c9f66bc2fd94f9f5783"},
+    {file = "typing_extensions-4.11.0-py3-none-any.whl", hash = "sha256:c1f94d72897edaf4ce775bb7558d5b79d8126906a14ea5ed1635921406c0387a"},
+    {file = "typing_extensions-4.11.0.tar.gz", hash = "sha256:83f085bd5ca59c80295fc2a82ab5dac679cbe02b9f33f7d83af68e241bea51b0"},
 ]
 
 [[package]]
