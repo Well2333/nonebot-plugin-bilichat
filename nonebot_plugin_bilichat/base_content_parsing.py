@@ -1,5 +1,6 @@
 import asyncio
 import re
+import shlex
 import time
 from typing import Dict, Union
 
@@ -15,7 +16,7 @@ from .config import plugin_config
 from .content import Column, Dynamic, Video
 from .lib.b23_extract import b23_extract
 from .lib.text_to_image import t2i
-from .model.arguments import Options
+from .model.arguments import Options, parser
 from .model.exception import AbortError, ProssesError
 from .optional import capture_exception
 
@@ -107,7 +108,7 @@ async def _bili_check(state: T_State, event: Event, bot: Bot, msg: UniMsg) -> bo
         return False
 
     content: Union[Column, Video, Dynamic, None] = None
-    options = Options()
+    options: Options = state["_options_"]
 
     try:
         ## video handle
@@ -131,7 +132,7 @@ async def _bili_check(state: T_State, event: Event, bot: Bot, msg: UniMsg) -> bo
             content = await Dynamic.from_id(_id)
 
         if content:
-            check_cd(f"{state['_uid_']}_-_{content.id}")
+            check_cd(f"{state['_uid_']}_-_{content.id}", check=not options.force)
             state["_content_"] = content
         else:
             raise AbortError(f"查询 {bililink} 返回内容为空")
@@ -144,7 +145,15 @@ async def _bili_check(state: T_State, event: Event, bot: Bot, msg: UniMsg) -> bo
         return False
 
 
+def set_options(state: T_State, msg: UniMsg):
+    options = parser.parse_known_args(args=shlex.split(msg.extract_plain_text()), namespace=Options())[0]
+    state["_options_"] = options
+    if options:
+        logger.info(f"已设置参数: {options}")
+
+
 async def _pre_check(state: T_State, event: Event, bot: Bot, msg: UniMsg, target: MsgTarget):
+    set_options(state, msg)
     return await _permission_check(bot, event, target, state) and await _bili_check(state, event, bot, msg)
 
 
