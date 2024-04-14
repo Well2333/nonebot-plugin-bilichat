@@ -80,15 +80,15 @@ async def _permission_check(bot: Bot, event: Event, target: MsgTarget, state: T_
 
 
 async def _bili_check(state: T_State, event: Event, bot: Bot, msg: UniMsg) -> bool:
-    # 检查并提取 raw_bililink
-    try:
-        if plugin_config.bilichat_enable_self and str(event.get_user_id()) == str(bot.self_id) and (Reply in msg):
-            # 是自身消息的情况下，检查是否是回复，是的话则取被回复的消息
-            _msgs = UniMessage(msg[Reply, 0].msg) or msg
-        else:
-            _msgs = msg
-    except Exception:
-        _msgs = msg
+    _msgs = msg.copy()
+    if Reply in msg and (
+        (plugin_config.bilichat_enable_self and str(event.get_user_id()) == str(bot.self_id)) or event.is_tome()
+    ):
+        # 如果是回复消息
+        # 1. 如果是自身消息且允许自身消息
+        # 2. 如果被回复消息中包含对自身的at
+        # 满足上述任一条件，则将被回复的消息的内容添加到待解析的内容中
+        _msgs.append(Text(str(msg[Reply, 0].msg)))
 
     bililink = None
     for _msg in _msgs[Text] + _msgs[Hyper]:
