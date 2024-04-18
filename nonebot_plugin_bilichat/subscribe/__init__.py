@@ -9,6 +9,24 @@ from .dynamic import fetch_dynamics_grpc, fetch_dynamics_rest
 from .live import fetch_live
 from .manager import CONFIG_LOCK, SubscriptionSystem
 
+NO_ACTIVE_UP = 0
+
+
+async def _check_activate_uploaders(func:str = "Scheduler") -> bool:
+    global NO_ACTIVE_UP
+    if SubscriptionSystem.activate_uploaders:
+        NO_ACTIVE_UP = 0
+        return True
+    if NO_ACTIVE_UP >= 10:
+        NO_ACTIVE_UP = 0
+        logger.debug(f"[{func}]-(0/10) 无活跃的UP, 尝试刷新列表...")
+        await SubscriptionSystem.refresh_activate_uploaders(refresh=True)
+        if SubscriptionSystem.activate_uploaders:
+            return True
+    NO_ACTIVE_UP += 1
+    logger.debug(f"[{func}]-({NO_ACTIVE_UP}/10) 无活跃的UP, 跳过...")
+    return False
+
 
 @scheduler.scheduled_job(
     "interval",
@@ -18,8 +36,7 @@ from .manager import CONFIG_LOCK, SubscriptionSystem
     max_instances=1,
 )
 async def run_dynamic_update():
-    if not SubscriptionSystem.activate_uploaders:
-        logger.trace("[Dynamic] 无活跃的UP, 跳过...")
+    if not await _check_activate_uploaders("Dynamic"):
         return
     # 动态
     logger.debug("[Dynamic] 开始获取动态...")
@@ -63,8 +80,7 @@ async def run_dynamic_update():
     max_instances=1,
 )
 async def run_live_update():
-    if not SubscriptionSystem.activate_uploaders:
-        logger.trace("[Live] 无活跃的UP, 跳过...")
+    if not await _check_activate_uploaders("Live"):
         return
     try:
         logger.debug("[Live] 获取开始")
