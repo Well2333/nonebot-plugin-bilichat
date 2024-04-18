@@ -87,8 +87,7 @@ async def bili_qrcode_login(target: MsgTarget, lock: Lock = Depends(check_lock))
         login = Login()
         qr_url = await login.get_qrcode_url()
         logger.debug(f"qrcode login url: {qr_url}")
-        data = "base64://" + await login.get_qrcode(qr_url, base64=True)  # type: ignore
-        await UniMessage(Image(raw=data)).send(target=target)
+        await UniMessage(Image(raw=await login.get_qrcode(qr_url))).send(target=target)  # type: ignore
         try:
             auth = await login.qrcode_login(interval=5)
             assert auth, "登录失败，返回数据为空"
