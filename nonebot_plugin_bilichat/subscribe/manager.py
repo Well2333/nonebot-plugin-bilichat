@@ -9,21 +9,17 @@ from nonebot import get_driver
 from nonebot.adapters import Bot
 from nonebot.compat import PYDANTIC_V2
 from nonebot.log import logger
-from nonebot_plugin_alconna.uniseg import AtAll, Image, SupportScope, Target, UniMessage
+from nonebot_plugin_alconna.uniseg import AtAll, Image, Target, UniMessage
 from nonebot_plugin_apscheduler import scheduler
-from nonebot_plugin_auto_bot_selector import get_bots
+from nonebot_plugin_auto_bot_selector import get_bots, refresh_bots
 from nonebot_plugin_auto_bot_selector.expection import NoBotFoundError
 from nonebot_plugin_auto_bot_selector.registries import BOT_CACHE
 from nonebot_plugin_auto_bot_selector.target import (
     PlatformTarget,
     SupportedPlatform,
-    TargetDoDoChannel,
-    TargetDoDoPrivate,
     TargetKaiheilaChannel,
-    TargetKaiheilaPrivate,
     TargetQQGroup,
     TargetQQGuildChannel,
-    TargetQQGuildDirect,
     TargetQQPrivate,
 )
 from nonebot_plugin_auto_bot_selector.utils.alconna import create_target, extract_target
@@ -265,13 +261,13 @@ class User(BaseModel):
         if not uploader.subscribed_users:
             del SubscriptionSystem.uploaders[uploader.uid]
 
-        SubscriptionSystem.refresh_activate_uploaders()
+        await SubscriptionSystem.refresh_activate_uploaders()
         SubscriptionSystem.save_to_file()
 
 
 class SubscriptionConfig(BaseModel):
     subs_limit: int = Field(5, ge=0, le=50)
-    dynamic_interval: int = Field(90, ge=60)
+    dynamic_interval: int = Field(90, ge=10)
     live_interval: int = Field(30, ge=10)
     push_delay: int = Field(3, ge=0)
     dynamic_grpc: bool = False
@@ -347,12 +343,20 @@ class SubscriptionSystem:
 
             # 更新定时任务
             dyn_job: Job = scheduler.get_job("dynamic_update")  # type: ignore
-            dyn_job.reschedule("interval", seconds=cls.config.dynamic_interval)
+            dyn_job.reschedule(
+                "interval",
+                seconds=cls.config.dynamic_interval,
+                jitter=cls.config.dynamic_interval // 3,
+            )
             live_job: Job = scheduler.get_job("live_update")  # type: ignore
-            live_job.reschedule("interval", seconds=cls.config.live_interval)
+            live_job.reschedule(
+                "interval",
+                seconds=cls.config.live_interval,
+                jitter=cls.config.live_interval // 3,
+            )
 
             cls.save_to_file()
-            cls.refresh_activate_uploaders()
+            await cls.refresh_activate_uploaders()
 
     @classmethod
     async def load_from_file(cls):
@@ -384,8 +388,11 @@ class SubscriptionSystem:
         return at_ups
 
     @classmethod
-    def refresh_activate_uploaders(cls):
+    async def refresh_activate_uploaders(cls, refresh: bool = False):
         """通过当前 Bot 覆盖的平台，激活需要推送的UP"""
+        if refresh:
+            logger.info("正在刷新目标缓存")
+            await refresh_bots()
         logger.info("正在刷新激活的UP列表")
         cls.activate_uploaders = {}
         for user in cls.users.values():
@@ -408,7 +415,7 @@ async def _(bot: Bot):
     logger.info("重新检查可推送的用户")
     while True:
         if bot in BOT_CACHE.keys():
-            SubscriptionSystem.refresh_activate_uploaders()
+            await SubscriptionSystem.refresh_activate_uploaders()
             logger.info("检查可推送的用户完成")
             return
         await asyncio.sleep(0.5)
@@ -419,7 +426,7 @@ async def _(bot: Bot):
     logger.info("重新检查可推送的用户")
     while True:
         if bot not in BOT_CACHE.keys():
-            SubscriptionSystem.refresh_activate_uploaders()
+            await SubscriptionSystem.refresh_activate_uploaders()
             logger.info("检查可推送的用户完成")
             return
         await asyncio.sleep(0.5)
