@@ -12,14 +12,12 @@ from grpc.aio import AioRpcError
 from httpx import TimeoutException
 from nonebot.log import logger
 
-from ..model.const import DYNAMIC_TYPE_IGNORE
-
 from ..base_content_parsing import check_cd
 from ..config import plugin_config
 from ..content.dynamic import Dynamic
 from ..lib.bilibili_request import get_b23_url, get_user_dynamics
 from ..lib.bilibili_request.auth import AuthManager
-from ..model.const import DYNAMIC_TYPE_MAP
+from ..model.const import DYNAMIC_TYPE_MAP, DYNAMIC_TYPE_IGNORE
 from ..model.exception import AbortError
 from ..optional import capture_exception
 from .manager import Uploader
