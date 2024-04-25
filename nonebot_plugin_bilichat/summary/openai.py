@@ -1,6 +1,6 @@
 import random
 from collections import OrderedDict
-from typing import Dict, List, Literal, Optional
+from typing import Literal
 
 import httpx
 import tiktoken
@@ -31,7 +31,7 @@ def get_summarise_prompt(title: str, transcript: str, type_: Literal["视频字�
     )
 
 
-def count_tokens(prompts: List[Dict[str, str]]):
+def count_tokens(prompts: list[dict[str, str]]):
     """根据内容计算 token 数"""
 
     if plugin_config.bilichat_openai_model.startswith("gpt-3.5"):
@@ -55,7 +55,7 @@ def count_tokens(prompts: List[Dict[str, str]]):
 
 
 def get_small_size_transcripts(
-    title: str, text_data: List[str], token_limit: int = plugin_config.bilichat_openai_token_limit
+    title: str, text_data: list[str], token_limit: int = plugin_config.bilichat_openai_token_limit
 ):
     unique_texts = list(OrderedDict.fromkeys(text_data))
     while count_tokens(get_summarise_prompt(title, " ".join(unique_texts))) > token_limit:
@@ -63,8 +63,8 @@ def get_small_size_transcripts(
     return " ".join(unique_texts)
 
 
-def get_full_prompt(prompt: Optional[str] = None, system: Optional[str] = None, language: Optional[str] = None):
-    plist: List[Dict[str, str]] = []
+def get_full_prompt(prompt: str | None = None, system: str | None = None, language: str | None = None):
+    plist: list[dict[str, str]] = []
     if system:
         plist.append({"role": "system", "content": system})
     if prompt:
@@ -85,10 +85,10 @@ def get_full_prompt(prompt: Optional[str] = None, system: Optional[str] = None, 
 
 
 async def openai_req(
-    prompt_message: List[Dict[str, str]],
-    token: Optional[str] = plugin_config.bilichat_openai_token,
+    prompt_message: list[dict[str, str]],
+    token: str | None = plugin_config.bilichat_openai_token,
     model: str = plugin_config.bilichat_openai_model,
-    temperature: Optional[float] = None,
+    temperature: float | None = None,
     api_base: str = plugin_config.bilichat_openai_api_base,
 ):
     if not token:

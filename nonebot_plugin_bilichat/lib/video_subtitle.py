@@ -1,5 +1,4 @@
 import asyncio
-from typing import Dict, List, Optional
 
 import httpx
 from nonebot.log import logger
@@ -11,9 +10,9 @@ from .bcut_asr import BcutASR
 from .bilibili_request import get_player, grpc_get_playview, hc
 
 
-async def get_subtitle_url(aid: int, cid: int) -> Optional[str]:
+async def get_subtitle_url(aid: int, cid: int) -> str|None:
     video_player = await get_player(aid, cid)
-    subtitles_raw: List[Dict] = video_player["subtitle"]["subtitles"]
+    subtitles_raw: list[dict] = video_player["subtitle"]["subtitles"]
     logger.debug(subtitles_raw)
 
     if not subtitles_raw:
@@ -40,7 +39,7 @@ async def get_subtitle_url(aid: int, cid: int) -> Optional[str]:
     return next(iter(manual_subtitles.values()))
 
 
-async def get_subtitle(aid: int, cid: int) -> List[str]:
+async def get_subtitle(aid: int, cid: int) -> list[str]:
     subtitle_url = await get_subtitle_url(aid, cid)
     if subtitle_url:
         logger.debug(subtitle_url)

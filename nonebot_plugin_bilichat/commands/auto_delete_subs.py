@@ -1,5 +1,3 @@
-from typing import Union
-
 from nonebot.log import logger
 from nonebot.plugin import on_notice
 from nonebot_plugin_alconna.uniseg import MsgTarget
@@ -24,7 +22,7 @@ try:
 
     @auto_delete_subs.handle()
     async def remove_sub_mirai2(
-        event: Union[BotLeaveEventKick, BotLeaveEventDisband, BotLeaveEventActive], target: MsgTarget
+        event: BotLeaveEventKick | BotLeaveEventDisband | BotLeaveEventActive, target: MsgTarget
     ):
         await remove_sub(target)
 

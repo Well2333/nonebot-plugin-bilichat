@@ -2,7 +2,6 @@ import asyncio
 import re
 import shlex
 import time
-from typing import Dict, Union
 
 from nonebot.adapters import Bot, Event
 from nonebot.exception import FinishedException
@@ -26,19 +25,12 @@ if plugin_config.bilichat_openai_token:
 if plugin_config.bilichat_word_cloud:
     from .wordcloud import wordcloud
 
-cd: Dict[str, int] = {}
+cd: dict[str, int] = {}
 cd_size_limit = plugin_config.bilichat_cd_time // 2
-
-# 临时解决方案
-try:
-    lock = asyncio.Lock()
-except RuntimeError:
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    lock = asyncio.Lock(loop=loop)  # type: ignore
+lock = asyncio.Lock()
 
 
-def check_cd(uid: Union[int, str], check: bool = True):
+def check_cd(uid: int | str, check: bool = True):
     global cd
     now = int(time.time())
     uid = str(uid)
@@ -107,7 +99,7 @@ async def _bili_check(state: T_State, event: Event, bot: Bot, msg: UniMsg) -> bo
     if not bililink:
         return False
 
-    content: Union[Column, Video, Dynamic, None] = None
+    content: Column | Video | Dynamic | None = None
     options: Options = state["_options_"]
 
     try:
@@ -166,7 +158,7 @@ bilichat = on_message(
 
 @bilichat.handle()
 async def content_info(event: Event, origin_msg: UniMsg, state: T_State):
-    content: Union[Column, Video, Dynamic] = state["_content_"]
+    content: Column | Video | Dynamic = state["_content_"]
     reply = Reply(id=origin_msg.get_message_id())
     if plugin_config.bilichat_basic_info:
         content_image = await content.get_image(plugin_config.bilichat_basic_info_style)

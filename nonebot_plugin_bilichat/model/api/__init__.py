@@ -1,4 +1,4 @@
-from typing import Generic, Optional, TypeVar
+from typing import Generic, TypeVar
 
 from nonebot.compat import PYDANTIC_V2
 from pydantic import BaseModel
@@ -10,7 +10,7 @@ if PYDANTIC_V2:
     class Response(BaseModel, Generic[DataType]):  # type: ignore
         code: int = 0
         message: str = ""
-        data: Optional[DataType]
+        data: DataType | None
 
 else:
     from pydantic.generics import GenericModel
@@ -18,7 +18,7 @@ else:
     class Response(GenericModel, Generic[DataType]):
         code: int = 0
         message: str = ""
-        data: Optional[DataType]
+        data: DataType | None
 
 
 class FaildResponse(BaseModel):

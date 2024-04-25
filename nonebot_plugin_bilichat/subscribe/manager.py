@@ -2,7 +2,7 @@ import asyncio
 import json
 import random
 import time
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 from apscheduler.job import Job
 from nonebot import get_driver
@@ -30,13 +30,7 @@ from ..lib.tools import calc_time_total
 from ..lib.uid_extract import uid_extract_sync
 from ..optional import capture_exception
 
-# 临时解决方案
-try:
-    CONFIG_LOCK = asyncio.Lock()
-except RuntimeError:
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    CONFIG_LOCK = asyncio.Lock(loop=loop)  # type: ignore
+CONFIG_LOCK = asyncio.Lock()
 
 subscribe_file = data_dir.joinpath("subscribe.json")
 subscribe_file.touch(0o755, True)
@@ -62,11 +56,11 @@ class Uploader(BaseModel):
             self.nickname = up.nickname
 
     @property
-    def subscribed_users(self) -> List["User"]:
+    def subscribed_users(self) -> list["User"]:
         """Get a list of user IDs subscribed to this uploader."""
         return [user for user in SubscriptionSystem.users.values() if self.uid in user.subscriptions]
 
-    def dict(self, **kwargs) -> Dict[str, Any]:
+    def dict(self, **kwargs) -> dict[str, Any]:
         exclude_properties = {name for name, value in type(self).__dict__.items() if isinstance(value, property)}
         exclude_properties.add("living")
         exclude_properties.add("dyn_offset")
@@ -126,10 +120,10 @@ class User(BaseModel):
     user_id: str
     platform: str
     at_all: bool = False
-    subscriptions: Dict[int, UserSubConfig] = {}
+    subscriptions: dict[int, UserSubConfig] = {}
 
     @validator("subscriptions", pre=True, always=True)
-    def validate_subscriptions(cls, v: Union[Dict[str, Dict[str, Any]], List[Dict[str, Any]]]):
+    def validate_subscriptions(cls, v: dict[str, dict[str, Any]] | list[dict[str, Any]]):
         if not v:
             return {}
 
@@ -154,7 +148,7 @@ class User(BaseModel):
         return validated_subs
 
     @classmethod
-    def extract_alc_target(cls, target: Target) -> Tuple[str, str]:
+    def extract_alc_target(cls, target: Target) -> tuple[str, str]:
         t = extract_target(target)
         return t.platform_type, target.id
 
@@ -174,7 +168,7 @@ class User(BaseModel):
     def create_alc_target(self) -> Target:
         return create_target(self.create_saa_target())
 
-    def dict(self, **kwargs) -> Dict[str, Any]:
+    def dict(self, **kwargs) -> dict[str, Any]:
         exclude_properties = {name for name, value in type(self).__dict__.items() if isinstance(value, property)}
         exclude_properties.add("subscriptions")
         if PYDANTIC_V2:
@@ -185,7 +179,7 @@ class User(BaseModel):
         return dict_
 
     @property
-    def subscribe_ups(self) -> List[Uploader]:
+    def subscribe_ups(self) -> list[Uploader]:
         uplist = []
         for uid in self.subscriptions.keys():
             if up := SubscriptionSystem.uploaders.get(int(uid)):
@@ -198,7 +192,7 @@ class User(BaseModel):
     def _id(self) -> str:
         return f"{self.platform}-_-{self.user_id}"
 
-    async def push_to_user(self, content: List[Union[str, bytes]], at_all: Optional[bool] = None):
+    async def push_to_user(self, content: list[str | bytes], at_all: bool | None = None):
         if not at_all:
             at = ""
         elif self.platform == SupportedPlatform.qq_group:
@@ -230,7 +224,7 @@ class User(BaseModel):
 
         await asyncio.sleep(SubscriptionSystem.config.push_delay)
 
-    def add_subscription(self, uploader: Uploader) -> Union[None, str]:
+    def add_subscription(self, uploader: Uploader) -> str | None:
         """Add a subscription for a user to an uploader."""
 
         if len(self.subscriptions) > SubscriptionSystem.config.subs_limit:
@@ -248,7 +242,7 @@ class User(BaseModel):
         SubscriptionSystem.get_activate_uploaders()
         SubscriptionSystem.save_to_file()
 
-    async def remove_subscription(self, uploader: Uploader) -> Union[None, str]:
+    async def remove_subscription(self, uploader: Uploader) -> str | None:
         """Remove a subscription for a user from an uploader."""
         if uploader.uid not in self.subscriptions:
             return "本群并未订阅此UP主呢...\n`(*>﹏<*)′"
@@ -275,18 +269,18 @@ class SubscriptionConfig(BaseModel):
 
 class SubscriptionCfgFile(BaseModel):
     config: SubscriptionConfig = SubscriptionConfig(**{})
-    uploaders: List[Uploader] = []
-    users: List[User] = []
+    uploaders: list[Uploader] = []
+    users: list[User] = []
 
     @validator("uploaders", always=True, pre=True)
-    def validate_uploaders(cls, v: Union[Dict[str, Dict[str, Any]], List[Dict[str, Any]]]):
+    def validate_uploaders(cls, v: dict[str, dict[str, Any]] | list[dict[str, Any]]):
         if not v:
             return []
         ups = v.values() if isinstance(v, dict) else v
         return [Uploader(**up) for up in ups]
 
     @validator("users", always=True, pre=True)
-    def validate_users(cls, v: Union[Dict[str, Dict[str, Any]], List[Dict[str, Any]]]):
+    def validate_users(cls, v: dict[str, dict[str, Any]] | list[dict[str, Any]]):
         if not v:
             return []
         users = v.values() if isinstance(v, dict) else v
@@ -307,13 +301,13 @@ class SubscriptionCfgFile(BaseModel):
 class SubscriptionSystem:
     """Manages the subscription system."""
 
-    uploaders: Dict[int, Uploader] = {}
-    activate_uploaders: Dict[int, Uploader] = {}
-    users: Dict[str, User] = {}
+    uploaders: dict[int, Uploader] = {}
+    activate_uploaders: dict[int, Uploader] = {}
+    users: dict[str, User] = {}
     config: SubscriptionConfig = SubscriptionConfig(**{})
 
     @classmethod
-    def dict(cls):
+    def dump_dict(cls):
         return {
             "config": cls.config.dict(),
             "uploaders": [up.dict() for up in cls.uploaders.values()],
@@ -321,7 +315,7 @@ class SubscriptionSystem:
         }
 
     @classmethod
-    async def load(cls, data: Dict[str, Union[Dict[str, Any], List[Dict[str, Any]]]]):
+    async def load(cls, data: dict[str, dict[str, Any] | list[dict[str, Any]]]):
         raw_cfg = SubscriptionCfgFile.parse_obj(data)
         while CONFIG_LOCK.locked():
             await asyncio.sleep(0)
@@ -373,7 +367,7 @@ class SubscriptionSystem:
         """Save data to the JSON file."""
         subscribe_file.write_text(
             json.dumps(
-                cls.dict(),
+                cls.dump_dict(),
                 ensure_ascii=False,
                 indent=2,
                 sort_keys=True,

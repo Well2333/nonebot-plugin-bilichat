@@ -1,5 +1,4 @@
 import asyncio
-from typing import List
 
 from bilireq.exceptions import GrpcError, ResponseCodeError
 from bilireq.grpc.dynamic import grpc_get_user_dynamics
@@ -25,7 +24,7 @@ from .manager import Uploader
 
 async def fetch_dynamics_rest(up: Uploader):
     try:
-        resp: List = (await get_user_dynamics(up.uid))["items"]
+        resp: list = (await get_user_dynamics(up.uid))["items"]
     except TimeoutException:
         logger.error(f"[Dynamic] 获取 {up.nickname}({up.uid}) 超时")
         raise AbortError("Dynamic Abort")

@@ -1,12 +1,11 @@
 import contextlib
-from typing import List
 
 from nonebot.log import logger
 
 from .bilibili_request import hc
 
 
-async def b23_extract(b23: List[str]):
+async def b23_extract(b23: list[str]):
     try:
         url = f"https://b23.tv/{b23[1]}"
         for _ in range(3):

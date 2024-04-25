@@ -190,17 +190,17 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 | :-----------------------: | :-------: | :----------------------: | :-----------------------: |
 |  bilichat_command_to_me   |   bool    |           True           |    命令是否需要@机器人    |
 |    bilichat_cmd_start     |    str    |        "bilichat"        | 命令的起始词，可设置为空  |
-|   bilichat_cmd_add_sub    | List[str] |     ["订阅", "关注"]     |      "sub"命令的别名      |
-|  bilichat_cmd_remove_sub  | List[str] |     ["退订", "取关"]     |     "unsub"命令的别名     |
-|  bilichat_cmd_check_sub   | List[str] |   ["查看", "查看订阅"]   |     "check"命令的别名     |
-|  bilichat_cmd_reset_sub   | List[str] |   ["重置", "重置配置"]   |     "reset"命令的别名     |
-|    bilichat_cmd_at_all    | List[str] | ["全体成员", "at 全体"]  |     "atall"命令的别名     |
-|   bilichat_cmd_dynamic    | List[str] | ["动态通知", "动态订阅"] |    "dynamic"命令的别名    |
-|     bilichat_cmd_live     | List[str] | ["直播通知", "直播订阅"] |     "live"命令的别名      |
-| bilichat_cmd_checkdynamic | List[str] |       ["查看动态"]       | "checkdynamic" 命令的别名 |
-| bilichat_cmd_check_login  | List[str] |     ["查看登录账号"]     |  "checklogin" 命令的别名  |
-| bilichat_cmd_login_qrcode | List[str] |       ["扫码登录"]       |   "qrlogin" 命令的别名    |
-|    bilichat_cmd_logout    | List[str] |       ["登出账号"]       |    "logout" 命令的别名    |
+|   bilichat_cmd_add_sub    | list[str] |     ["订阅", "关注"]     |      "sub"命令的别名      |
+|  bilichat_cmd_remove_sub  | list[str] |     ["退订", "取关"]     |     "unsub"命令的别名     |
+|  bilichat_cmd_check_sub   | list[str] |   ["查看", "查看订阅"]   |     "check"命令的别名     |
+|  bilichat_cmd_reset_sub   | list[str] |   ["重置", "重置配置"]   |     "reset"命令的别名     |
+|    bilichat_cmd_at_all    | list[str] | ["全体成员", "at 全体"]  |     "atall"命令的别名     |
+|   bilichat_cmd_dynamic    | list[str] | ["动态通知", "动态订阅"] |    "dynamic"命令的别名    |
+|     bilichat_cmd_live     | list[str] | ["直播通知", "直播订阅"] |     "live"命令的别名      |
+| bilichat_cmd_checkdynamic | list[str] |       ["查看动态"]       | "checkdynamic" 命令的别名 |
+| bilichat_cmd_check_login  | list[str] |     ["查看登录账号"]     |  "checklogin" 命令的别名  |
+| bilichat_cmd_login_qrcode | list[str] |       ["扫码登录"]       |   "qrlogin" 命令的别名    |
+|    bilichat_cmd_logout    | list[str] |       ["登出账号"]       |    "logout" 命令的别名    |
 
 ### 基础信息配置项
 
@@ -260,7 +260,7 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 |          配置项          |   类型    |   默认值    |       说明       |
 | :----------------------: | :-------: | :---------: | :--------------: |
 |   bilichat_word_cloud    |   bool    |    False    | 是否开启词云功能 |
-| bilichat_word_cloud_size | List[int] | [1000, 800] |   词云图片尺寸   |
+| bilichat_word_cloud_size | list[int] | [1000, 800] |   词云图片尺寸   |
 
 ### AI 视频总结配置项
 

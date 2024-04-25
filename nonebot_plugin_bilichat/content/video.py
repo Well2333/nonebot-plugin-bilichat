@@ -1,5 +1,3 @@
-from typing import Optional
-
 from bilireq.grpc.protos.bilibili.app.view.v1.view_pb2 import ViewReply
 from bilireq.utils import get
 from nonebot.log import logger
@@ -34,7 +32,7 @@ class Video(BaseModel):
         return f"av{self.id}"
 
     @classmethod
-    async def from_id(cls, bili_number: str, options: Optional[Options] = None):
+    async def from_id(cls, bili_number: str, options: Options | None = None):
         logger.info(f"Parsing video {bili_number}")
         video_info = None
         if bili_number[:2].lower() == "av":
@@ -89,9 +87,11 @@ class Video(BaseModel):
             "https://api.bilibili.com/x/web-interface/view/conclusion/get",
             params={
                 "bvid": self.raw.bvid,
-                "cid": self.raw.activity_season.pages[0].page.cid
-                if self.raw.activity_season.pages
-                else self.raw.pages[0].page.cid,
+                "cid": (
+                    self.raw.activity_season.pages[0].page.cid
+                    if self.raw.activity_season.pages
+                    else self.raw.pages[0].page.cid
+                ),
                 "up_mid": self.raw.arc.author.mid,
                 "web_location": "0.0",
             },

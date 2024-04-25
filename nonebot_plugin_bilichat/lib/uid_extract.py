@@ -1,6 +1,5 @@
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
-from typing import List, Union
 
 from nonebot.log import logger
 from pydantic import BaseModel, Field
@@ -17,10 +16,10 @@ class SearchUp(BaseModel):
 
 
 class SearchResult(BaseModel):
-    items: List[SearchUp] = []
+    items: list[SearchUp] = []
 
 
-async def search(text_u: str) -> Union[str, SearchUp]:
+async def search(text_u: str) -> str | SearchUp:
     resp = await search_user(text_u)
     result = SearchResult(**resp)
     if result.items:
@@ -32,7 +31,7 @@ async def search(text_u: str) -> Union[str, SearchUp]:
     return "未找到该 UP 主呢\n`(*>﹏<*)′"
 
 
-async def uid_extract(text: str) -> Union[str, SearchUp]:
+async def uid_extract(text: str) -> str | SearchUp:
     text_u = text.strip(""""'“”‘’""").strip().replace("：", ":")
     up = await search(text_u)
     if isinstance(up, str) and text_u.isdigit():
@@ -55,6 +54,6 @@ def run_async_in_thread(func, *args):
         return future.result()
 
 
-def uid_extract_sync(text: str) -> Union[str, SearchUp]:
+def uid_extract_sync(text: str) -> str | SearchUp:
     # 调用 run_async_in_thread 来运行异步函数并获取结果
     return run_async_in_thread(uid_extract, text)

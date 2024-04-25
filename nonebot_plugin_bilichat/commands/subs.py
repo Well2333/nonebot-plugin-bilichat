@@ -1,5 +1,4 @@
 from asyncio import Lock
-from typing import Optional
 
 from nonebot.adapters import Message
 from nonebot.params import CommandArg, Depends
@@ -51,7 +50,7 @@ async def remove_sub(msg: Message = CommandArg(), user: User = Depends(get_user)
 
 @bili_check_sub.handle()
 async def check_sub(
-    user: User = Depends(get_user), msg: Optional[Message] = CommandArg(), lock: Lock = Depends(check_lock)
+    user: User = Depends(get_user), msg: Message | None = CommandArg(), lock: Lock = Depends(check_lock)
 ):
     async with lock:
         if not user.subscriptions:
@@ -87,7 +86,7 @@ async def check_sub(
 
 @bili_reset_sub.handle()
 async def reset_sub(
-    user: User = Depends(get_user), msg: Optional[Message] = CommandArg(), lock: Lock = Depends(check_lock)
+    user: User = Depends(get_user), msg: Message | None = CommandArg(), lock: Lock = Depends(check_lock)
 ):
     async with lock:
         if not msg:

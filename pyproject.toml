@@ -1,7 +1,7 @@
 [project]
 name = "nonebot-plugin-bilichat"
 
-version = "5.6.1”
+version = "5.7.0"
 
 description = "多种B站链接解析，视频词云，AI总结，你想要的都在 bilichat"
 authors = [
@@ -23,7 +23,7 @@ dependencies = [
     "nonebot-plugin-alconna>=0.42.3",
     "nonebot-plugin-auto-bot-selector>=0.2.0",
 ]
-requires-python = ">=3.8,<4.0"
+requires-python = ">=3.10,<4.0"
 readme = "README.md"
 license = { text = "AGPL3.0" }
 [project.optional-dependencies]
