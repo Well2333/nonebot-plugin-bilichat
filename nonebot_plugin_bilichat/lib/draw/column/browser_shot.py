@@ -42,6 +42,8 @@ async def screenshot(cvid: str, retry: bool = True, **kwargs):
                 clip=clip, full_page=True, type="jpeg", quality=plugin_config.bilichat_browser_shot_quality
             ):
                 return picture
+            else:
+                logger.warning(f"专栏 cv{cvid} 截图失败, 可能是专栏过长无法截图")
         except CaptchaAbortError:
             raise
         except TimeoutError:
