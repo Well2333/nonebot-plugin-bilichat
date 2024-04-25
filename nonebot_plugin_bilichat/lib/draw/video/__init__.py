@@ -1,6 +1,5 @@
 from datetime import datetime
 from io import BytesIO
-from typing import List, Optional, Union
 
 from bilireq.exceptions import ResponseCodeError
 from bilireq.grpc.protos.bilibili.app.view.v1.view_pb2 import ViewReply
@@ -14,7 +13,7 @@ class UP:
     def __init__(
         self,
         name: str,
-        face: Union[bytes, BytesIO],
+        face: bytes | BytesIO,
         level: int,
         fans: str,
         video_counts: int,
@@ -74,7 +73,7 @@ class VideoImage:
 
     def __init__(
         self,
-        cover: Union[bytes, BytesIO],
+        cover: bytes | BytesIO,
         duration: int,
         type_name: str,
         title: str,
@@ -86,10 +85,10 @@ class VideoImage:
         reply: str,
         share: str,
         pubdate: datetime,
-        uploaders: List[UP],
+        uploaders: list[UP],
         b23_url: str,
         aid: str,
-        desc: Optional[str] = None,
+        desc: str|None = None,
     ):
         self.cover: BytesIO = cover if isinstance(cover, BytesIO) else BytesIO(cover)
         """视频封面"""
@@ -117,7 +116,7 @@ class VideoImage:
         """分享"""
         self.pubdate: datetime = pubdate
         """发布时间"""
-        self.uploaders: List[UP] = uploaders
+        self.uploaders: list[UP] = uploaders
         """up主列表"""
         self.b23_url: str = b23_url
         """b23短链"""

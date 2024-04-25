@@ -1,5 +1,3 @@
-from typing import Optional
-
 from httpx._exceptions import TimeoutException
 from lxml import etree
 from lxml.etree import _Element, _ElementUnicodeResult
@@ -24,13 +22,13 @@ class Column(BaseModel):
     url: str
     """b23 链接"""
     cache: BaseCache
-    
+
     @property
     def bili_id(self) -> str:
         return f"cv{self.id}"
 
     @classmethod
-    async def from_id(cls, bili_number: str, options: Optional[Options] = None):
+    async def from_id(cls, bili_number: str, options: Options | None = None):
         try:
             cvid = bili_number[2:]
             cv = await hc.get(f"https://www.bilibili.com/read/cv{cvid}", cookies=AuthManager.get_cookies())

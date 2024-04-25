@@ -5,6 +5,7 @@ from .config import __version__, plugin_config, raw_config
 
 require("nonebot_plugin_apscheduler")
 require("nonebot_plugin_alconna")
+require("nonebot_plugin_auto_bot_selector")
 
 cmd_perfix = f"{raw_config.command_start}{plugin_config.bilichat_cmd_start}{raw_config.command_sep}"
 

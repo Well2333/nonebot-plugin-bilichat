@@ -1,17 +1,14 @@
-from typing import Dict, List, Optional
-
 from nonebot.log import logger
 from pydantic import BaseModel
 
 
 class BaseCache(BaseModel):
     id: str
-    title: Optional[str] = None
-    content: Optional[List[str]] = None
-    jieba: Optional[Dict] = None
-    openai: Optional[str] = None
-    newbing: Optional[str] = None
+    title: str | None = None
+    content: list[str] | None = None
+    jieba: dict | None = None
+    openai: str | None = None
+    newbing: str | None = None
 
     async def save(self, *args, **kwargs):
         logger.debug(f"保存 {self.id} 的缓存到内存")
-        return

@@ -1,5 +1,4 @@
 import time
-from typing import List
 
 from pydantic import BaseModel, Field
 
@@ -12,7 +11,7 @@ class PartOutline(BaseModel):
 class Outline(BaseModel):
     title: str
     """分段标题"""
-    part_outline: List[PartOutline]
+    part_outline: list[PartOutline]
     """分段中的细分内容"""
     timestamp: int
 
@@ -21,7 +20,7 @@ class ModelResult(BaseModel):
     result_type: int
     summary: str
     """视频总结"""
-    outline: List[Outline]
+    outline: list[Outline]
     """分段总结"""
 
     @staticmethod

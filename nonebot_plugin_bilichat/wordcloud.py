@@ -1,6 +1,5 @@
 import asyncio
 from io import BytesIO
-from typing import Dict, Optional
 
 from jieba.analyse.tfidf import TFIDF
 from nonebot.log import logger
@@ -14,7 +13,7 @@ from .optional import capture_exception  # type: ignore
 tfidf = TFIDF()
 
 
-async def wordcloud(cache: BaseCache) -> Optional[bytes]:
+async def wordcloud(cache: BaseCache) -> bytes | None:
     try:
         logger.info(f"生成 {cache.id} 的词云")
         if not cache.content:
@@ -30,7 +29,7 @@ async def wordcloud(cache: BaseCache) -> Optional[bytes]:
         return None
 
 
-def get_frequencies(msg_list) -> Dict[str, float]:
+def get_frequencies(msg_list) -> dict[str, float]:
     text = "\n".join(msg_list)
     return dict(tfidf.extract_tags(text, topK=200, withWeight=True))
 

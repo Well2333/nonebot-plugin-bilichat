@@ -1,5 +1,3 @@
-from typing import Optional
-
 from pydantic import BaseModel
 
 
@@ -13,5 +11,5 @@ class OpenAI(BaseModel):
     error: bool = False
     message: str = ""
     response: str = ""
-    token_usage: Optional[TokenUsage] = None
+    token_usage: TokenUsage | None = None
     raw: dict = {}

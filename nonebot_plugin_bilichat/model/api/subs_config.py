@@ -1,4 +1,3 @@
-from typing import List
 
 from nonebot_plugin_auto_bot_selector.target import SupportedPlatform
 from pydantic import BaseModel, Field
@@ -24,7 +23,7 @@ class User(BaseModel):
     user_id: str
     platform: SupportedPlatform
     at_all: bool = False
-    subscriptions: List[UserSubConfig]
+    subscriptions: list[UserSubConfig]
 
 
 class Uploader(BaseModel):
@@ -34,5 +33,5 @@ class Uploader(BaseModel):
 
 class Subs(BaseModel):
     config: SubsConfig
-    uploaders: List[Uploader] = []
-    users: List[User] = []
+    uploaders: list[Uploader] = []
+    users: list[User] = []

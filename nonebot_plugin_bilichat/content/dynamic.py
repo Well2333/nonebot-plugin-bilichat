@@ -1,4 +1,4 @@
-from typing import Dict, Literal
+from typing import Literal
 
 from bilireq.exceptions import GrpcError, ResponseCodeError
 from bilireq.grpc.dynamic import grpc_get_dynamic_detail
@@ -21,7 +21,7 @@ class Dynamic(BaseModel):
     """b23 链接"""
     dynamic_type: DynamicType.ValueType = DynamicType.dyn_none
     "动态类型"
-    raw: Dict = {}
+    raw: dict = {}
     """动态的原始信息"""
     raw_type: Literal["web", "grpc", None] = None
     

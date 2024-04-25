@@ -1,9 +1,8 @@
 import datetime
 import re
-from typing import Union
 
 
-def calc_time_total(t: Union[float, int]):
+def calc_time_total(t: float | int):
     """
     Calculate the total time in a human-readable format.
 

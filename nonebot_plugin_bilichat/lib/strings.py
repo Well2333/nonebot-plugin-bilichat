@@ -1,6 +1,5 @@
 import re
 import string
-from typing import List
 
 
 def num_fmt(num: int):
@@ -61,7 +60,7 @@ def get_cut_str(str_in, cut):
     return non_wrap_str
 
 
-def generate_framed_text(content: List[str], width=88, padding=4):
+def generate_framed_text(content: list[str], width=88, padding=4):
     """
     Generates a framed text block with specified width and padding.
 

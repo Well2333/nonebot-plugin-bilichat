@@ -1,20 +1,14 @@
 import importlib.util
 import json
-import sys
+from importlib.metadata import version
 from pathlib import Path
-from typing import List, Literal, Optional, Union
+from typing import Literal
 
 from nonebot import get_driver, get_plugin_config, require
 from nonebot.log import logger
 from pydantic import BaseModel, Field, validator
 
 from .lib.store import cache_dir
-
-# get package version
-if sys.version_info < (3, 10):
-    from importlib_metadata import version
-else:
-    from importlib.metadata import version
 
 try:
     __version__ = version("nonebot_plugin_bilichat")
@@ -28,8 +22,8 @@ class Config(BaseModel):
     bilichat_enable_self: bool = False
     bilichat_only_self: bool = False
     bilichat_only_to_me: bool = False
-    bilichat_whitelist: List[str] = []
-    bilichat_blacklist: List[str] = []
+    bilichat_whitelist: list[str] = []
+    bilichat_blacklist: list[str] = []
     bilichat_cd_time: int = 120
     bilichat_neterror_retry: int = 3
     bilichat_show_error_msg: bool = True
@@ -38,22 +32,22 @@ class Config(BaseModel):
     bilichat_cache_serive: Literal["json", "mongodb"] = Field(default="Auto")
     bilichat_text_fonts: str = "default"
     bilichat_emoji_fonts: str = "default"
-    bilichat_webui_path: Optional[str] = "bilichat"
+    bilichat_webui_path: str | None = "bilichat"
 
     # command and subscribe
     bilichat_command_to_me: bool = True
     bilichat_cmd_start: str = "bilichat"
-    bilichat_cmd_add_sub: List[str] = ["订阅", "关注"]
-    bilichat_cmd_remove_sub: List[str] = ["退订", "取关"]
-    bilichat_cmd_check_sub: List[str] = ["查看", "查看订阅"]
-    bilichat_cmd_reset_sub: List[str] = ["重置", "重置配置"]
-    bilichat_cmd_at_all: List[str] = ["全体成员", "at全体"]
-    bilichat_cmd_dynamic: List[str] = ["动态通知", "动态订阅"]
-    bilichat_cmd_live: List[str] = ["直播通知", "直播订阅"]
-    bilichat_cmd_checkdynamic: List[str] = ["查看动态"]
-    bilichat_cmd_check_login: List[str] = ["查看登录账号"]
-    bilichat_cmd_login_qrcode: List[str] = ["扫码登录"]
-    bilichat_cmd_logout: List[str] = ["登出账号"]
+    bilichat_cmd_add_sub: list[str] = ["订阅", "关注"]
+    bilichat_cmd_remove_sub: list[str] = ["退订", "取关"]
+    bilichat_cmd_check_sub: list[str] = ["查看", "查看订阅"]
+    bilichat_cmd_reset_sub: list[str] = ["重置", "重置配置"]
+    bilichat_cmd_at_all: list[str] = ["全体成员", "at全体"]
+    bilichat_cmd_dynamic: list[str] = ["动态通知", "动态订阅"]
+    bilichat_cmd_live: list[str] = ["直播通知", "直播订阅"]
+    bilichat_cmd_checkdynamic: list[str] = ["查看动态"]
+    bilichat_cmd_check_login: list[str] = ["查看登录账号"]
+    bilichat_cmd_login_qrcode: list[str] = ["扫码登录"]
+    bilichat_cmd_logout: list[str] = ["登出账号"]
 
     # basic info
     bilichat_basic_info: bool = True
@@ -64,20 +58,20 @@ class Config(BaseModel):
     # dynamic
     bilichat_dynamic: bool = True
     bilichat_dynamic_style: Literal["dynamicrender", "browser_mobile", "browser_pc"] = Field(default="Auto")
-    bilichat_bilibili_cookie: Optional[str] = None
+    bilichat_bilibili_cookie: str | None = None
 
     # both WC and AI
     bilichat_use_bcut_asr: bool = True
 
     # Word Cloud
     bilichat_word_cloud: bool = False
-    bilichat_word_cloud_size: List[int] = [1000, 800]
+    bilichat_word_cloud_size: list[int] = [1000, 800]
 
     # AI Summary
     bilichat_summary_ignore_null: bool = True
     bilichat_official_summary: bool = False
-    bilichat_openai_token: Optional[str] = None
-    bilichat_openai_proxy: Optional[str] = None
+    bilichat_openai_token: str | None = None
+    bilichat_openai_proxy: str | None = None
     bilichat_openai_model: Literal[
         "gpt-3.5-turbo",
         "gpt-3.5-turbo-0301",
@@ -97,6 +91,8 @@ class Config(BaseModel):
         if v == "json":
             return v
         try:
+            if not importlib.util.find_spec("nonebot_plugin_mongodb"):
+                raise ImportError
             require("nonebot_plugin_mongodb")
             if v == "Auto":
                 logger.info("bilichat_cache_serive 可以使用 MongoDB 作为缓存服务")
@@ -232,7 +228,7 @@ class Config(BaseModel):
             raise ValueError("bilichat_webui_path 不应包含 '/'")
         return v
 
-    def verify_permission(self, uid: Union[str, int]):
+    def verify_permission(self, uid: str | int) -> bool:
         if self.bilichat_whitelist:
             return str(uid) in self.bilichat_whitelist
         elif self.bilichat_blacklist:

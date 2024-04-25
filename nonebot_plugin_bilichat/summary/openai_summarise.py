@@ -1,5 +1,3 @@
-from typing import List
-
 from nonebot.log import logger
 
 from ..config import plugin_config
@@ -10,14 +8,14 @@ from ..optional import capture_exception  # type: ignore
 from .openai import get_small_size_transcripts, get_summarise_prompt, openai_req
 
 
-async def subtitle_summarise(title: str, sub: List[str]):
+async def subtitle_summarise(title: str, sub: list[str]):
     small_size_transcripts = get_small_size_transcripts(title, sub)
     prompt = get_summarise_prompt(title, small_size_transcripts)
     logger.debug(prompt)
     return await openai_req(prompt)
 
 
-async def column_summarise(cv_title: str, cv_text: List[str]):
+async def column_summarise(cv_title: str, cv_text: list[str]):
     small_size_transcripts = get_small_size_transcripts(cv_title, cv_text)
     prompt = get_summarise_prompt(cv_title, small_size_transcripts, type_="专栏文章")
     logger.debug(prompt)

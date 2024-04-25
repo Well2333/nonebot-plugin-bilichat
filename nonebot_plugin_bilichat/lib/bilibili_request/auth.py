@@ -1,6 +1,5 @@
 import json
 import random
-from typing import Any, Dict, List, Union
 
 from bilireq.auth import Auth
 from nonebot import get_driver
@@ -13,11 +12,11 @@ bili_grpc_auth_file.touch(0o700, exist_ok=True)
 
 
 class AuthManager:
-    grpc_auths: List[Auth] = []
+    grpc_auths: list[Auth] = []
 
     @classmethod
     async def load_grpc_auths(cls) -> None:
-        data: Union[List[Dict], Dict] = json.loads(bili_grpc_auth_file.read_bytes() or "[]")
+        data: list[dict] | dict = json.loads(bili_grpc_auth_file.read_bytes() or "[]")
         data = data if isinstance(data, list) else [data]
         cls.grpc_auths.clear()
         for raw_auth in data:
@@ -37,7 +36,7 @@ class AuthManager:
         )
 
     @classmethod
-    def get_cookies(cls) -> Dict[str, str]:
+    def get_cookies(cls) -> dict[str, str]:
         if auths := cls.grpc_auths.copy():
             random.shuffle(auths)
             for auth in auths:
@@ -47,7 +46,7 @@ class AuthManager:
         return {}
 
     @classmethod
-    def get_auth(cls) -> Union[Auth, None]:
+    def get_auth(cls) -> Auth | None:
         return random.choice(cls.grpc_auths).copy() if cls.grpc_auths else None
 
     @classmethod
@@ -60,7 +59,7 @@ class AuthManager:
         cls.dump_grpc_auths()
 
     @classmethod
-    def remove_auth(cls, uid: int) -> Union[str, None]:
+    def remove_auth(cls, uid: int) -> str | None:
         for old_auth in cls.grpc_auths:
             if old_auth.uid == uid:
                 cls.grpc_auths.remove(old_auth)

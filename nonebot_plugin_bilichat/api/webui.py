@@ -4,7 +4,6 @@ import tempfile
 import zipfile
 from io import BytesIO
 from pathlib import Path
-from typing import Union
 
 from fastapi import File, UploadFile
 from fastapi.responses import HTMLResponse
@@ -26,7 +25,7 @@ async def read_html():
 
 
 @app.post("/webui/update")
-async def upload_file(file: UploadFile = File(...)) -> Union[Response[None], FaildResponse]:
+async def upload_file(file: UploadFile = File(...)) -> Response[None] | FaildResponse:
     file_data = await file.read()
     filename = file.filename or ""
 

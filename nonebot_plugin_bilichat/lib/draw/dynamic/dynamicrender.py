@@ -1,5 +1,4 @@
 from io import BytesIO
-from typing import Dict
 
 import skia
 from dynamicadaptor.DynamicConversion import formate_message
@@ -28,7 +27,7 @@ render = DynRender(
 )
 
 
-async def skia_dynamic(raw: Dict, raw_type: str, **kwargs):
+async def skia_dynamic(raw: dict, raw_type: str, **kwargs):
     if dynamic_formate := await formate_message(raw_type, raw):
         img_bio = BytesIO()
         image_array = await render.run(dynamic_formate) # type: ignore

@@ -1,7 +1,7 @@
 import time
 from os import PathLike
 from pathlib import Path
-from typing import List, Literal, Optional, Union
+from typing import Literal
 
 import httpx
 from nonebot.log import logger
@@ -44,14 +44,14 @@ class BcutASR:
     __in_boss_key: str
     __resource_id: str
     __upload_id: str
-    __upload_urls: List[str]
+    __upload_urls: list[str]
     __per_size: int
     __clips: int
-    __etags: List[str]
+    __etags: list[str]
     __download_url: str
     task_id: str
 
-    def __init__(self, file: Optional[Union[str, PathLike]] = None) -> None:
+    def __init__(self, file: str | PathLike | None = None) -> None:
         self.session = httpx.AsyncClient()
         self.task_id = ""
         self.__etags = []
@@ -60,9 +60,9 @@ class BcutASR:
 
     def set_data(
         self,
-        _file: Optional[Union[str, PathLike]] = None,
-        raw_data: Optional[bytes] = None,
-        data_fmt: Optional[SUPPORT_SOUND_FORMAT] = None,
+        _file: str | PathLike | None = None,
+        raw_data: bytes | None = None,
+        data_fmt: SUPPORT_SOUND_FORMAT | None = None,
     ) -> None:
         "设置欲识别的数据"
         if _file:
@@ -164,7 +164,7 @@ class BcutASR:
         logger.info(f"Conversion task created: {self.task_id}")
         return self.task_id
 
-    async def result(self, task_id: Optional[str] = None) -> ResultRspSchema:
+    async def result(self, task_id: str | None = None) -> ResultRspSchema:
         "查询转换结果"
         resp = await self.session.get(API_QUERY_RESULT, params={"model_id": 7, "task_id": task_id or self.task_id})
         resp.raise_for_status()
