@@ -9,16 +9,16 @@ class ASRDataSeg(BaseModel):
 
     class ASRDataWords(BaseModel):
         "文字识别-逐字"
-        label: str
-        start_time: int
-        end_time: int
-        confidence: int
+        label: str | None
+        start_time: int | None
+        end_time: int | None
+        confidence: int | None
 
     start_time: int
     end_time: int
     transcript: str
-    words: list[ASRDataWords]
-    confidence: int
+    words: list[ASRDataWords] | None
+    confidence: int | None
 
     def to_srt_ts(self) -> str:
         "转换为srt时间戳"
