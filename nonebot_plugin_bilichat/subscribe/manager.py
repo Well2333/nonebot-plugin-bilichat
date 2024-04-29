@@ -2,6 +2,7 @@ import asyncio
 import json
 import random
 import time
+from datetime import datetime
 from typing import Any
 
 from apscheduler.job import Job
@@ -25,15 +26,17 @@ from nonebot_plugin_auto_bot_selector.target import (
 from nonebot_plugin_auto_bot_selector.utils.alconna import create_target, extract_target
 from pydantic import BaseModel, Field, validator
 
-from ..lib.store import data_dir
+from ..lib.store import cache_dir, data_dir
 from ..lib.tools import calc_time_total
 from ..lib.uid_extract import uid_extract_sync
 from ..optional import capture_exception
 
 CONFIG_LOCK = asyncio.Lock()
 
-subscribe_file = data_dir.joinpath("subscribe.json")
-subscribe_file.touch(0o755, True)
+SUBSCRIBE_FILE = data_dir.joinpath("subscribe.json")
+SUBSCRIBE_FILE.touch(0o755, True)
+SUBSCRIBE_FILE_ARCHIVE_DIR = cache_dir.joinpath("subscribe_archive")
+SUBSCRIBE_FILE_ARCHIVE_DIR.mkdir(0o755, True, True)
 
 driver = get_driver()
 
@@ -356,24 +359,37 @@ class SubscriptionSystem:
     async def load_from_file(cls):
         """Load data from the JSON file."""
         try:
-            text = subscribe_file.read_text(encoding="utf-8")
+            text = SUBSCRIBE_FILE.read_text(encoding="utf-8")
         except UnicodeDecodeError:
             logger.warning("subscribe.json 非 UTF-8 编码, 尝试使用系统默认编码")
-            text = subscribe_file.read_text()
+            text = SUBSCRIBE_FILE.read_text()
         await cls.load(json.loads(text or "{}"))
 
     @classmethod
     def save_to_file(cls):
         """Save data to the JSON file."""
-        subscribe_file.write_text(
-            json.dumps(
-                cls.dump_dict(),
-                ensure_ascii=False,
-                indent=2,
-                sort_keys=True,
-            ),
+        try:
+            old = SUBSCRIBE_FILE.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            logger.warning("subscribe.json 非 UTF-8 编码, 尝试使用系统默认编码")
+            old = SUBSCRIBE_FILE.read_text()
+        data = json.dumps(
+            cls.dump_dict(),
+            ensure_ascii=False,
+            indent=2,
+            sort_keys=True,
+        )
+        if old == data:
+            logger.info("配置文件未更改，无需保存")
+            return
+        SUBSCRIBE_FILE.write_text(
+            data=data,
             encoding="utf-8",
         )
+        backup_file = SUBSCRIBE_FILE_ARCHIVE_DIR.joinpath(f"{datetime.now().strftime('%Y-%m-%dT%H_%M_%S')}.json")
+        backup_file.touch(0o755, True)
+        backup_file.write_text(data=data, encoding="utf-8")
+        logger.info(f"配置文件已更改，备份修改后的配置文件到 {backup_file}")
 
     @classmethod
     def get_activate_uploaders(cls):
