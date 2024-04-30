@@ -1,7 +1,7 @@
 [project]
 name = "nonebot-plugin-bilichat"
 
-version = "5.8.0"
+version = "5.8.1"
 
 description = "多种B站链接解析，视频词云，AI总结，你想要的都在 bilichat"
 authors = [
@@ -9,7 +9,7 @@ authors = [
     { name = "Well404", email = "well_404@outlook.com" },
 ]
 dependencies = [
-    "bilireq>=0.2.8",
+    "bilireq>=0.2.13",
     "qrcode>=7.4.2",
     "pillow>=9.5.0",
     "lxml>=4.9.2",
