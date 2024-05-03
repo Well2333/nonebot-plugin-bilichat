@@ -151,7 +151,7 @@ async def _pre_check(state: T_State, event: Event, bot: Bot, msg: UniMsg, target
 
 bilichat = on_message(
     block=plugin_config.bilichat_block,
-    priority=1,
+    priority=2,
     rule=Rule(_pre_check),
 )
 

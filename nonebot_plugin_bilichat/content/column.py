@@ -73,3 +73,6 @@ class Column(BaseModel):
 
     async def get_image(self, style: str):
         return await draw_column(cvid=self.id)
+    
+    async def fetch_content(self) -> list[bytes] | list[None]:
+        ...

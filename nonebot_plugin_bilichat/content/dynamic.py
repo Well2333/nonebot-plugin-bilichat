@@ -7,7 +7,7 @@ from google.protobuf.json_format import MessageToDict
 from nonebot.log import logger
 from pydantic import BaseModel
 
-from ..lib.bilibili_request import get_b23_url, get_dynamic
+from ..lib.bilibili_request import get_b23_url, get_dynamic, hc
 from ..lib.bilibili_request.auth import AuthManager
 from ..lib.draw.dynamic import draw_dynamic
 from ..model.exception import AbortError
@@ -24,7 +24,7 @@ class Dynamic(BaseModel):
     raw: dict = {}
     """动态的原始信息"""
     raw_type: Literal["web", "grpc", None] = None
-    
+
     @property
     def bili_id(self) -> str:
         return f"动态id: {self.id}"
@@ -61,6 +61,8 @@ class Dynamic(BaseModel):
             self.dynamic_type = DynamicType.article
             cvid = dyn["modules"]["module_dynamic"]["major"]["article"]["id"]
             self.url = await get_b23_url(f"https://www.bilibili.com/read/cv{cvid}")
+        elif dyn["type"] == "DYNAMIC_TYPE_DRAW":
+            self.dynamic_type = DynamicType.draw
 
     @classmethod
     async def from_id(cls, bili_number: str):
@@ -94,7 +96,28 @@ class Dynamic(BaseModel):
 
         if not dynamic.url:
             dynamic.url = await get_b23_url(f"https://t.bilibili.com/{bili_number}")
+        # with open("dynamic.json", "w", encoding="utf-8") as f:
+        #     import json
+        #     json.dump(dynamic.dict(), f, ensure_ascii=False)
         return dynamic
 
     async def get_image(self, style: str):
         return await draw_dynamic(dynid=self.id, raw=self.raw, raw_type=self.raw_type)
+
+    async def fetch_content(self) -> list[bytes] | list[None]:
+        result = []
+        # 获取图文动态中的图片
+        if self.dynamic_type == DynamicType.draw:
+            if self.raw_type == "web":
+                items = self.raw["modules"]["module_dynamic"]["major"]["draw"]["items"]
+            elif self.raw_type == "grpc":
+                for module in self.raw["modules"]:
+                    if module["module_type"] == "module_dynamic":
+                        items = module["dynDraw"]["items"]
+                        break
+            for item in items:
+                resq = await hc.get(item["src"])
+                result.append(resq.content)
+        else:
+            logger.debug(f"动态类型 {self.dynamic_type} 不是图文动态")
+        return result
