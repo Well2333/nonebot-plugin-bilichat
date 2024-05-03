@@ -32,7 +32,11 @@ async def check_dynamic_v11(target: MsgTarget, uid: Message = CommandArg()):
             await UniMessage(Image(raw=image)).send(target=target)
 
 
-async def _bili_check(state: T_State, msg: UniMsg, target: MsgTarget) -> bool:
+bili_fetch_content = bilichat.command("fetch", aliases=set(plugin_config.bilichat_cmd_fetch), block=True)
+
+
+@bili_fetch_content.handle()
+async def fetch_check(state: T_State, msg: UniMsg, target: MsgTarget):
     _msgs = msg.copy()
     if Reply in msg:
         # 如果是回复消息
@@ -56,7 +60,7 @@ async def _bili_check(state: T_State, msg: UniMsg, target: MsgTarget) -> bool:
                 break
 
     if not bililink:
-        return False
+        raise FinishedException
 
     content: Column | Video | Dynamic | None = None
 
@@ -80,18 +84,11 @@ async def _bili_check(state: T_State, msg: UniMsg, target: MsgTarget) -> bool:
             state["_content_"] = content
         else:
             raise AbortError(f"查询 {bililink} 返回内容为空")
-
-        return True
     except AbortError as e:
         logger.info(e)
-        return False
+        raise FinishedException
     except FinishedException:
-        return False
-
-
-bili_fetch_content = bilichat.command(
-    "fetch", aliases=set(plugin_config.bilichat_cmd_fetch), rule=_bili_check, block=True
-)
+        raise FinishedException
 
 
 @bili_fetch_content.handle()

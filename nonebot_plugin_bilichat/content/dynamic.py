@@ -112,8 +112,8 @@ class Dynamic(BaseModel):
                 items = self.raw["modules"]["module_dynamic"]["major"]["draw"]["items"]
             elif self.raw_type == "grpc":
                 for module in self.raw["modules"]:
-                    if module["module_type"] == "module_dynamic":
-                        items = module["dynDraw"]["items"]
+                    if module["moduleType"] == "module_dynamic":
+                        items = module["moduleDynamic"]["dynDraw"]["items"]
                         break
             for item in items:
                 resq = await hc.get(item["src"])
