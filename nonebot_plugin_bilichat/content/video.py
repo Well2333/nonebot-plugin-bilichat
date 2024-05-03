@@ -104,3 +104,6 @@ class Video(BaseModel):
             capture_exception(extra={"response": resp})
             raise AbortError("获取官方视频总结失败") from e
         return summary
+
+    async def fetch_content(self) -> list[bytes] | list[None]:
+        ...
