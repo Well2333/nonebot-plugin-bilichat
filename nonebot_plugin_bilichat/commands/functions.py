@@ -98,8 +98,14 @@ async def fetch_content(target: MsgTarget, state: T_State):
         raise FinishedException
     elif isinstance(content, Dynamic):
         logger.info("尝试下载动态图片")
-        if imgs := await content.fetch_content():
-            await UniMessage([Image(raw=img) for img in imgs]).send(target=target)
-            raise FinishedException
-        else:
-            logger.info("动态无图片")
+        try:
+            if imgs := await content.fetch_content():
+                await UniMessage([Image(raw=img) for img in imgs]).send(target=target)
+                raise FinishedException
+            else:
+                await bili_fetch_content.finish("动态无图片")
+        except Exception as e:
+            if isinstance(e, FinishedException):
+                raise
+            logger.exception(e)
+            await bili_fetch_content.finish(f"动态图片获取失败 {type(e)}: {e}")
