@@ -1,8 +1,10 @@
 from bilireq.grpc.protos.bilibili.app.view.v1.view_pb2 import ViewReply
 from bilireq.utils import get
+from httpx import TimeoutException
 from nonebot.log import logger
 from pydantic import BaseModel, ValidationError
 
+from ..config import plugin_config
 from ..lib.bilibili_request import get_b23_url, grpc_get_view_info
 from ..lib.cache import BaseCache, Cache
 from ..lib.draw import VideoImage
@@ -35,11 +37,19 @@ class Video(BaseModel):
     async def from_id(cls, bili_number: str, options: Options | None = None):
         logger.info(f"Parsing video {bili_number}")
         video_info = None
-        if bili_number[:2].lower() == "av":
-            if aid := int(bili_number[2:]):
-                video_info = await grpc_get_view_info(aid=aid)
+        for i in range(plugin_config.bilichat_neterror_retry):
+            try:
+                if bili_number[:2].lower() == "av":
+                    if aid := int(bili_number[2:]):
+                        video_info = await grpc_get_view_info(aid=aid)
+                else:
+                    video_info = await grpc_get_view_info(bvid=bili_number)
+                break
+            except TimeoutException:
+                logger.warning(f"请求超时，重试第 {i + 1}/{plugin_config.bilichat_neterror_retry} 次")
         else:
-            video_info = await grpc_get_view_info(bvid=bili_number)
+            raise AbortError("请求超时")
+        
         try:
             if not video_info or video_info.ecode == 1:
                 raise AbortError("未找到此视频，可能不存在或已被删除。")

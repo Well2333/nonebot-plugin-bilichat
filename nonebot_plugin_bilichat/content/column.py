@@ -1,9 +1,10 @@
-from httpx._exceptions import TimeoutException
+from httpx import TimeoutException
 from lxml import etree
 from lxml.etree import _Element, _ElementUnicodeResult
 from nonebot.log import logger
 from pydantic import BaseModel
 
+from ..config import plugin_config
 from ..lib.bilibili_request import get_b23_url, hc
 from ..lib.bilibili_request.auth import AuthManager
 from ..lib.cache import BaseCache, Cache
@@ -31,7 +32,15 @@ class Column(BaseModel):
     async def from_id(cls, bili_number: str, options: Options | None = None):
         try:
             cvid = bili_number[2:]
-            cv = await hc.get(f"https://www.bilibili.com/read/cv{cvid}", cookies=AuthManager.get_cookies())
+            for i in range(plugin_config.bilichat_neterror_retry):
+                try:
+                    cv = await hc.get(f"https://www.bilibili.com/read/cv{cvid}", cookies=AuthManager.get_cookies())
+                    break
+                except TimeoutException:
+                    logger.warning(f"请求超时，重试第 {i + 1}/{plugin_config.bilichat_neterror_retry} 次")
+            else:
+                raise AbortError("请求超时")
+
             if cv.status_code != 200:
                 logger.debug(f"cv{cvid} status code: {cv.status_code} content: \n{cv.content}")
                 raise AbortError("未找到此专栏，可能已被 UP 主删除。")
@@ -73,6 +82,5 @@ class Column(BaseModel):
 
     async def get_image(self, style: str):
         return await draw_column(cvid=self.id)
-    
-    async def fetch_content(self) -> list[bytes] | list[None]:
-        ...
+
+    async def fetch_content(self) -> list[bytes] | list[None]: ...

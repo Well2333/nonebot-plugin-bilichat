@@ -4,9 +4,11 @@ from bilireq.exceptions import GrpcError, ResponseCodeError
 from bilireq.grpc.dynamic import grpc_get_dynamic_detail
 from bilireq.grpc.protos.bilibili.app.dynamic.v2.dynamic_pb2 import DynamicType, DynModuleType
 from google.protobuf.json_format import MessageToDict
+from httpx import TimeoutException
 from nonebot.log import logger
 from pydantic import BaseModel
 
+from ..config import plugin_config
 from ..lib.bilibili_request import get_b23_url, get_dynamic, hc
 from ..lib.bilibili_request.auth import AuthManager
 from ..lib.draw.dynamic import draw_dynamic
@@ -31,7 +33,14 @@ class Dynamic(BaseModel):
 
     async def _grpc(self):
         logger.debug("正在使用 gRPC 获取动态信息")
-        _dyn = await grpc_get_dynamic_detail(dynamic_id=self.id, auth=AuthManager.get_auth())
+        for i in range(plugin_config.bilichat_neterror_retry):
+            try:
+                _dyn = await grpc_get_dynamic_detail(dynamic_id=self.id, auth=AuthManager.get_auth())
+                break
+            except TimeoutException:
+                logger.warning(f"请求超时，重试第 {i + 1}/{plugin_config.bilichat_neterror_retry} 次")
+        else:
+            raise AbortError("请求超时")
         dyn = _dyn.item
         self.raw = MessageToDict(dyn)
         self.raw_type = "grpc"
@@ -49,7 +58,14 @@ class Dynamic(BaseModel):
 
     async def _web(self):
         logger.debug("正在使用 RestAPI 获取动态信息")
-        dyn = (await get_dynamic(self.id))["item"]
+        for i in range(plugin_config.bilichat_neterror_retry):
+            try:
+                dyn = (await get_dynamic(self.id))["item"]
+                break
+            except TimeoutException:
+                logger.warning(f"请求超时，重试第 {i + 1}/{plugin_config.bilichat_neterror_retry} 次")
+        else:
+            raise AbortError("请求超时")
         self.raw = dyn
         self.raw_type = "web"
 
@@ -115,8 +131,14 @@ class Dynamic(BaseModel):
                     if module["moduleType"] == "module_dynamic":
                         items = module["moduleDynamic"]["dynDraw"]["items"]
                         break
-            for item in items:
-                resq = await hc.get(item["src"])
+            for c, item in enumerate(items):
+                logger.debug(f"获取图片({c}/{len(items)})：{item['src']}")
+                for i in range(plugin_config.bilichat_neterror_retry):
+                    try:
+                        resq = await hc.get(item["src"])
+                        break
+                    except TimeoutException:
+                        logger.warning(f"请求超时，重试第 {i + 1}/{plugin_config.bilichat_neterror_retry} 次")
                 result.append(resq.content)
         else:
             logger.debug(f"动态类型 {self.dynamic_type} 不是图文动态")
