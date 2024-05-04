@@ -153,7 +153,7 @@ class User(BaseModel):
     @classmethod
     def extract_alc_target(cls, target: Target) -> tuple[str, str]:
         t = extract_target(target)
-        return t.platform_type, target.id
+        return t.platform_type.value, target.id
 
     def create_saa_target(self) -> PlatformTarget:
         if self.platform == SupportedPlatform.qq_group:
@@ -293,7 +293,7 @@ class SubscriptionCfgFile(BaseModel):
             if "platfrom" in user:
                 user["platform"] = user.pop("platfrom")
             if user["platform"] in ["OneBot V11", "mirai2"]:
-                user["platform"] = str(SupportedPlatform.qq_group)
+                user["platform"] = SupportedPlatform.qq_group.value
             # 移除无订阅的用户
             if len(user["subscriptions"]) == 0:
                 continue
