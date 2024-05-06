@@ -167,7 +167,7 @@ async def content_info(event: Event, origin_msg: UniMsg, state: T_State):
         msgs.append(reply)
         if content_image:
             msgs.append(Image(raw=content_image))
-        msgs.append(content.url if plugin_config.bilichat_basic_info_url else content.bili_id)
+        msgs.append(Text(content.url if plugin_config.bilichat_basic_info_url else content.bili_id))
         receipt = await msgs.send()
         reply = receipt.get_reply() if plugin_config.bilichat_reply_to_basic_info else reply
 
