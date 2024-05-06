@@ -2,14 +2,9 @@ import asyncio
 import re
 
 from nonebot.log import logger
+from playwright.async_api import TimeoutError
 
 from ....config import plugin_config
-
-try:
-    from playwright._impl._errors import TimeoutError  # type: ignore
-except ImportError:
-    from playwright._impl._api_types import TimeoutError  # type: ignore
-
 from ....model.exception import AbortError, CaptchaAbortError, NotFindAbortError
 from ....optional import capture_exception
 from ...browser import get_new_page, network_requestfailed, pw_font_injecter
