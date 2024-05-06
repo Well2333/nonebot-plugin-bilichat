@@ -22,7 +22,7 @@ _✨ 多功能的 B 站视频解析工具 ✨_
     <img src="https://img.shields.io/pypi/v/nonebot-plugin-bilichat.svg" alt="pypi">
 </a>
 
-<img src="https://img.shields.io/badge/python-3.8+-blue.svg" alt="python">
+<img src="https://img.shields.io/badge/python-3.10+-blue.svg" alt="python">
 
 <a href="https://pdm.fming.dev">
     <img src="https://img.shields.io/badge/pdm-managed-blueviolet" alt="pdm-managed">
@@ -329,7 +329,7 @@ bilichat_cmd_start=""
 |   dynamic    |  主人  |  群聊  |           UP 主的昵称或 UID            |         是否开启该 UP 的动态通知         |
 |     live     |  主人  |  群聊  |           UP 主的昵称或 UID            |         是否开启该 UP 的直播通知         |
 | checkdynamic | 无限制 | 无限制 |           UP 主的昵称或 UID            |       查看指定 UP 主的最新一条动态       |
-|    fetch     | 无限制 | 无限制 | 视频或动态 ID，或回复包含此内容的消息  |       解析动态包含的图片或视频直链       |
+|    fetch     | 无限制 | 无限制 |    动态 ID，或回复包含此内容的消息     |            解析动态包含的图片            |
 |  checklogin  |  主人  | 无限制 |                   无                   |         查看当前已登录的全部账号         |
 |   qrlogin    |  主人  | 无限制 |                   无                   |      使用二维码登录 B 站，防止风控       |
 |    logout    |  主人  | 无限制 |               账号的 UID               |              登出指定的账号              |
