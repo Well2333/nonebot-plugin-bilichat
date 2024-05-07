@@ -62,22 +62,15 @@ async def fetch_check(state: T_State, msg: UniMsg, target: MsgTarget):
     if not bililink:
         raise FinishedException
 
-    content: Column | Video | Dynamic | None = None
+    content: Dynamic | None = None
 
     try:
-        ## video handle
-        if matched := re.search(r"av(\d{1,15})|BV(1[A-Za-z0-9]{2}4.1.7[A-Za-z0-9]{2})", bililink):
-            _id = matched.group()
-            logger.info(f"video id: {_id}")
-            content = await Video.from_id(_id, None)
-
-        ## dynamic handle
-        elif plugin_config.bilichat_dynamic and (
-            matched := re.search(r"(dynamic|opus|t.bilibili.com)/(\d{1,128})", bililink)
-        ):
+        if matched := re.search(r"(dynamic|opus|t.bilibili.com)/(\d{1,128})", bililink):
             _id = matched.group()
             logger.info(f"dynamic id: {_id}")
             content = await Dynamic.from_id(_id)
+        else:
+            raise AbortError("该功能目前仅可用于图文动态哦~")
 
         if content:
             check_cd(f"{target.id}_-_{content.id}", check=False)
@@ -86,7 +79,7 @@ async def fetch_check(state: T_State, msg: UniMsg, target: MsgTarget):
             raise AbortError(f"查询 {bililink} 返回内容为空")
     except AbortError as e:
         logger.info(e)
-        raise FinishedException
+        await bili_fetch_content.finish(e.message)
     except FinishedException:
         raise FinishedException
 
@@ -103,7 +96,7 @@ async def fetch_content(target: MsgTarget, state: T_State):
                 await UniMessage([Image(raw=img) for img in imgs]).send(target=target)
                 raise FinishedException
             else:
-                await bili_fetch_content.finish("动态无图片")
+                await bili_fetch_content.finish("动态无可获取的图片哦~")
         except Exception as e:
             if isinstance(e, FinishedException):
                 raise
