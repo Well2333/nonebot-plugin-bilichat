@@ -5,7 +5,7 @@
 groups = ["default", "all", "dev", "summary"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:1e9f241a31c9cb714b98613aee04165d814d722094477ee8eb0ab7ac9512fdbd"
+content_hash = "sha256:d36859ec79935e7bc9ffbf6f28e14245d47bfd62f709e51eb5e9ae20d082754b"
 
 [[package]]
 name = "aiofiles"
@@ -1314,7 +1314,7 @@ files = [
 
 [[package]]
 name = "nonebot-adapter-satori"
-version = "0.11.4"
+version = "0.11.5"
 requires_python = ">=3.8"
 summary = "Satori Protocol Adapter for Nonebot2"
 groups = ["dev"]
@@ -1322,13 +1322,13 @@ dependencies = [
     "nonebot2>=2.2.0",
 ]
 files = [
-    {file = "nonebot_adapter_satori-0.11.4-py3-none-any.whl", hash = "sha256:6eff3258942a8f4081e349d02a9a84daf2d2cedde01747f119e674f4954bb3e0"},
-    {file = "nonebot_adapter_satori-0.11.4.tar.gz", hash = "sha256:4862fdfb989d3ff37ba4bc1e8ad23a32b5f2aca32c3f020ff97a4efe89c5f5ab"},
+    {file = "nonebot_adapter_satori-0.11.5-py3-none-any.whl", hash = "sha256:8c7a94ac6897a0001878f259880efe4df1c5232fe14a2d03bab742f28b279498"},
+    {file = "nonebot_adapter_satori-0.11.5.tar.gz", hash = "sha256:ab134f0e70302958807b7f91b5c6d0e462c5d39728c93066076699d00c2d067b"},
 ]
 
 [[package]]
 name = "nonebot-plugin-alconna"
-version = "0.45.3"
+version = "0.45.4"
 requires_python = ">=3.9"
 summary = "Alconna Adapter for Nonebot"
 groups = ["default"]
@@ -1340,8 +1340,8 @@ dependencies = [
     "nonebot2>=2.3.0",
 ]
 files = [
-    {file = "nonebot_plugin_alconna-0.45.3-py3-none-any.whl", hash = "sha256:1e6ff5e99464ea2acad03df8b9fc48949b7d40a7c8d1976c53a934eafb8d3bf0"},
-    {file = "nonebot_plugin_alconna-0.45.3.tar.gz", hash = "sha256:7667df82fdae02842b0fa28b39d61daf501f1af41d6fecf288fb8bb38a35ff9d"},
+    {file = "nonebot_plugin_alconna-0.45.4-py3-none-any.whl", hash = "sha256:dce164451381c754855dbf2124b7b9dcb21dca2c8953a75753b8cd51de72fe3d"},
+    {file = "nonebot_plugin_alconna-0.45.4.tar.gz", hash = "sha256:24c7ea69d42b17c113860121deaaab6d01455eb0d91701059f7828938ec8c9a2"},
 ]
 
 [[package]]
@@ -1429,18 +1429,32 @@ files = [
 
 [[package]]
 name = "nonebot-plugin-sentry"
-version = "1.1.0"
-requires_python = ">=3.8,<4.0"
+version = "2.0.0"
+requires_python = "<4.0,>=3.9"
 summary = "Push your bot errors to Sentry.io"
 groups = ["all"]
 dependencies = [
     "nonebot2<3.0.0,>=2.2.0",
     "pydantic!=2.5.0,!=2.5.1,<3.0.0,>=1.10.0",
-    "sentry-sdk[loguru]<2.0.0,>=1.23.0",
+    "sentry-sdk[loguru]<3.0.0,>=2.0.0",
 ]
 files = [
-    {file = "nonebot_plugin_sentry-1.1.0-py3-none-any.whl", hash = "sha256:e88215225d13350b0f848980954209299ba1eb5c217b2339f5253ae6f2db07a1"},
-    {file = "nonebot_plugin_sentry-1.1.0.tar.gz", hash = "sha256:2d8d18002b65f27b70ae027605fcdd776e0f7a909a381f7ae82f0e9f1fde11bd"},
+    {file = "nonebot_plugin_sentry-2.0.0-py3-none-any.whl", hash = "sha256:4b865bbda7d3ed1ee930d1521863db3462a6ed10e49d2dce19ca0a4994d1cc70"},
+    {file = "nonebot_plugin_sentry-2.0.0.tar.gz", hash = "sha256:b7b1c0e25f439e7af75c9ec0219d76c6e24e9b08969b1f38df0346e2ac3f6342"},
+]
+
+[[package]]
+name = "nonebot-plugin-waiter"
+version = "0.4.0"
+requires_python = ">=3.9"
+summary = "An alternative for got-and-reject in Nonebot"
+groups = ["default"]
+dependencies = [
+    "nonebot2>=2.3.0",
+]
+files = [
+    {file = "nonebot_plugin_waiter-0.4.0-py3-none-any.whl", hash = "sha256:fcb3abb6ec309472b9d9869bbe74cb33cc101defe95353f839b7fada7612b3c0"},
+    {file = "nonebot_plugin_waiter-0.4.0.tar.gz", hash = "sha256:a8ecc4aba1f5113da723f73ef7967724632fcb6a53791ff334aba9d718731f2b"},
 ]
 
 [[package]]
@@ -2091,31 +2105,33 @@ files = [
 
 [[package]]
 name = "sentry-sdk"
-version = "1.39.1"
+version = "2.1.1"
+requires_python = ">=3.6"
 summary = "Python client for Sentry (https://sentry.io)"
 groups = ["all"]
 dependencies = [
     "certifi",
-    "urllib3>=1.26.11; python_version >= \"3.6\"",
+    "urllib3>=1.26.11",
 ]
 files = [
-    {file = "sentry-sdk-1.39.1.tar.gz", hash = "sha256:320a55cdf9da9097a0bead239c35b7e61f53660ef9878861824fd6d9b2eaf3b5"},
-    {file = "sentry_sdk-1.39.1-py2.py3-none-any.whl", hash = "sha256:81b5b9ffdd1a374e9eb0c053b5d2012155db9cbe76393a8585677b753bd5fdc1"},
+    {file = "sentry_sdk-2.1.1-py2.py3-none-any.whl", hash = "sha256:99aeb78fb76771513bd3b2829d12613130152620768d00cd3e45ac00cb17950f"},
+    {file = "sentry_sdk-2.1.1.tar.gz", hash = "sha256:95d8c0bb41c8b0bc37ab202c2c4a295bb84398ee05f4cdce55051cd75b926ec1"},
 ]
 
 [[package]]
 name = "sentry-sdk"
-version = "1.39.1"
+version = "2.1.1"
 extras = ["loguru"]
+requires_python = ">=3.6"
 summary = "Python client for Sentry (https://sentry.io)"
 groups = ["all"]
 dependencies = [
     "loguru>=0.5",
-    "sentry-sdk==1.39.1",
+    "sentry-sdk==2.1.1",
 ]
 files = [
-    {file = "sentry-sdk-1.39.1.tar.gz", hash = "sha256:320a55cdf9da9097a0bead239c35b7e61f53660ef9878861824fd6d9b2eaf3b5"},
-    {file = "sentry_sdk-1.39.1-py2.py3-none-any.whl", hash = "sha256:81b5b9ffdd1a374e9eb0c053b5d2012155db9cbe76393a8585677b753bd5fdc1"},
+    {file = "sentry_sdk-2.1.1-py2.py3-none-any.whl", hash = "sha256:99aeb78fb76771513bd3b2829d12613130152620768d00cd3e45ac00cb17950f"},
+    {file = "sentry_sdk-2.1.1.tar.gz", hash = "sha256:95d8c0bb41c8b0bc37ab202c2c4a295bb84398ee05f4cdce55051cd75b926ec1"},
 ]
 
 [[package]]

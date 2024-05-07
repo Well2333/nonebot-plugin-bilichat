@@ -57,6 +57,14 @@ class Uploader(BaseModel):
             if isinstance(up, str):
                 raise ValueError(f"未找到 uid 为 {self.uid} 的 UP")
             self.nickname = up.nickname
+    
+    def __hash__(self):
+        return hash(self.uid)
+
+    def __eq__(self, other):
+        if isinstance(other, Uploader):
+            return self.uid == other.uid
+        return False
 
     @property
     def subscribed_users(self) -> list["User"]:
@@ -149,6 +157,14 @@ class User(BaseModel):
                 continue
 
         return validated_subs
+    
+    def __hash__(self):
+        return hash((self.platform, self.user_id))
+
+    def __eq__(self, other):
+        if isinstance(other, User):
+            return self.platform == other.platform and self.user_id == other.user_id
+        return False
 
     @classmethod
     def extract_alc_target(cls, target: Target) -> tuple[str, str]:
