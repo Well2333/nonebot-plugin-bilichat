@@ -54,6 +54,7 @@ def check_cd(uid: int | str, check: bool = True):
 
 
 async def _permission_check(bot: Bot, event: Event, target: MsgTarget, state: T_State):
+    state["_uid_"] = target.id
     # 自身消息
     _id = target.id if target.private else event.get_user_id()
     if _id == bot.self_id:
@@ -67,7 +68,6 @@ async def _permission_check(bot: Bot, event: Event, target: MsgTarget, state: T_
     # 是否 to me
     if plugin_config.bilichat_only_to_me and not event.is_tome():
         return False
-    state["_uid_"] = target.id
     return plugin_config.verify_permission(target.id)
 
 
