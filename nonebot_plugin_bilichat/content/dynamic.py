@@ -12,6 +12,7 @@ from ..config import plugin_config
 from ..lib.bilibili_request import get_b23_url, get_dynamic, hc
 from ..lib.bilibili_request.auth import AuthManager
 from ..lib.draw.dynamic import draw_dynamic
+from ..model.const import DYNAMIC_TYPE_MAP
 from ..model.exception import AbortError
 from ..optional import capture_exception
 
@@ -69,16 +70,14 @@ class Dynamic(BaseModel):
         self.raw = dyn
         self.raw_type = "web"
 
-        if dyn["type"] == "DYNAMIC_TYPE_AV":
-            self.dynamic_type = DynamicType.av
+        self.dynamic_type = DYNAMIC_TYPE_MAP.get(dyn["type"], DynamicType.dyn_none)
+
+        if self.dynamic_type == DynamicType.av:
             aid = dyn["modules"]["module_dynamic"]["major"]["archive"]["aid"]
             self.url = await get_b23_url(f"https://www.bilibili.com/video/av{aid}")
-        elif dyn["type"] == "DYNAMIC_TYPE_ARTICLE":
-            self.dynamic_type = DynamicType.article
+        elif self.dynamic_type == DynamicType.article:
             cvid = dyn["modules"]["module_dynamic"]["major"]["article"]["id"]
             self.url = await get_b23_url(f"https://www.bilibili.com/read/cv{cvid}")
-        elif dyn["type"] == "DYNAMIC_TYPE_DRAW":
-            self.dynamic_type = DynamicType.draw
 
     @classmethod
     async def from_id(cls, bili_number: str):
@@ -121,25 +120,34 @@ class Dynamic(BaseModel):
         return await draw_dynamic(dynid=self.id, raw=self.raw, raw_type=self.raw_type)
 
     async def fetch_content(self) -> list[bytes] | list[None]:
+        items = []
         result = []
-        # 获取图文动态中的图片
-        if self.dynamic_type == DynamicType.draw:
-            if self.raw_type == "web":
-                items = self.raw["modules"]["module_dynamic"]["major"]["draw"]["items"]
-            elif self.raw_type == "grpc":
-                for module in self.raw["modules"]:
-                    if module["moduleType"] == "module_dynamic":
-                        items = module["moduleDynamic"]["dynDraw"]["items"]
-                        break
+
+        def search(element):
+            if isinstance(element, dict):
+                for key, value in element.items():
+                    if key in ("dynDraw", "draw") and isinstance(value, dict):
+                        i = value.get("items")
+                        if i and isinstance(i, list):
+                            items.extend(i)
+                    search(value)
+            elif isinstance(element, list):
+                for item in element:
+                    search(item)
+
+        search(self.raw)
+        if items:
             for c, item in enumerate(items):
                 logger.debug(f"获取图片({c}/{len(items)})：{item['src']}")
                 for i in range(plugin_config.bilichat_neterror_retry):
                     try:
                         resq = await hc.get(item["src"])
+                        result.append(resq.content)
                         break
                     except TimeoutException:
                         logger.warning(f"请求超时，重试第 {i + 1}/{plugin_config.bilichat_neterror_retry} 次")
-                result.append(resq.content)
+                else:
+                    logger.error(f"无法获取图片，请求超时 {plugin_config.bilichat_neterror_retry} 次：{item['src']}")
         else:
-            logger.debug(f"动态类型 {self.dynamic_type} 不是图文动态")
+            logger.debug(f"动态 {self.dynamic_type} 没用可下载的内容")
         return result
