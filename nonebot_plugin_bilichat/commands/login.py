@@ -77,7 +77,7 @@ async def bili_login_handle():
                 )
                 for auth in AuthManager.grpc_auths
             ]
-        )
+        ) or "无已登录账号"
     )
 
 
