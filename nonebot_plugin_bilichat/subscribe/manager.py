@@ -10,7 +10,7 @@ from nonebot import get_driver
 from nonebot.adapters import Bot
 from nonebot.compat import PYDANTIC_V2
 from nonebot.log import logger
-from nonebot_plugin_alconna.uniseg import AtAll, Image, Target, UniMessage
+from nonebot_plugin_alconna.uniseg import AtAll, Image, Target, Text, UniMessage
 from nonebot_plugin_apscheduler import scheduler
 from nonebot_plugin_auto_bot_selector import get_bots, refresh_bots
 from nonebot_plugin_auto_bot_selector.expection import NoBotFoundError
@@ -57,7 +57,7 @@ class Uploader(BaseModel):
             if isinstance(up, str):
                 raise ValueError(f"未找到 uid 为 {self.uid} 的 UP")
             self.nickname = up.nickname
-    
+
     def __hash__(self):
         return hash(self.uid)
 
@@ -157,7 +157,7 @@ class User(BaseModel):
                 continue
 
         return validated_subs
-    
+
     def __hash__(self):
         return hash((self.platform, self.user_id))
 
@@ -221,7 +221,7 @@ class User(BaseModel):
         else:
             at = ""
         msg = UniMessage(at)
-        msg.extend([Image(raw=x) if isinstance(x, bytes) else x for x in content])  # type: ignore
+        msg.extend([Image(raw=x) if isinstance(x, bytes) else Text(str(x)) for x in content])
 
         try:
             bots = get_bots(target=self.create_saa_target())
