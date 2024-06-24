@@ -1,9 +1,9 @@
 from asyncio import Lock
 from typing import TypedDict
 
-from nonebot.adapters import Event, Message
+from nonebot.adapters import Bot, Event, Message
 from nonebot.params import CommandArg, Depends
-from nonebot.permission import SUPERUSER
+from nonebot.permission import SUPERUSER, Permission
 from nonebot_plugin_waiter import waiter
 
 from ..config import plugin_config
@@ -20,8 +20,19 @@ class Request(TypedDict):
 REQUESTS: dict[User, Request] = {}
 
 
-bili_add_sub_request = bilichat.command("sub", aliases=set(plugin_config.bilichat_cmd_add_sub), priority=2)
-bili_remove_sub_request = bilichat.command("unsub", aliases=set(plugin_config.bilichat_cmd_remove_sub), priority=2)
+async def not_superuser(bot: Bot, event: Event) -> bool:
+    return not await SUPERUSER(bot, event)
+
+
+NOTSUPERUSER: Permission = Permission(not_superuser)
+
+
+bili_add_sub_request = bilichat.command(
+    "sub", aliases=set(plugin_config.bilichat_cmd_add_sub), priority=2, permission=NOTSUPERUSER
+)
+bili_remove_sub_request = bilichat.command(
+    "unsub", aliases=set(plugin_config.bilichat_cmd_remove_sub), priority=2, permission=NOTSUPERUSER
+)
 bili_request_handle = bilichat.command("handle", permission=SUPERUSER)
 
 

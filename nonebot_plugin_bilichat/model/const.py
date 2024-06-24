@@ -1,6 +1,5 @@
 from bilireq.grpc.protos.bilibili.app.dynamic.v2.dynamic_pb2 import DynamicType
 
-
 DYNAMIC_TYPE_IGNORE = {
     "DYNAMIC_TYPE_AD",
     "DYNAMIC_TYPE_LIVE",
