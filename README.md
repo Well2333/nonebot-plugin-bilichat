@@ -352,4 +352,4 @@ bilichat_cmd_start=""
 
 ## ⏳ Star 趋势
 
-[![Stargazers over time](https://starchart.cc/djkcyl/nonebot-plugin-bilichat.svg)](https://starchart.cc/djkcyl/nonebot-plugin-bilichat)
+[![Stargazers over time](https://starchart.cc/Well2333/nonebot-plugin-bilichat.svg)](https://starchart.cc/Well2333/nonebot-plugin-bilichat)
