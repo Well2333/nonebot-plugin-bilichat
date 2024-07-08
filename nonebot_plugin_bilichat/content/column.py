@@ -48,9 +48,13 @@ class Column(BaseModel):
             cv = cv.text
             http_parser: _Element = etree.fromstring(cv, etree.HTMLParser(encoding="utf-8"))
             cv_title: str = http_parser.xpath('//h1[@class="title"]/text()')[0]
-            main_article: _Element = http_parser.xpath('//div[@id="read-article-holder"]')[0]
-            plist: _ElementUnicodeResult = main_article.xpath(XPATH)
-            cv_text = [text.strip() for text in plist if text.strip()]
+            try:
+                main_article: _Element = http_parser.xpath('//div[@id="read-article-holder"]')[0]
+                plist: _ElementUnicodeResult = main_article.xpath(XPATH)
+                cv_text = [text.strip() for text in plist if text.strip()]
+            except Exception:
+                logger.warning(f"专栏 cv{cvid} 文字内容解析失败，可能是专栏格式不受支持或未包含文字内容。")
+                cv_text = ["专栏文字内容解析失败，可能是专栏格式不受支持或未包含文字内容。"]
             b23_url = await get_b23_url(f"https://www.bilibili.com/read/cv{cvid}")
         except AbortError:
             raise
