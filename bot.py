@@ -22,6 +22,13 @@ logger.add(
     compression="tar.xz",
     retention="7 days",
 )
+logger.add(
+    "logs/trace/{time:YYYY-MM-DD}.log",
+    level="TRACE",
+    rotation="00:00",
+    compression="tar.xz",
+    retention="7 days",
+)
 logger.info("========= 重新启动 =========")
 
 driver = nonebot.get_driver()

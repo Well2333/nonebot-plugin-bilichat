@@ -7,7 +7,6 @@ from grpc.aio import AioRpcError
 from httpx import TimeoutException
 from nonebot.log import logger
 
-from ..base_content_parsing import check_cd
 from ..content.dynamic import Dynamic
 from ..lib.bilibili_request import get_b23_url, get_user_dynamics
 from ..lib.bilibili_request.auth import AuthManager
@@ -48,7 +47,6 @@ async def _fetch_rest(up_mid: int, up_name: str) -> Dynamic | None:
     dyns = {int(x["id_str"]): x for x in resp if x["type"] not in DYNAMIC_TYPE_IGNORE}
     dyn_id = max(dyns.keys())
     dyn = dyns[dyn_id]
-    check_cd(dyn["id_str"], check=False)
 
     url = await get_b23_url(f"https://t.bilibili.com/{dyn['id_str']}")
     dynamic = Dynamic(id=dyn["id_str"], url=url, raw=dyn, raw_type="web")
@@ -77,7 +75,6 @@ async def _fetch_grpc(up_mid: int, up_name: str) -> Dynamic | None:
     dyns = {int(x.extend.dyn_id_str): x for x in resp.list if x.card_type not in DYNAMIC_TYPE_IGNORE}
     dyn_id = max(dyns.keys())
     dyn = dyns[dyn_id]
-    check_cd(dyn.extend.dyn_id_str, check=False)
 
     url = await get_b23_url(f"https://t.bilibili.com/{dyn.extend.dyn_id_str}")
     dynamic = Dynamic(
