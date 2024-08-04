@@ -7,10 +7,10 @@ from nonebot.params import CommandArg
 from nonebot.typing import T_State
 from nonebot_plugin_alconna.uniseg import Hyper, Image, MsgTarget, Reply, Text, UniMessage, UniMsg
 
-from ..base_content_parsing import check_cd
 from ..config import plugin_config
 from ..content import Column, Dynamic, Video
 from ..lib.b23_extract import b23_extract
+from ..lib.content_cd import BilichatCD
 from ..lib.fetch_dynamic import fetch_last_dynamic
 from ..lib.uid_extract import uid_extract
 from ..model.exception import AbortError
@@ -28,6 +28,7 @@ async def check_dynamic_v11(target: MsgTarget, uid: Message = CommandArg()):
     if isinstance(up, str):
         await bili_check_dyn.finish(up)
     if dyn := await fetch_last_dynamic(up):
+        BilichatCD.record_cd(session_id=target.id, content_id=dyn.id)
         if image := await dyn.get_image(plugin_config.bilichat_dynamic_style):
             await UniMessage(Image(raw=image)).send(target=target)
 
@@ -73,7 +74,7 @@ async def fetch_check(state: T_State, msg: UniMsg, target: MsgTarget):
             raise AbortError("该功能目前仅可用于图文动态哦~")
 
         if content:
-            check_cd(f"{target.id}_-_{content.id}", check=False)
+            BilichatCD.record_cd(session_id=target.id, content_id=content.id)
             state["_content_"] = content
         else:
             raise AbortError(f"查询 {bililink} 返回内容为空")

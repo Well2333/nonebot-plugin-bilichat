@@ -1,7 +1,6 @@
 import asyncio
 import re
 import shlex
-import time
 
 from nonebot.adapters import Bot, Event
 from nonebot.exception import FinishedException
@@ -14,6 +13,7 @@ from nonebot_plugin_alconna.uniseg import Hyper, Image, MsgTarget, Reply, Text, 
 from .config import plugin_config
 from .content import Column, Dynamic, Video
 from .lib.b23_extract import b23_extract
+from .lib.content_cd import BilichatCD
 from .lib.text_to_image import t2i
 from .model.arguments import Options, parser
 from .model.exception import AbortError, ProssesError
@@ -25,32 +25,7 @@ if plugin_config.bilichat_openai_token:
 if plugin_config.bilichat_word_cloud:
     from .wordcloud import wordcloud
 
-cd: dict[str, int] = {}
-cd_size_limit = plugin_config.bilichat_cd_time // 2
 lock = asyncio.Lock()
-
-
-def check_cd(uid: int | str, check: bool = True):
-    global cd
-    now = int(time.time())
-    uid = str(uid)
-    # gc
-    if len(cd) > cd_size_limit:
-        cd = {k: cd[k] for k in cd if cd[k] < now}
-    # not check cd
-    if not check:
-        cd[uid] = now + plugin_config.bilichat_cd_time
-        return
-    # check cd
-    session, id_ = uid.split("_-_")
-    if cd.get(uid, 0) > now:
-        logger.warning(f"会话 [{session}] 的重复内容 [{id_}]. 跳过解析")
-        raise FinishedException
-    elif cd.get(id_, 0) > now:
-        logger.warning(f"会话 [全局] 的重复内容 [{id_}]. 跳过解析")
-        raise FinishedException
-    else:
-        cd[uid] = now + plugin_config.bilichat_cd_time
 
 
 async def _permission_check(bot: Bot, event: Event, target: MsgTarget, state: T_State):
@@ -124,7 +99,10 @@ async def _bili_check(state: T_State, event: Event, bot: Bot, msg: UniMsg) -> bo
             content = await Dynamic.from_id(_id)
 
         if content:
-            check_cd(f"{state['_uid_']}_-_{content.id}", check=not options.force)
+            if options.force:
+                BilichatCD.record_cd(state["_uid_"], str(content.id))
+            else:
+                BilichatCD.check_cd(state["_uid_"], str(content.id))
             state["_content_"] = content
         else:
             raise AbortError(f"查询 {bililink} 返回内容为空")
