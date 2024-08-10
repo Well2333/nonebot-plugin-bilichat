@@ -5,7 +5,6 @@ import xml.etree.ElementTree as ET
 import httpx
 from bilireq.exceptions import GrpcError, ResponseCodeError
 from bilireq.grpc.dynamic import grpc_get_user_dynamics
-from google.protobuf.json_format import MessageToDict
 from grpc.aio import AioRpcError
 from httpx import TimeoutException
 from nonebot.log import logger
@@ -55,7 +54,7 @@ async def _fetchlast_rest(up_mid: int, up_name: str) -> Dynamic | None:
     dyn = dyns[dyn_id]
 
     url = await get_b23_url(f"https://t.bilibili.com/{dyn['id_str']}")
-    dynamic = Dynamic(id=dyn["id_str"], url=url, raw=dyn, raw_type="web")
+    dynamic = Dynamic(id=dyn["id_str"], url=url, raw_web=dyn, raw_type="web")
     return dynamic
 
 
@@ -83,9 +82,7 @@ async def _fetchlast_grpc(up_mid: int, up_name: str) -> Dynamic | None:
     dyn = dyns[dyn_id]
 
     url = await get_b23_url(f"https://t.bilibili.com/{dyn.extend.dyn_id_str}")
-    dynamic = Dynamic(
-        id=dyn.extend.dyn_id_str, url=url, dynamic_type=dyn.card_type, raw=MessageToDict(dyn), raw_type="grpc"
-    )
+    dynamic = Dynamic(id=dyn.extend.dyn_id_str, url=url, dynamic_type=dyn.card_type, raw_grpc=dyn, raw_type="grpc")
     return dynamic
 
 

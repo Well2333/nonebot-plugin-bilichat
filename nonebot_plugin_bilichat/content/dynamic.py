@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Any, Literal
 
 from bilireq.exceptions import GrpcError, ResponseCodeError
 from bilireq.grpc.dynamic import grpc_get_dynamic_detail
@@ -24,9 +24,10 @@ class Dynamic(BaseModel):
     """b23 链接"""
     dynamic_type: DynamicType.ValueType = DynamicType.dyn_none
     "动态类型"
-    raw: dict = {}
-    """动态的原始信息"""
     raw_type: Literal["web", "grpc", None] = None
+    """动态的原始信息"""
+    raw_grpc: Any | None = None  # DynamicItem
+    raw_web: dict = {}
 
     @property
     def bili_id(self) -> str:
@@ -45,7 +46,7 @@ class Dynamic(BaseModel):
                 raise AbortError("请求超时")
         else:
             logger.debug("使用已有的 gRPC 动态信息")
-        self.raw = MessageToDict(raw_dyn)
+        self.raw_grpc = raw_dyn
         self.raw_type = "grpc"
         self.dynamic_type = raw_dyn.card_type
         if raw_dyn.card_type == DynamicType.av:
@@ -73,7 +74,7 @@ class Dynamic(BaseModel):
         else:
             logger.debug("使用已有的 RestAPI 动态信息")
         assert raw_dyn
-        self.raw = raw_dyn
+        self.raw_web = raw_dyn
         self.raw_type = "web"
 
         self.dynamic_type = DYNAMIC_TYPE_MAP.get(raw_dyn["type"], DynamicType.dyn_none)
@@ -99,9 +100,10 @@ class Dynamic(BaseModel):
                 logger.warning(f"无法使用 gRPC 获取动态信息: {e}")
             else:
                 logger.exception(e)
-                if dynamic.raw:  # 如果存在动态内容，则很可能是数据结构变化了
-                    logger.debug(dynamic.raw)
-                    capture_exception(extra={"dynamic_data": dynamic.raw})
+                if dynamic.raw_grpc:  # 如果存在动态内容，则很可能是数据结构变化了
+                    grpc_content = MessageToDict(dynamic.raw_grpc)
+                    logger.debug(grpc_content)
+                    capture_exception(extra={"dynamic_data": grpc_content})
             # web
             try:
                 await dynamic._web()
@@ -110,9 +112,9 @@ class Dynamic(BaseModel):
                     logger.warning(f"无法使用 RestAPI 获取动态信息: {e}")
                 else:
                     logger.exception(e)
-                    if dynamic.raw:  # 如果存在动态内容，则很可能是数据结构变化了
-                        logger.debug(dynamic.raw)
-                        capture_exception(extra={"dynamic_data": dynamic.raw})
+                    if dynamic.raw_web:  # 如果存在动态内容，则很可能是数据结构变化了
+                        logger.debug(dynamic.raw_web)
+                        capture_exception(extra={"dynamic_data": dynamic.raw_web})
                 raise AbortError("动态查询信息异常，请查看控制台获取更多信息")
 
         if not dynamic.url:
@@ -123,7 +125,8 @@ class Dynamic(BaseModel):
         return dynamic
 
     async def get_image(self, style: str):
-        return await draw_dynamic(dynid=self.id, raw=self.raw, raw_type=self.raw_type)
+        raw = self.raw_web if self.raw_type == "web" else MessageToDict(self.raw_grpc)  # type: ignore
+        return await draw_dynamic(dynid=self.id, raw=raw, raw_type=self.raw_type)
 
     async def fetch_content(self) -> list[bytes] | list[None]:
         items = []
@@ -141,7 +144,7 @@ class Dynamic(BaseModel):
                 for item in element:
                     search(item)
 
-        search(self.raw)
+        search(self.raw_web if self.raw_type == "web" else MessageToDict(self.raw_grpc))  # type: ignore
         if items:
             for c, item in enumerate(items):
                 logger.debug(f"获取图片({c}/{len(items)})：{item['src']}")
