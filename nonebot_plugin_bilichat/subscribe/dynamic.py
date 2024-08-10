@@ -1,12 +1,11 @@
 import asyncio
+import re
+import xml.etree.ElementTree as ET
 
+import httpx
 from bilireq.exceptions import GrpcError, ResponseCodeError
 from bilireq.grpc.dynamic import grpc_get_user_dynamics
-from bilireq.grpc.protos.bilibili.app.dynamic.v2.dynamic_pb2 import (
-    DynamicType,
-    DynModuleType,
-)
-from google.protobuf.json_format import MessageToDict
+from bilireq.grpc.protos.bilibili.app.dynamic.v2.dynamic_pb2 import DynamicType
 from grpc.aio import AioRpcError
 from httpx import TimeoutException
 from nonebot.log import logger
@@ -16,10 +15,54 @@ from ..content.dynamic import Dynamic
 from ..lib.bilibili_request import get_b23_url, get_user_dynamics
 from ..lib.bilibili_request.auth import AuthManager
 from ..lib.content_cd import BilichatCD
-from ..model.const import DYNAMIC_TYPE_IGNORE, DYNAMIC_TYPE_MAP
+from ..model.const import DYNAMIC_TYPE_IGNORE
 from ..model.exception import AbortError
 from ..optional import capture_exception
 from .manager import Uploader
+
+
+async def _handle_dynamic(up: Uploader, dyn: Dynamic):
+    up.dyn_offset = max(up.dyn_offset, int(dyn.id))
+
+    if dyn.raw_type == "web":
+        up_name = dyn.raw["modules"]["module_author"]["name"]
+        if up.nickname != up_name:
+            logger.info(f"[Dynamic] Up {up.nickname}({up.uid}) 更改昵称为 {up_name}")
+            up.nickname = up_name
+
+    elif dyn.raw_type == "grpc":
+        up_name = dyn.raw["modules"][0]["module_author"]["author"]["name"]
+        if up.nickname != up_name:
+            logger.info(f"[Dynamic] Up {up.nickname}({up.uid}) 更改昵称为 {up_name}")
+            up.nickname = up_name
+
+    type_text = f"{up.nickname} "
+    if dyn.dynamic_type == DynamicType.av:
+        type_text += "投稿了视频"
+    elif dyn.dynamic_type == DynamicType.article:
+        type_text += "投稿了专栏"
+    elif dyn.dynamic_type == DynamicType.music:
+        type_text += "投稿了音乐"
+    elif dyn.dynamic_type == DynamicType.forward:
+        type_text += "转发了一条动态"
+    elif dyn.dynamic_type == DynamicType.word:
+        type_text += "发布了一条文字动态"
+    elif dyn.dynamic_type == DynamicType.draw:
+        type_text += "发布了一条图文动态"
+    else:
+        type_text += "发布了一条动态"
+    logger.info(f"{type_text}")
+
+    if not dyn.url:
+        dyn.url = await get_b23_url(f"https://t.bilibili.com/{dyn.id}")
+
+    dyn_image: bytes = await dyn.get_image(plugin_config.bilichat_basic_info_style)  # type: ignore
+
+    content = [type_text, dyn_image, dyn.url]
+    for user in up.subscribed_users:
+        if user.subscriptions[up.uid].dynamic:
+            BilichatCD.record_cd(session_id=user.user_id, content_id=dyn.id)
+            await user.push_to_user(content=content, at_all=user.subscriptions[up.uid].dynamic_at_all or user.at_all)
 
 
 async def fetch_dynamics_rest(up: Uploader):
@@ -45,49 +88,9 @@ async def fetch_dynamics_rest(up: Uploader):
     dyns = [x for x in resp if int(x["id_str"]) > up.dyn_offset and x["type"] not in DYNAMIC_TYPE_IGNORE]
     dyns.reverse()
     for dyn in dyns:
-        up.dyn_offset = max(up.dyn_offset, int(dyn["id_str"]))
-        up_name = dyn["modules"]["module_author"]["name"]
-        if up.nickname != up_name:
-            logger.info(f"[Dynamic] Up {up.nickname}({up.uid}) 更改昵称为 {up_name}")
-            up.nickname = up_name
-
-        url = ""
-        type_text = f"{up.nickname} "
-        dyn_type = DYNAMIC_TYPE_MAP.get(dyn["type"], DynamicType.dyn_none)
-        if dyn_type == DynamicType.av:
-            type_text += "投稿了视频"
-            aid = dyn["modules"]["module_dynamic"]["major"]["archive"]["aid"]
-            url = await get_b23_url(f"https://www.bilibili.com/video/av{aid}")
-        elif dyn_type == DynamicType.article:
-            type_text += "投稿了专栏"
-            cvid = dyn["modules"]["module_dynamic"]["major"]["article"]["id"]
-            url = await get_b23_url(f"https://www.bilibili.com/read/cv{cvid}")
-        elif dyn_type == DynamicType.music:
-            type_text += "投稿了音乐"
-        elif dyn_type == DynamicType.forward:
-            type_text += "转发了一条动态"
-        elif dyn_type == DynamicType.word:
-            type_text += "发布了一条文字动态"
-        elif dyn_type == DynamicType.draw:
-            type_text += "发布了一条图文动态"
-        else:
-            type_text += "发布了一条动态"
-
-        if not url:
-            url = await get_b23_url(f"https://t.bilibili.com/{dyn['id_str']}")
-
-        logger.info(f"{type_text}")
-
-        dynamic = Dynamic(id=dyn["id_str"], url=url, dynamic_type=dyn_type, raw=dyn, raw_type="web")
-        dyn_image: bytes = await dynamic.get_image(plugin_config.bilichat_basic_info_style)  # type: ignore
-
-        content = [type_text, dyn_image, url]
-        for user in up.subscribed_users:
-            if user.subscriptions[up.uid].dynamic:
-                BilichatCD.record_cd(session_id=user.user_id, content_id=dynamic.id)
-                await user.push_to_user(
-                    content=content, at_all=user.subscriptions[up.uid].dynamic_at_all or user.at_all
-                )
+        dynamic = Dynamic(id=dyn["id_str"], url="")
+        await dynamic._web(raw_dyn=dyn)
+        await _handle_dynamic(up, dynamic)
 
 
 async def fetch_dynamics_grpc(up: Uploader):
@@ -115,52 +118,45 @@ async def fetch_dynamics_grpc(up: Uploader):
     dyns = [x for x in resp.list if int(x.extend.dyn_id_str) > up.dyn_offset and x.card_type not in DYNAMIC_TYPE_IGNORE]
     dyns.reverse()
     for dyn in dyns:
-        up.dyn_offset = max(up.dyn_offset, int(dyn.extend.dyn_id_str))
-        up_name = dyn.modules[0].module_author.author.name
-        if up.nickname != up_name:
-            logger.info(f"[Dynamic] Up {up.nickname}({up.uid}) 更改昵称为 {up_name}")
-            up.nickname = up_name
+        dynamic = Dynamic(id=dyn.extend.dyn_id_str, url="")
+        await dynamic._grpc(raw_dyn=dyn)
+        await _handle_dynamic(up, dynamic)
 
-        url = ""
-        type_text = f"{up.nickname} "
-        if dyn.card_type == DynamicType.av:
-            type_text += "投稿了视频"
-            for module in dyn.modules:
-                if module.module_type == DynModuleType.module_dynamic:
-                    aid = module.module_dynamic.dyn_archive.avid
-                    url = await get_b23_url(f"https://www.bilibili.com/video/av{aid}")
-        elif dyn.card_type == DynamicType.article:
-            type_text += "投稿了专栏"
-            for module in dyn.modules:
-                if module.module_type == DynModuleType.module_dynamic:
-                    cvid = module.module_dynamic.dyn_article.id
-                    url = await get_b23_url(f"https://www.bilibili.com/read/cv{cvid}")
-        elif dyn.card_type == DynamicType.music:
-            type_text += "投稿了音乐"
-        elif dyn.card_type == DynamicType.forward:
-            type_text += "转发了一条动态"
-        elif dyn.card_type == DynamicType.word:
-            type_text += "发布了一条文字动态"
-        elif dyn.card_type == DynamicType.draw:
-            type_text += "发布了一条图文动态"
-        else:
-            type_text += "发布了一条动态"
 
-        if not url:
-            url = await get_b23_url(f"https://t.bilibili.com/{dyn.extend.dyn_id_str}")
+async def fetch_dynamics_rss(up: Uploader) -> Dynamic | None:
+    try:
+        url = f"{plugin_config.bilichat_rss_base}bilibili/user/dynamic/{up.uid}"
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url)
+            response.raise_for_status()
+            rss_xml = response.text
+        root = ET.fromstring(rss_xml)
+        items = root.findall("channel/item")
 
-        logger.info(f"{type_text}")
-
-        dynamic = Dynamic(
-            id=dyn.extend.dyn_id_str, url=url, dynamic_type=dyn.card_type, raw=MessageToDict(dyn), raw_type="grpc"
+    except TimeoutException:
+        logger.error(f"[Dynamic] 获取 {up.nickname}({up.uid}) 超时")
+        raise AbortError("Dynamic Abort")
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code == 503:
+            logger.error(f"[Dynamic] 获取 {up.nickname}({up.uid}) RSS 订阅服务不可用")
+            raise AbortError("Dynamic Abort")
+    except ResponseCodeError as e:
+        logger.error(
+            f"[Dynamic] 获取 {up.nickname}({up.uid}) 失败: "
+            f"[{e.code}] {e.details() if isinstance(e, AioRpcError) else e.msg}"
         )
+        raise AbortError("Dynamic Abort")
+    if not items:
+        logger.debug("未获取到任何动态")
+        return
 
-        dyn_image: bytes = await dynamic.get_image(plugin_config.bilichat_basic_info_style)  # type: ignore
-
-        content = [type_text, dyn_image, url]
-        for user in up.subscribed_users:
-            if user.subscriptions[up.uid].dynamic:
-                BilichatCD.record_cd(session_id=user.user_id, content_id=dynamic.id)
-                await user.push_to_user(
-                    content=content, at_all=user.subscriptions[up.uid].dynamic_at_all or user.at_all
-                )
+    all_dyn_ids = [int(re.search(r"t.bilibili.com/(\d+)", item.find("link").text).group(1)) for item in items]  # type: ignore
+    # 如果是刚启动
+    if up.dyn_offset == 0:
+        up.dyn_offset = max(all_dyn_ids)
+        return
+    dyn_ids = [x for x in all_dyn_ids if x > up.dyn_offset]
+    dyn_ids.reverse()
+    for dyn_id in dyn_ids:
+        dyn = await Dynamic.from_id(str(dyn_id))
+        await _handle_dynamic(up, dyn)

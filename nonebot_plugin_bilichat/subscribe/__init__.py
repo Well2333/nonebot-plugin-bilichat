@@ -5,14 +5,14 @@ from nonebot_plugin_apscheduler import scheduler
 
 from ..model.exception import AbortError
 from ..optional import capture_exception
-from .dynamic import fetch_dynamics_grpc, fetch_dynamics_rest
+from .dynamic import fetch_dynamics_grpc, fetch_dynamics_rest, fetch_dynamics_rss
 from .live import fetch_live
 from .manager import CONFIG_LOCK, SubscriptionSystem
 
 NO_ACTIVE_UP = 0
 
 
-async def _check_activate_uploaders(func:str = "Scheduler") -> bool:
+async def _check_activate_uploaders(func: str = "Scheduler") -> bool:
     global NO_ACTIVE_UP
     if SubscriptionSystem.activate_uploaders:
         NO_ACTIVE_UP = 0
@@ -49,7 +49,7 @@ async def run_dynamic_update():
         while CONFIG_LOCK.locked():
             await asyncio.sleep(0)
         async with CONFIG_LOCK:
-            if SubscriptionSystem.config.dynamic_grpc:
+            if SubscriptionSystem.config.dynamic_method == "grpc":
                 try:
                     logger.debug(f"[Dynamic] 使用gRPC获取 {up.nickname}({up.uid}) | offset={up.dyn_offset}")
                     await fetch_dynamics_grpc(up)
@@ -59,16 +59,27 @@ async def run_dynamic_update():
                 except Exception:
                     capture_exception()
                     logger.exception(f"[Dynamic] 获取 {up} 失败.")
+            elif SubscriptionSystem.config.dynamic_method == "rest":
+                try:
+                    logger.debug(f"[Dynamic] 使用 RestAPI 获取 {up.nickname}({up.uid}) | offset={up.dyn_offset}")
+                    await fetch_dynamics_rest(up)
+                    continue
+                except AbortError:
+                    logger.error(f"[Dynamic] 获取 {up} 失败, skip...")
+                except Exception:
+                    capture_exception()
+                    logger.exception(f"[Dynamic] 获取 {up} 失败, skip...")
+            elif SubscriptionSystem.config.dynamic_method == "rss":
+                try:
+                    logger.debug(f"[Dynamic] 使用 RSS 获取 {up.nickname}({up.uid}) | offset={up.dyn_offset}")
+                    await fetch_dynamics_rss(up)
+                    continue
+                except AbortError:
+                    logger.error(f"[Dynamic] 获取 {up} 失败, skip...")
+                except Exception:
+                    capture_exception()
+                    logger.exception(f"[Dynamic] 获取 {up} 失败, skip...")
 
-            try:
-                logger.debug(f"[Dynamic] 使用 RestAPI 获取 {up.nickname}({up.uid}) | offset={up.dyn_offset}")
-                await fetch_dynamics_rest(up)
-                continue
-            except AbortError:
-                logger.error(f"[Dynamic] 获取 {up} 失败, skip...")
-            except Exception:
-                capture_exception()
-                logger.exception(f"[Dynamic] 获取 {up} 失败, skip...")
     logger.debug("[Dynamic] 获取完成")
 
 
