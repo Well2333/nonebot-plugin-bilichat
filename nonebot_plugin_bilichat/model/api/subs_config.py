@@ -1,4 +1,3 @@
-
 from nonebot_plugin_auto_bot_selector.target import SupportedPlatform
 from pydantic import BaseModel, Field
 
@@ -8,7 +7,7 @@ class SubsConfig(BaseModel):
     dynamic_interval: int = Field(90, ge=10)
     live_interval: int = Field(30, ge=10)
     push_delay: int = Field(3, ge=0)
-    dynamic_grpc: bool = False
+    dynamic_method: str = "rest"
 
 
 class UserSubConfig(BaseModel):
