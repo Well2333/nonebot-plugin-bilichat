@@ -25,13 +25,14 @@ async def _handle_dynamic(up: Uploader, dyn: Dynamic):
     up.dyn_offset = max(up.dyn_offset, int(dyn.id))
 
     if dyn.raw_type == "web":
-        up_name = dyn.raw["modules"]["module_author"]["name"]
+        up_name = dyn.raw_web["modules"]["module_author"]["name"]
         if up.nickname != up_name:
             logger.info(f"[Dynamic] Up {up.nickname}({up.uid}) 更改昵称为 {up_name}")
             up.nickname = up_name
 
     elif dyn.raw_type == "grpc":
-        up_name = dyn.raw["modules"][0]["module_author"]["author"]["name"]
+        assert dyn.raw_grpc
+        up_name = dyn.raw_grpc.modules[0].module_author.author.name
         if up.nickname != up_name:
             logger.info(f"[Dynamic] Up {up.nickname}({up.uid}) 更改昵称为 {up_name}")
             up.nickname = up_name
