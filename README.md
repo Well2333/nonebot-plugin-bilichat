@@ -175,6 +175,7 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 |      bilichat_text_fonts      |    str    | default  |          可供自定义的字体，仅作用于 dynamicrender 绘图           |
 |     bilichat_emoji_fonts      |    str    | default  |          可供自定义的字体，仅作用于 dynamicrender 绘图           |
 |      bilichat_webui_path      |    str    | bilichat |               WebUI 的路径，设置为空则不开启 WebUI               |
+|       bilichat_rss_base       |    str    |   None   |   兼容 RSSHub 的动态 RSS 订阅地址，例如 `https://rsshub.app/`    |
 
 注:
 
@@ -183,6 +184,7 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 3. `bilichat_dynamic_font` 可填写自定义的字体 url，但并不推荐修改
 4. 当使用 `bcut_asr` 接口来生成 AI 字幕时，根据视频时长和网络情况有可能会识别失败，Bot 会提示 `BCut-ASR conversion failed due to network error`。可以通过调高 `bilichat_neterror_retry` 次数或几分钟后重试来尝试重新生成字幕
 5. 当 `bilichat_cache_serive` 为 `mongodb` 时，需要安装并配置 [nonebot-plugin-mongodb](https://github.com/Well2333/nonebot-plugin-mongodb) 才可正常使用
+6. `bilichat_rss_base` 所需地址需要兼容 [RSSHub](https://docs.rsshub.app/zh/routes/social-media#up-%E4%B8%BB%E5%8A%A8%E6%80%81) 中的文件结构及路由即可使用
 
 ### 指令配置项
 

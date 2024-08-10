@@ -3,7 +3,7 @@ import json
 import random
 import time
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 
 from apscheduler.job import Job
 from nonebot import get_driver
@@ -26,6 +26,7 @@ from nonebot_plugin_auto_bot_selector.target import (
 from nonebot_plugin_auto_bot_selector.utils.alconna import create_target, extract_target
 from pydantic import BaseModel, Field, validator
 
+from ..config import plugin_config
 from ..lib.store import cache_dir, data_dir
 from ..lib.tools import calc_time_total
 from ..lib.uid_extract import uid_extract_sync
@@ -283,7 +284,15 @@ class SubscriptionConfig(BaseModel):
     dynamic_interval: int = Field(90, ge=10)
     live_interval: int = Field(30, ge=10)
     push_delay: int = Field(3, ge=0)
-    dynamic_grpc: bool = False
+    dynamic_method: Literal["rest", "grpc", "rss"] = "rest"
+    
+    @validator("dynamic_method")
+    def validate_dynamic_method(cls, v: str):
+        if v not in ["rest", "grpc", "rss"]:
+            raise ValueError("Invalid dynamic method")
+        elif v == "rss" and not plugin_config.bilichat_rss_base:
+            raise ValueError("RSS 动态推送未配置有效的来源 URL，请配置 bilichat_rss_base")
+        return v
 
 
 class SubscriptionCfgFile(BaseModel):

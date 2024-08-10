@@ -33,6 +33,7 @@ class Config(BaseModel):
     bilichat_text_fonts: str = "default"
     bilichat_emoji_fonts: str = "default"
     bilichat_webui_path: str | None = "bilichat"
+    bilichat_rss_base: str = ""
 
     # command and subscribe
     bilichat_command_to_me: bool = True
@@ -86,6 +87,19 @@ class Config(BaseModel):
     ] = "gpt-3.5-turbo-0301"
     bilichat_openai_token_limit: int = 3500
     bilichat_openai_api_base: str = "https://api.openai.com"
+
+    @validator("bilichat_rss_base", always=True)
+    def check_rss_base(cls, v: str) -> str:
+        if not v:
+            return v
+        if not v.endswith("/"):
+            v += "/"
+        # warning rsshub.app
+        if "https://rsshub.app/" in v:
+            logger.warning(
+                "请注意 rsshub.app 作为开源项目的演示站点，请仅作为测试使用，如有需求请自行搭建 rsshub 服务，**不要滥用公共服务**"
+            )
+        return v
 
     @validator("bilichat_cache_serive", always=True, pre=True)
     def check_cache_serive(cls, v):

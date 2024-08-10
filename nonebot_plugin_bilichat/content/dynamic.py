@@ -2,7 +2,7 @@ from typing import Literal
 
 from bilireq.exceptions import GrpcError, ResponseCodeError
 from bilireq.grpc.dynamic import grpc_get_dynamic_detail
-from bilireq.grpc.protos.bilibili.app.dynamic.v2.dynamic_pb2 import DynamicType, DynModuleType
+from bilireq.grpc.protos.bilibili.app.dynamic.v2.dynamic_pb2 import DynamicItem, DynamicType, DynModuleType
 from google.protobuf.json_format import MessageToDict
 from httpx import TimeoutException
 from nonebot.log import logger
@@ -32,51 +32,57 @@ class Dynamic(BaseModel):
     def bili_id(self) -> str:
         return f"动态id: {self.id}"
 
-    async def _grpc(self):
-        logger.debug("正在使用 gRPC 获取动态信息")
-        for i in range(plugin_config.bilichat_neterror_retry):
-            try:
-                _dyn = await grpc_get_dynamic_detail(dynamic_id=self.id, auth=AuthManager.get_auth())
-                break
-            except TimeoutException:
-                logger.warning(f"请求超时，重试第 {i + 1}/{plugin_config.bilichat_neterror_retry} 次")
+    async def _grpc(self, raw_dyn: DynamicItem | None = None):
+        if not raw_dyn:
+            logger.debug("正在使用 gRPC 获取动态信息")
+            for i in range(plugin_config.bilichat_neterror_retry):
+                try:
+                    raw_dyn = (await grpc_get_dynamic_detail(dynamic_id=self.id, auth=AuthManager.get_auth())).item
+                    break
+                except TimeoutException:
+                    logger.warning(f"请求超时，重试第 {i + 1}/{plugin_config.bilichat_neterror_retry} 次")
+            else:
+                raise AbortError("请求超时")
         else:
-            raise AbortError("请求超时")
-        dyn = _dyn.item
-        self.raw = MessageToDict(dyn)
+            logger.debug("使用已有的 gRPC 动态信息")
+        self.raw = MessageToDict(raw_dyn)
         self.raw_type = "grpc"
-        self.dynamic_type = dyn.card_type
-        if dyn.card_type == DynamicType.av:
-            for module in dyn.modules:
+        self.dynamic_type = raw_dyn.card_type
+        if raw_dyn.card_type == DynamicType.av:
+            for module in raw_dyn.modules:
                 if module.module_type == DynModuleType.module_dynamic:
                     aid = module.module_dynamic.dyn_archive.avid
                     self.url = await get_b23_url(f"https://www.bilibili.com/video/av{aid}")
-        elif dyn.card_type == DynamicType.article:
-            for module in dyn.modules:
+        elif raw_dyn.card_type == DynamicType.article:
+            for module in raw_dyn.modules:
                 if module.module_type == DynModuleType.module_dynamic:
                     cvid = module.module_dynamic.dyn_article.id
                     self.url = await get_b23_url(f"https://www.bilibili.com/read/cv{cvid}")
 
-    async def _web(self):
-        logger.debug("正在使用 RestAPI 获取动态信息")
-        for i in range(plugin_config.bilichat_neterror_retry):
-            try:
-                dyn = (await get_dynamic(self.id))["item"]
-                break
-            except TimeoutException:
-                logger.warning(f"请求超时，重试第 {i + 1}/{plugin_config.bilichat_neterror_retry} 次")
+    async def _web(self, raw_dyn: dict | None = None):
+        if not raw_dyn:
+            logger.debug("正在使用 RestAPI 获取动态信息")
+            for i in range(plugin_config.bilichat_neterror_retry):
+                try:
+                    raw_dyn = (await get_dynamic(self.id))["item"]
+                    break
+                except TimeoutException:
+                    logger.warning(f"请求超时，重试第 {i + 1}/{plugin_config.bilichat_neterror_retry} 次")
+            else:
+                raise AbortError("请求超时")
         else:
-            raise AbortError("请求超时")
-        self.raw = dyn
+            logger.debug("使用已有的 RestAPI 动态信息")
+        assert raw_dyn
+        self.raw = raw_dyn
         self.raw_type = "web"
 
-        self.dynamic_type = DYNAMIC_TYPE_MAP.get(dyn["type"], DynamicType.dyn_none)
+        self.dynamic_type = DYNAMIC_TYPE_MAP.get(raw_dyn["type"], DynamicType.dyn_none)
 
         if self.dynamic_type == DynamicType.av:
-            aid = dyn["modules"]["module_dynamic"]["major"]["archive"]["aid"]
+            aid = raw_dyn["modules"]["module_dynamic"]["major"]["archive"]["aid"]
             self.url = await get_b23_url(f"https://www.bilibili.com/video/av{aid}")
         elif self.dynamic_type == DynamicType.article:
-            cvid = dyn["modules"]["module_dynamic"]["major"]["article"]["id"]
+            cvid = raw_dyn["modules"]["module_dynamic"]["major"]["article"]["id"]
             self.url = await get_b23_url(f"https://www.bilibili.com/read/cv{cvid}")
 
     @classmethod
