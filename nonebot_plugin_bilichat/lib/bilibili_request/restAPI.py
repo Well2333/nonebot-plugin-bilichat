@@ -1,7 +1,45 @@
-from bilireq.utils import DEFAULT_HEADERS, get, post
+from bilireq.utils import DEFAULT_HEADERS
+from bilireq.utils import get as _get
+from bilireq.utils import post as _post
+from httpx import TimeoutException
 from nonebot.log import logger
 
+from ...config import plugin_config
 from .auth import AuthManager
+
+
+async def get(url: str, **kwargs):
+    """
+    发送 GET 请求
+
+    Args:
+        url: 请求链接
+        **kwargs: 其他参数
+    """
+    e = None
+    for i in range(plugin_config.bilichat_neterror_retry):
+        try:
+            return await _get(url, **kwargs)
+        except TimeoutException as e:
+            logger.error(f"请求 {url} 超时: {e}, 重试第 {i + 1}/{plugin_config.bilichat_neterror_retry} 次")
+    raise e or TimeoutException(f"请求 {url} 超时")
+
+
+async def post(url: str, **kwargs):
+    """
+    发送 POST 请求
+
+    Args:
+        url: 请求链接
+        **kwargs: 其他参数
+    """
+    e = None
+    for i in range(plugin_config.bilichat_neterror_retry):
+        try:
+            return await _post(url, **kwargs)
+        except TimeoutException as e:
+            logger.error(f"请求 {url} 超时: {e}, 重试第 {i + 1}/{plugin_config.bilichat_neterror_retry} 次")
+    raise e or TimeoutException(f"请求 {url} 超时")
 
 
 async def get_b23_url(burl: str) -> str:
