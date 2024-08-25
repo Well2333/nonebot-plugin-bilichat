@@ -2,13 +2,14 @@ import contextlib
 
 from nonebot.log import logger
 
+from ..config import plugin_config
 from .bilibili_request import hc
 
 
 async def b23_extract(b23: list[str]):
     try:
         url = f"https://b23.tv/{b23[1]}"
-        for _ in range(3):
+        for _ in range(plugin_config.bilichat_neterror_retry):
             with contextlib.suppress(Exception):
                 resp = await hc.get(url, follow_redirects=True)
                 break

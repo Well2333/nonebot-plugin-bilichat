@@ -1,11 +1,11 @@
 from bilireq.grpc.protos.bilibili.app.view.v1.view_pb2 import ViewReply
-from bilireq.utils import get
 from httpx import TimeoutException
 from nonebot.log import logger
 from pydantic import BaseModel, ValidationError
 
 from ..config import plugin_config
 from ..lib.bilibili_request import get_b23_url, grpc_get_view_info
+from ..lib.bilibili_request.restAPI import get
 from ..lib.cache import BaseCache, Cache
 from ..lib.draw import VideoImage
 from ..lib.video_subtitle import get_subtitle
@@ -49,7 +49,7 @@ class Video(BaseModel):
                 logger.warning(f"请求超时，重试第 {i + 1}/{plugin_config.bilichat_neterror_retry} 次")
         else:
             raise AbortError("请求超时")
-        
+
         try:
             if not video_info or video_info.ecode == 1:
                 raise AbortError("未找到此视频，可能不存在或已被删除。")
@@ -90,7 +90,15 @@ class Video(BaseModel):
         return self.cache.content
 
     async def get_image(self, style: str):
-        return await (await VideoImage.from_view_rely(self.raw, self.url)).render(style)
+        e = None
+        for i in range(plugin_config.bilichat_neterror_retry):
+            try:
+                return await (await VideoImage.from_view_rely(self.raw, self.url)).render(style)
+            except TimeoutException as e:
+                logger.error(
+                    f"绘制视频封面 av{self.id} 请求超时: {e}, 重试第 {i + 1}/{plugin_config.bilichat_neterror_retry} 次"
+                )
+        raise e or TimeoutException(f"绘制视频封面 av{self.id} 请求超时")
 
     async def get_offical_summary(self):
         resp = await get(
@@ -115,5 +123,4 @@ class Video(BaseModel):
             raise AbortError("获取官方视频总结失败") from e
         return summary
 
-    async def fetch_content(self) -> list[bytes] | list[None]:
-        ...
+    async def fetch_content(self) -> list[bytes] | list[None]: ...
