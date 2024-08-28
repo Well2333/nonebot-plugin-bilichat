@@ -26,7 +26,7 @@ class Dynamic(BaseModel):
     "动态类型"
     raw_type: Literal["web", "grpc", None] = None
     """动态的原始信息"""
-    raw_grpc: Any | None = None  # DynamicItem
+    raw_grpc: DynamicItem | None = None
     raw_web: dict = {}
 
     @property
@@ -47,6 +47,15 @@ class Dynamic(BaseModel):
         else:
             logger.debug("使用已有的 gRPC 动态信息")
         self.raw_grpc = raw_dyn
+
+        up_name = self.raw_grpc.modules[0].module_author.author.name.strip()
+        if not up_name:
+            import json
+
+            logger.warning(
+                f"异常的 Up 昵称: {up_name} 源数据: {json.dumps(MessageToDict(raw_dyn), ensure_ascii=False)}"
+            )
+
         self.raw_type = "grpc"
         self.dynamic_type = raw_dyn.card_type
         if raw_dyn.card_type == DynamicType.av:

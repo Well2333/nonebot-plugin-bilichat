@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 import httpx
 from bilireq.exceptions import GrpcError, ResponseCodeError
 from bilireq.grpc.dynamic import grpc_get_user_dynamics
-from bilireq.grpc.protos.bilibili.app.dynamic.v2.dynamic_pb2 import DynamicType
+from bilireq.grpc.protos.bilibili.app.dynamic.v2.dynamic_pb2 import DynamicItem, DynamicType
 from grpc.aio import AioRpcError
 from httpx import TimeoutException
 from nonebot.log import logger
@@ -31,9 +31,9 @@ async def _handle_dynamic(up: Uploader, dyn: Dynamic):
             up.nickname = up_name
 
     elif dyn.raw_type == "grpc":
-        assert dyn.raw_grpc
-        up_name = dyn.raw_grpc.modules[0].module_author.author.name
-        if up.nickname != up_name:
+        assert dyn.raw_grpc and isinstance(dyn.raw_grpc, DynamicItem)
+        up_name = dyn.raw_grpc.modules[0].module_author.author.name.strip()
+        if up.nickname != up_name and up_name:
             logger.info(f"[Dynamic] Up {up.nickname}({up.uid}) 更改昵称为 {up_name}")
             up.nickname = up_name
 
