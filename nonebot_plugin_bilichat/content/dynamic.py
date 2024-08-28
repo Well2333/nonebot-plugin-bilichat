@@ -26,7 +26,7 @@ class Dynamic(BaseModel):
     "动态类型"
     raw_type: Literal["web", "grpc", None] = None
     """动态的原始信息"""
-    raw_grpc: DynamicItem | None = None
+    raw_grpc: Any | None = None  # DynamicItem
     raw_web: dict = {}
 
     @property
