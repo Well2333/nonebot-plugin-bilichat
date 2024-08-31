@@ -89,7 +89,7 @@ async def _fetchlast_grpc(up_mid: int, up_name: str) -> Dynamic | None:
 async def _fetchlast_rss(mid: int) -> Dynamic | None:
     try:
         url = (
-            f"{plugin_config.bilichat_rss_base}bilibili/user/dynamic/{up.uid}"
+            f"{plugin_config.bilichat_rss_base}bilibili/user/dynamic/{mid}"
             + f"?key={plugin_config.bilichat_rss_key}"
             if plugin_config.bilichat_rss_key
             else ""
