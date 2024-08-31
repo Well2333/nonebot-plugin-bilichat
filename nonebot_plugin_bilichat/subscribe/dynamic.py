@@ -126,7 +126,12 @@ async def fetch_dynamics_grpc(up: Uploader):
 
 async def fetch_dynamics_rss(up: Uploader) -> Dynamic | None:
     try:
-        url = f"{plugin_config.bilichat_rss_base}bilibili/user/dynamic/{up.uid}"
+        url = (
+            f"{plugin_config.bilichat_rss_base}bilibili/user/dynamic/{up.uid}"
+            + f"?key={plugin_config.bilichat_rss_key}"
+            if plugin_config.bilichat_rss_key
+            else ""
+        )
         async with httpx.AsyncClient() as client:
             response = await client.get(url)
             response.raise_for_status()

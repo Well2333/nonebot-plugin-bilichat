@@ -88,7 +88,12 @@ async def _fetchlast_grpc(up_mid: int, up_name: str) -> Dynamic | None:
 
 async def _fetchlast_rss(mid: int) -> Dynamic | None:
     try:
-        url = f"{plugin_config.bilichat_rss_base}bilibili/user/dynamic/{mid}"
+        url = (
+            f"{plugin_config.bilichat_rss_base}bilibili/user/dynamic/{up.uid}"
+            + f"?key={plugin_config.bilichat_rss_key}"
+            if plugin_config.bilichat_rss_key
+            else ""
+        )
         async with httpx.AsyncClient() as client:
             response = await client.get(url)
             response.raise_for_status()
