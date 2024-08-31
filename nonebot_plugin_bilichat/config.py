@@ -34,6 +34,7 @@ class Config(BaseModel):
     bilichat_emoji_fonts: str = "default"
     bilichat_webui_path: str | None = "bilichat"
     bilichat_rss_base: str = ""
+    bilichat_rss_key: str = ""
 
     # command and subscribe
     bilichat_command_to_me: bool = True
