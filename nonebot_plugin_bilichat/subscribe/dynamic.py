@@ -27,15 +27,13 @@ async def _handle_dynamic(up: Uploader, dyn: Dynamic):
     if dyn.raw_type == "web":
         up_name = dyn.raw_web["modules"]["module_author"]["name"]
         if up.nickname != up_name:
-            logger.info(f"[Dynamic] Up {up.nickname}({up.uid}) 更改昵称为 {up_name}")
-            up.nickname = up_name
+            await up.fix_nickname()
 
     elif dyn.raw_type == "grpc":
         assert dyn.raw_grpc and isinstance(dyn.raw_grpc, DynamicItem)
         up_name = dyn.raw_grpc.modules[0].module_author.author.name.strip()
         if up.nickname != up_name and up_name:
-            logger.info(f"[Dynamic] Up {up.nickname}({up.uid}) 更改昵称为 {up_name}")
-            up.nickname = up_name
+            await up.fix_nickname()
 
     type_text = f"{up.nickname} "
     if dyn.dynamic_type == DynamicType.av:

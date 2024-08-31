@@ -29,7 +29,7 @@ from pydantic import BaseModel, Field, validator
 from ..config import plugin_config
 from ..lib.store import cache_dir, data_dir
 from ..lib.tools import calc_time_total
-from ..lib.uid_extract import uid_extract_sync
+from ..lib.uid_extract import uid_extract, uid_extract_sync
 from ..optional import capture_exception
 
 CONFIG_LOCK = asyncio.Lock()
@@ -53,11 +53,13 @@ class Uploader(BaseModel):
     def __init__(self, **values):
         super().__init__(**values)
         # 没有昵称的则搜索昵称
-        if not self.nickname:
+        logger.debug(f"初始化 UP: {self.nickname}({self.uid})")
+        if not self.nickname.strip():
             up = uid_extract_sync(f"UID: {self.uid}")
             if isinstance(up, str):
                 raise ValueError(f"未找到 uid 为 {self.uid} 的 UP")
             self.nickname = up.nickname
+            logger.debug(f"已修正 UP {self.uid} 昵称: {self.nickname}")
 
     def __hash__(self):
         return hash(self.uid)
@@ -90,6 +92,14 @@ class Uploader(BaseModel):
         else:
             live = ""
         return f"{self.nickname}({self.uid}){live}"
+
+    async def fix_nickname(self):
+        old_nickname = self.nickname
+        up = await uid_extract(f"UID: {self.uid}")
+        if isinstance(up, str):
+            raise ValueError(f"未找到 uid 为 {self.uid} 的 UP")
+        self.nickname = up.nickname
+        logger.debug(f"已修正 UP {self.uid} 昵称 {old_nickname} => {self.nickname}")
 
 
 class UserSubConfig(BaseModel):
@@ -285,7 +295,7 @@ class SubscriptionConfig(BaseModel):
     live_interval: int = Field(30, ge=10)
     push_delay: int = Field(3, ge=0)
     dynamic_method: Literal["rest", "grpc", "rss"] = "rest"
-    
+
     @validator("dynamic_method")
     def validate_dynamic_method(cls, v: str):
         if v not in ["rest", "grpc", "rss"]:
