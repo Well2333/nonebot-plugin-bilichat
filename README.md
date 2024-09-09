@@ -366,7 +366,7 @@ BOT: ...
 -   [hamo-reid](https://github.com/hamo-reid) 为 style_blue 绘制了界面
 -   [dynamicrender](https://pypi.org/project/dynrender-skia/) 提供 t2i 和动态渲染
 -   [ALC](https://github.com/nonebot/plugin-alconna) 提供跨平台支持
--   [linya72](https://github.com/linya72) 喵~
+-   [凛雅](https://github.com/linya64/bili) 提供QQ免费bili推送姬 成品BOT服务
 
 ## ⏳ Star 趋势
 
