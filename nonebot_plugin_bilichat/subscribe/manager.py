@@ -290,19 +290,33 @@ class User(BaseModel):
 
 
 class SubscriptionConfig(BaseModel):
-    subs_limit: int = Field(5, ge=0, le=50)
-    dynamic_interval: int = Field(90, ge=10)
-    live_interval: int = Field(30, ge=10)
-    push_delay: int = Field(3, ge=0)
-    dynamic_method: Literal["rest", "grpc", "rss"] = "rest"
+    subs_limit: int = Field(plugin_config.bilichat_subs_limit, ge=0, le=50)
+    dynamic_interval: int = Field(plugin_config.bilichat_dynamic_interval, ge=10)
+    live_interval: int = Field(plugin_config.bilichat_live_interval, ge=10)
+    push_delay: int = Field(plugin_config.bilichat_push_delay, ge=0)
+    dynamic_method: Literal["rest", "grpc", "rss"] = plugin_config.bilichat_dynamic_method
+    rss_base: str = Field(plugin_config.bilichat_rss_base)
+    rss_key: str = Field(plugin_config.bilichat_rss_key)
 
-    @validator("dynamic_method")
-    def validate_dynamic_method(cls, v: str):
-        if v not in ["rest", "grpc", "rss"]:
-            raise ValueError("Invalid dynamic method")
-        elif v == "rss" and not plugin_config.bilichat_rss_base:
-            raise ValueError("RSS 动态推送未配置有效的来源 URL，请配置 bilichat_rss_base")
+    @validator("rss_base", always=True)
+    def check_rss_base(cls, v: str, values: dict[str, Any]) -> str:
+        if not v:
+            if plugin_config.bilichat_rss_base:
+                return plugin_config.bilichat_rss_base
+            elif values.get("dynamic_method") == "rss":
+                raise ValueError("RSS 动态推送未配置有效的来源 URL，请配置 rss_base")
+        if not v.endswith("/"):
+            v += "/"
+        # warning rsshub.app
+        if "https://rsshub.app/" in v:
+            logger.warning(
+                "请注意 rsshub.app 作为开源项目的演示站点，请仅作为测试使用，如有需求请自行搭建 rsshub 服务，**不要滥用公共服务**"
+            )
         return v
+
+    @validator("rss_key", always=True)
+    def check_rss_key(cls, v: str) -> str:
+        return v or plugin_config.bilichat_rss_key
 
 
 class SubscriptionCfgFile(BaseModel):
@@ -354,41 +368,45 @@ class SubscriptionSystem:
 
     @classmethod
     async def load(cls, data: dict[str, dict[str, Any] | list[dict[str, Any]]]):
-        raw_cfg = SubscriptionCfgFile.parse_obj(data)
-        while CONFIG_LOCK.locked():
-            await asyncio.sleep(0)
-        async with CONFIG_LOCK:
-            cls.config = raw_cfg.config
-            cls.uploaders.update({up.uid: up for up in raw_cfg.uploaders})
-            cls.users = {f"{u.platform}-_-{u.user_id}": u for u in raw_cfg.users}
+        try:
+            raw_cfg = SubscriptionCfgFile.parse_obj(data)
+            while CONFIG_LOCK.locked():
+                await asyncio.sleep(0)
+            async with CONFIG_LOCK:
+                cls.config = raw_cfg.config
+                cls.uploaders.update({up.uid: up for up in raw_cfg.uploaders})
+                cls.users = {f"{u.platform}-_-{u.user_id}": u for u in raw_cfg.users}
 
-            # 清理无订阅的UP
-            for uploader in cls.uploaders.copy().values():
-                if not uploader.subscribed_users:
-                    del SubscriptionSystem.uploaders[uploader.uid]
+                # 清理无订阅的UP
+                for uploader in cls.uploaders.copy().values():
+                    if not uploader.subscribed_users:
+                        del SubscriptionSystem.uploaders[uploader.uid]
 
-            # 添加缺失的UP
-            for user in cls.users.values():
-                for sub in user.subscriptions.keys():
-                    if sub not in cls.uploaders:
-                        cls.uploaders[sub] = Uploader(nickname="", uid=sub)
+                # 添加缺失的UP
+                for user in cls.users.values():
+                    for sub in user.subscriptions.keys():
+                        if sub not in cls.uploaders:
+                            cls.uploaders[sub] = Uploader(nickname="", uid=sub)
 
-            # 更新定时任务
-            dyn_job: Job = scheduler.get_job("dynamic_update")  # type: ignore
-            dyn_job.reschedule(
-                "interval",
-                seconds=cls.config.dynamic_interval,
-                jitter=cls.config.dynamic_interval // 3,
-            )
-            live_job: Job = scheduler.get_job("live_update")  # type: ignore
-            live_job.reschedule(
-                "interval",
-                seconds=cls.config.live_interval,
-                jitter=cls.config.live_interval // 3,
-            )
+                # 更新定时任务
+                dyn_job: Job = scheduler.get_job("dynamic_update")  # type: ignore
+                dyn_job.reschedule(
+                    "interval",
+                    seconds=cls.config.dynamic_interval,
+                    jitter=cls.config.dynamic_interval // 3,
+                )
+                live_job: Job = scheduler.get_job("live_update")  # type: ignore
+                live_job.reschedule(
+                    "interval",
+                    seconds=cls.config.live_interval,
+                    jitter=cls.config.live_interval // 3,
+                )
 
-            cls.save_to_file()
-            await cls.refresh_activate_uploaders()
+                cls.save_to_file()
+                await cls.refresh_activate_uploaders()
+        except Exception as e:
+            logger.exception(e)
+            raise e
 
     @classmethod
     async def load_from_file(cls):

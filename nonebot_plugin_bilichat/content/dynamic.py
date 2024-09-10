@@ -126,7 +126,7 @@ class Dynamic(BaseModel):
 
     async def get_image(self, style: str):
         raw = self.raw_web if self.raw_type == "web" else MessageToDict(self.raw_grpc)  # type: ignore
-        return await draw_dynamic(dynid=self.id, raw=raw, raw_type=self.raw_type)
+        return await draw_dynamic(dynid=self.id, raw=raw, raw_type=self.raw_type) # type: ignore
 
     async def fetch_content(self) -> list[bytes] | list[None]:
         items = []
