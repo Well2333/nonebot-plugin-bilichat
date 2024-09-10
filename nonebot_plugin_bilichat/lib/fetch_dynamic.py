@@ -9,7 +9,6 @@ from grpc.aio import AioRpcError
 from httpx import TimeoutException
 from nonebot.log import logger
 
-from ..config import plugin_config
 from ..content.dynamic import Dynamic
 from ..lib.bilibili_request import get_b23_url, get_user_dynamics
 from ..lib.bilibili_request.auth import AuthManager
@@ -88,8 +87,8 @@ async def _fetchlast_grpc(up_mid: int, up_name: str) -> Dynamic | None:
 
 async def _fetchlast_rss(mid: int) -> Dynamic | None:
     try:
-        url = f"{plugin_config.bilichat_rss_base}bilibili/user/dynamic/{mid}" + (
-            f"?key={plugin_config.bilichat_rss_key}" if plugin_config.bilichat_rss_key else ""
+        url = f"{SubscriptionSystem.config.rss_base}bilibili/user/dynamic/{mid}" + (
+            f"?key={SubscriptionSystem.config.rss_key}" if SubscriptionSystem.config.rss_key else ""
         )
         async with httpx.AsyncClient() as client:
             response = await client.get(url)

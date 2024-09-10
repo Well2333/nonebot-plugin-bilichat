@@ -8,7 +8,7 @@ from nonebot.typing import T_State
 from nonebot_plugin_alconna.uniseg import Hyper, Image, MsgTarget, Reply, Text, UniMessage, UniMsg
 
 from ..config import plugin_config
-from ..content import Column, Dynamic, Video
+from ..content import Dynamic, Video
 from ..lib.b23_extract import b23_extract
 from ..lib.content_cd import BilichatCD
 from ..lib.fetch_dynamic import fetch_last_dynamic

@@ -18,7 +18,7 @@ from ..lib.content_cd import BilichatCD
 from ..model.const import DYNAMIC_TYPE_IGNORE
 from ..model.exception import AbortError
 from ..optional import capture_exception
-from .manager import Uploader
+from .manager import SubscriptionSystem, Uploader
 
 
 async def _handle_dynamic(up: Uploader, dyn: Dynamic):
@@ -124,8 +124,8 @@ async def fetch_dynamics_grpc(up: Uploader):
 
 async def fetch_dynamics_rss(up: Uploader) -> Dynamic | None:
     try:
-        url = f"{plugin_config.bilichat_rss_base}bilibili/user/dynamic/{up.uid}" + (
-            f"?key={plugin_config.bilichat_rss_key}" if plugin_config.bilichat_rss_key else ""
+        url = f"{SubscriptionSystem.config.rss_base}bilibili/user/dynamic/{up.uid}" + (
+            f"?key={SubscriptionSystem.config.rss_key}" if SubscriptionSystem.config.rss_key else ""
         )
         async with httpx.AsyncClient() as client:
             response = await client.get(url)

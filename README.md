@@ -175,8 +175,13 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 |      bilichat_text_fonts      |    str    | default  |          可供自定义的字体，仅作用于 dynamicrender 绘图           |
 |     bilichat_emoji_fonts      |    str    | default  |          可供自定义的字体，仅作用于 dynamicrender 绘图           |
 |      bilichat_webui_path      |    str    | bilichat |               WebUI 的路径，设置为空则不开启 WebUI               |
-|       bilichat_rss_base       |    str    |   None   |   兼容 RSSHub 的动态 RSS 订阅地址，例如 `https://rsshub.app/`    |
-|       bilichat_rss_key        |    str    |   None   |          兼容 RSSHub 的访问控制 key，详情见注释 7          |
+|      bilichat_subs_limit      |    int    |    5     |                       默认全局订阅数量限制                       |
+|   bilichat_dynamic_interval   |    int    |    90    |                    默认动态轮询间隔，单位为秒                    |
+|    bilichat_live_interval     |    int    |    30    |                    默认直播轮询间隔，单位为秒                    |
+|      bilichat_push_delay      |    int    |    3     |                   默认每条推送的延迟，单位为秒                   |
+|    bilichat_dynamic_method    |    str    |  "rest"  |        默认动态推送方式，可选项为"grpc"、"rest" 和 "rss"         |
+|       bilichat_rss_base       |    str    |   None   | 默认兼容 RSSHub 的动态 RSS 订阅地址，例如 `https://rsshub.app/`  |
+|       bilichat_rss_key        |    str    |   None   |           默认兼容 RSSHub 的访问控制 key，详情见注释 7           |
 
 注:
 
@@ -187,6 +192,7 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 5. 当 `bilichat_cache_serive` 为 `mongodb` 时，需要安装并配置 [nonebot-plugin-mongodb](https://github.com/Well2333/nonebot-plugin-mongodb) 才可正常使用
 6. `bilichat_rss_base` 所需地址需要兼容 [RSSHub](https://docs.rsshub.app/zh/routes/social-media#up-%E4%B8%BB%E5%8A%A8%E6%80%81) 中的文件结构及路由即可使用
 7. `bilichat_rss_key` 为可选项，用于 RSSHub 的访问控制，若无需控制则留空，详情可查看 RSSHub 的[文档](https://docs.rsshub.app/zh/guide/#%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6)
+8. `bilichat_subs_limit bilichat_dynamic_interval bilichat_live_interval bilichat_push_delay bilichat_dynamic_method bilichat_rss_base bilichat_rss_key` 为全局默认值，如果在配置文件中有所配置，则会覆盖这里的默认值
 
 ### 指令配置项
 
@@ -206,6 +212,7 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 | bilichat_cmd_check_login  | list[str] |     ["查看登录账号"]     |  "checklogin" 命令的别名  |
 | bilichat_cmd_login_qrcode | list[str] |       ["扫码登录"]       |   "qrlogin" 命令的别名    |
 |    bilichat_cmd_logout    | list[str] |       ["登出账号"]       |    "logout" 命令的别名    |
+|  bilichat_cmd_modify_cfg  | list[str] |       ["修改配置"]       |     "cfg" 命令的别名      |
 
 ### 基础信息配置项
 
@@ -337,6 +344,7 @@ bilichat_cmd_start=""
 |  checklogin  |  主人  | 无限制 |                   无                   |         查看当前已登录的全部账号         |
 |   qrlogin    |  主人  | 无限制 |                   无                   |      使用二维码登录 B 站，防止风控       |
 |    logout    |  主人  | 无限制 |               账号的 UID               |              登出指定的账号              |
+|     cfg      |  主人  | 无限制 |                   无                   |            查看或修改配置信息            |
 
 #### 非主人添加/移除订阅
 
@@ -345,7 +353,7 @@ bilichat_cmd_start=""
 ```
 USER: /bilichat.sub 123456
 BOT: 已记录此次添加申请，请联系管理员处理
-SUPERUSER: /bilichat.handle 
+SUPERUSER: /bilichat.handle
 BOT: ...
 ```
 
@@ -366,7 +374,7 @@ BOT: ...
 -   [hamo-reid](https://github.com/hamo-reid) 为 style_blue 绘制了界面
 -   [dynamicrender](https://pypi.org/project/dynrender-skia/) 提供 t2i 和动态渲染
 -   [ALC](https://github.com/nonebot/plugin-alconna) 提供跨平台支持
--   [凛雅](https://github.com/linya64/bili) 提供QQ免费bili推送姬 成品BOT服务
+-   [凛雅](https://github.com/linya64/bili) 提供 QQ 免费 bili 推送姬 成品 BOT 服务
 
 ## ⏳ Star 趋势
 

@@ -1,1 +1,1 @@
-from . import functions, login, subs, subs_cfg, subs_request  # noqa: F401
+from . import functions, login, modify_cfg, subs, subs_cfg, subs_request  # noqa: F401
