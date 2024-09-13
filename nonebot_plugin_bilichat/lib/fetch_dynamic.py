@@ -100,7 +100,9 @@ async def _fetchlast_rss(mid: int) -> Dynamic | None:
         for item in items:
             link: str = item.find("link").text  # type: ignore
             dynamic_id: str = re.search(r"t.bilibili.com/(\d+)", link).group(1)  # type: ignore
-            return await Dynamic.from_id(dynamic_id)
+            dynamic = await Dynamic.from_id(dynamic_id)
+            if dynamic.dynamic_type not in DYNAMIC_TYPE_IGNORE:
+                return dynamic
     except httpx.HTTPStatusError as e:
         if e.response.status_code == 503:
             logger.error(f"RSS 订阅服务不可用 {type(e)}:{e}")
