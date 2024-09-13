@@ -12,7 +12,7 @@ from nonebot.log import logger
 
 from ..config import plugin_config
 from ..content.dynamic import Dynamic
-from ..lib.bilibili_request import get_b23_url, get_user_dynamics
+from ..lib.bilibili_request import get_b23_url, get_user_dynamics, get_dynamic
 from ..lib.bilibili_request.auth import AuthManager
 from ..lib.content_cd import BilichatCD
 from ..model.const import DYNAMIC_TYPE_IGNORE
@@ -156,7 +156,7 @@ async def fetch_dynamics_rss(up: Uploader) -> Dynamic | None:
     if up.dyn_offset == 0:
         up.dyn_offset = max(all_dyn_ids)
         return
-    dyn_ids = [x for x in all_dyn_ids if x > up.dyn_offset]
+    dyn_ids = [x for x in all_dyn_ids if x > up.dyn_offset and ((await get_dynamic(f"{x}"))["item"]["type"]) not in DYNAMIC_TYPE_IGNORE]
     dyn_ids.reverse()
     for dyn_id in dyn_ids:
         dyn = await Dynamic.from_id(str(dyn_id))

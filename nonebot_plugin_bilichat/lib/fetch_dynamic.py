@@ -10,7 +10,7 @@ from httpx import TimeoutException
 from nonebot.log import logger
 
 from ..content.dynamic import Dynamic
-from ..lib.bilibili_request import get_b23_url, get_user_dynamics
+from ..lib.bilibili_request import get_b23_url, get_user_dynamics, get_dynamic
 from ..lib.bilibili_request.auth import AuthManager
 from ..lib.uid_extract import SearchUp
 from ..model.const import DYNAMIC_TYPE_IGNORE
@@ -100,6 +100,7 @@ async def _fetchlast_rss(mid: int) -> Dynamic | None:
         for item in items:
             link: str = item.find("link").text  # type: ignore
             dynamic_id: str = re.search(r"t.bilibili.com/(\d+)", link).group(1)  # type: ignore
+            if ((await get_dynamic(f"{dynamic_id}"))["item"]["type"]) in DYNAMIC_TYPE_IGNORE: continue
             return await Dynamic.from_id(dynamic_id)
     except httpx.HTTPStatusError as e:
         if e.response.status_code == 503:
