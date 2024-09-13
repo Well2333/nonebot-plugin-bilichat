@@ -17,4 +17,8 @@ DYNAMIC_TYPE_MAP = {
     "DYNAMIC_TYPE_AV": DynamicType.av,
     "DYNAMIC_TYPE_ARTICLE": DynamicType.article,
     "DYNAMIC_TYPE_MUSIC": DynamicType.music,
+    "DYNAMIC_TYPE_AD": DynamicType.ad,
+    "DYNAMIC_TYPE_LIVE": DynamicType.live,
+    "DYNAMIC_TYPE_LIVE_RCMD": DynamicType.live_rcmd,
+    "DYNAMIC_TYPE_BANNER": DynamicType.banner,
 }
