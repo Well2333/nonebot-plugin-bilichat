@@ -79,7 +79,7 @@ async def _bili_check(state: T_State, event: Event, bot: Bot, msg: UniMsg) -> bo
 
     try:
         ## video handle
-        if matched := re.search(r"av(\d{1,15})|BV(1[0-9A-Za-z]{9})", bililink):
+        if matched := re.search(r"(?i)av(\d{1,15})|bv(1[0-9a-z]{9})", bililink):
             _id = matched.group()
             logger.info(f"video id: {_id}")
             content = await Video.from_id(_id, options)
