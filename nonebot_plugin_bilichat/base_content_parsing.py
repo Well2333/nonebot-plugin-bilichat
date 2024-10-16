@@ -60,7 +60,7 @@ async def _bili_check(state: T_State, event: Event, bot: Bot, msg: UniMsg) -> bo
     bililink = None
     for _msg in _msgs[Text] + _msgs[Hyper]:
         # b23 格式的链接
-        _msg_str = _msg.__repr__()
+        _msg_str = str(_msg.data)
         if "b23" in _msg_str:
             if b23 := re.search(r"b23.(tv|wtf)[\\/]+(\w+)", _msg_str):  # type: ignore
                 bililink = await b23_extract(list(b23.groups()))
@@ -79,7 +79,7 @@ async def _bili_check(state: T_State, event: Event, bot: Bot, msg: UniMsg) -> bo
 
     try:
         ## video handle
-        if matched := re.search(r"av(\d{1,15})|BV(1[0-9A-Za-z]{9})", bililink):
+        if matched := re.search(r"(?i)av(\d{1,15})|bv(1[0-9a-z]{9})", bililink):
             _id = matched.group()
             logger.info(f"video id: {_id}")
             content = await Video.from_id(_id, options)
