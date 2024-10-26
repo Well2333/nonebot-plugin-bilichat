@@ -94,7 +94,8 @@ class Video(BaseModel):
         for i in range(plugin_config.bilichat_neterror_retry):
             try:
                 return await (await VideoImage.from_view_rely(self.raw, self.url)).render(style)
-            except TimeoutException as e:
+            except TimeoutException as exc:
+                e = exc
                 logger.error(
                     f"绘制视频封面 av{self.id} 请求超时: {e}, 重试第 {i + 1}/{plugin_config.bilichat_neterror_retry} 次"
                 )
