@@ -20,7 +20,8 @@ async def get(url: str, **kwargs):
     for i in range(plugin_config.bilichat_neterror_retry):
         try:
             return await _get(url, **kwargs)
-        except TimeoutException as e:
+        except TimeoutException as exc:
+            e = exc
             logger.error(f"请求 {url} 超时: {e}, 重试第 {i + 1}/{plugin_config.bilichat_neterror_retry} 次")
     raise e or TimeoutException(f"请求 {url} 超时")
 
@@ -37,8 +38,9 @@ async def post(url: str, **kwargs):
     for i in range(plugin_config.bilichat_neterror_retry):
         try:
             return await _post(url, **kwargs)
-        except TimeoutException as e:
-            logger.error(f"请求 {url} 超时: {e}, 重试第 {i + 1}/{plugin_config.bilichat_neterror_retry} 次")
+        except TimeoutException as exc:
+            e = exc
+            logger.error(f"请求 {url} 超时: {exc}, 重试第 {i + 1}/{plugin_config.bilichat_neterror_retry} 次")
     raise e or TimeoutException(f"请求 {url} 超时")
 
 

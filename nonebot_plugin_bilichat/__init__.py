@@ -16,7 +16,7 @@ __plugin_meta__ = PluginMetadata(
     usage="视频、专栏、动态解析直接发送链接、小程序、xml卡片即可，指令请参考 https://github.com/Well2333/nonebot-plugin-bilichat",
     homepage="https://github.com/Well2333/nonebot-plugin-bilichat",
     type="application",
-    supported_adapters={"~onebot.v11", "~onebot.v12", "~qq", "~mirai2"},
+    supported_adapters={"~onebot.v11", "~onebot.v12", "~qq"},
     extra={
         "author": "djkcyl & Well404",
         "version": __version__,
