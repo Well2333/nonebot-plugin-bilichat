@@ -22,6 +22,7 @@ dependencies = [
     "nonebot-plugin-alconna>=0.42.3",
     "nonebot-plugin-auto-bot-selector>=0.2.0",
     "nonebot-plugin-waiter>=0.4.0",
+    "pypng>=0.20220715.0",
 ]
 requires-python = ">=3.10,<4.0"
 readme = "README.md"
