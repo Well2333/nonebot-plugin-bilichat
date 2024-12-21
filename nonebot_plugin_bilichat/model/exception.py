@@ -7,47 +7,29 @@ class AbortError(Exception):
 
 class CaptchaAbortError(AbortError):
     """由于风控导致需要验证码的异常"""
+
     def __init__(self, message):
         self.message = message
 
 
 class NotFindAbortError(AbortError):
     """未找到指定资源的异常"""
+
     def __init__(self, message):
         self.message = message
+
+
+class RequestError(AbortError):
+    """请求时的异常"""
+
+    def __init__(self, code: int, json: dict):
+        self.code = code
+        self.type = json.get("type", "未知错误")
+        self.message = json.get("detail", "未知错误")
 
 
 class ProssesError(Exception):
     """处理时的异常，通常由于环境错误导致"""
+
     def __init__(self, message):
         self.message = message
-
-# ===== BING EXCEPTION =====
-
-
-class BaseBingChatException(Exception):
-    pass
-
-
-class BingChatUnknownException(BaseBingChatException):
-    pass
-
-
-class BingchatNetworkException(BaseBingChatException):
-    pass
-
-
-class BingChatResponseException(BingchatNetworkException):
-    pass
-
-
-class BingChatInvalidSessionException(BingChatResponseException):
-    pass
-
-
-class BingChatAccountReachLimitException(BingChatResponseException):
-    pass
-
-
-class BingCaptchaException(BingChatResponseException):
-    pass

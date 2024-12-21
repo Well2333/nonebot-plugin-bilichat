@@ -5,7 +5,6 @@ from .config import __version__, plugin_config, raw_config
 
 require("nonebot_plugin_apscheduler")
 require("nonebot_plugin_alconna")
-require("nonebot_plugin_auto_bot_selector")
 require("nonebot_plugin_waiter")
 
 cmd_perfix = f"{raw_config.command_start}{plugin_config.bilichat_cmd_start}{raw_config.command_sep}"
@@ -68,4 +67,4 @@ __plugin_meta__ = PluginMetadata(
     },
 )
 
-from . import api, base_content_parsing, commands  # noqa: F401, E402
+from . import base_content_parsing  # noqa: F401, E402
