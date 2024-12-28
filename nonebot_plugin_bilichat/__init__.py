@@ -1,17 +1,17 @@
 from nonebot import require
 from nonebot.plugin import PluginMetadata
 
-from .config import __version__, plugin_config, raw_config
+from .config import __version__, nonebot_config, plugin_config
 
 require("nonebot_plugin_apscheduler")
 require("nonebot_plugin_alconna")
 require("nonebot_plugin_waiter")
 
-cmd_perfix = f"{raw_config.command_start}{plugin_config.bilichat_cmd_start}{raw_config.command_sep}"
+cmd_perfix = f"{nonebot_config.command_start}{plugin_config.nonebot.cmd_start}{nonebot_config.command_sep}"
 
 __plugin_meta__ = PluginMetadata(
     name="nonebot-plugin-bilichat",
-    description="多种B站链接解析，视频词云，AI总结，你想要的都在 bilichat",
+    description="全功能的 bilibili 内容解析器及订阅器",
     usage="视频、专栏、动态解析直接发送链接、小程序、xml卡片即可，指令请参考 https://github.com/Well2333/nonebot-plugin-bilichat",
     homepage="https://github.com/Well2333/nonebot-plugin-bilichat",
     type="application",

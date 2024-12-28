@@ -24,15 +24,15 @@ async def _permission_check(bot: Bot, event: Event, target: MsgTarget, state: T_
     # 自身消息
     _id = target.id if target.private else event.get_user_id()
     if _id == bot.self_id:
-        if plugin_config.bilichat_only_self or plugin_config.bilichat_enable_self:
+        if plugin_config.only_self or plugin_config.enable_self:
             return True
-        elif not plugin_config.bilichat_enable_self:
+        elif not plugin_config.enable_self:
             return False
     # 不是自身消息但开启了仅自身
-    elif plugin_config.bilichat_only_self:
+    elif plugin_config.only_self:
         return False
     # 是否 to me
-    if plugin_config.bilichat_only_to_me and not event.is_tome():  # noqa: SIM103
+    if plugin_config.only_to_me and not event.is_tome():  # noqa: SIM103
         return False
     # return plugin_config.verify_permission(target.id)
     return True
@@ -42,7 +42,7 @@ async def _bili_check(state: T_State, event: Event, bot: Bot, msg: UniMsg) -> bo
     api = get_request_api()
     _msgs = msg.copy()
     if Reply in msg and (
-        (plugin_config.bilichat_enable_self and str(event.get_user_id()) == str(bot.self_id)) or event.is_tome()
+        (plugin_config.enable_self and str(event.get_user_id()) == str(bot.self_id)) or event.is_tome()
     ):
         # 如果是回复消息
         # 1. 如果是自身消息且允许自身消息
@@ -95,7 +95,7 @@ async def _pre_check(state: T_State, event: Event, bot: Bot, msg: UniMsg, target
 
 
 bilichat = on_message(
-    block=plugin_config.bilichat_block,
+    block=plugin_config.block,
     priority=2,
     rule=Rule(_pre_check),
 )
@@ -109,11 +109,11 @@ async def content_info(origin_msg: UniMsg, state: T_State):
     try:
         raw_cont: Content = state["_raw_cont_"]
         if raw_cont.type == "video":
-            content = await get_request_api().content_video(raw_cont.id, plugin_config.bilichat_browser_shot_quality)
+            content = await get_request_api().content_video(raw_cont.id, plugin_config.browser_shot_quality)
         elif raw_cont.type == "column":
-            content = await get_request_api().content_column(raw_cont.id, plugin_config.bilichat_browser_shot_quality)
+            content = await get_request_api().content_column(raw_cont.id, plugin_config.browser_shot_quality)
         elif raw_cont.type == "dynamic":
-            content = await get_request_api().content_dynamic(raw_cont.id, plugin_config.bilichat_browser_shot_quality)
+            content = await get_request_api().content_dynamic(raw_cont.id, plugin_config.browser_shot_quality)
         else:
             raise ValueError(f"未知的内容类型: {raw_cont.type}")
         msgs.append(Image(raw=base64.b64decode(content.img)))

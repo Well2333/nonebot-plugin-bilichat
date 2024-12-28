@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = []
 lock_version = "4.5.0"
-content_hash = "sha256:730a754ffbd87e72cb1c0146e9afa65039d0f5695415a98984a66218b6d74273"
+content_hash = "sha256:e480ab6030caa7521d79d2ad1caa82b040188359709e77d3293946911b3b4076"
 
 [[metadata.targets]]
 requires_python = "~=3.10"
@@ -578,6 +578,19 @@ dependencies = [
 files = [
     {file = "nonebot_plugin_sentry-2.0.0-py3-none-any.whl", hash = "sha256:4b865bbda7d3ed1ee930d1521863db3462a6ed10e49d2dce19ca0a4994d1cc70"},
     {file = "nonebot_plugin_sentry-2.0.0.tar.gz", hash = "sha256:b7b1c0e25f439e7af75c9ec0219d76c6e24e9b08969b1f38df0346e2ac3f6342"},
+]
+
+[[package]]
+name = "nonebot-plugin-uninfo"
+version = "0.6.2"
+summary = ""
+dependencies = [
+    "importlib-metadata",
+    "nonebot2",
+]
+files = [
+    {file = "nonebot_plugin_uninfo-0.6.2-py3-none-any.whl", hash = "sha256:6d53559ab3ef23fe750a445cbc1ffd6abbbd7ba6dd6ab375a0c7d7d55bdc5175"},
+    {file = "nonebot_plugin_uninfo-0.6.2.tar.gz", hash = "sha256:8f8b1351d4ae1a34766c68dee2b05f358416b310314fead4d9d6776a4b3535f3"},
 ]
 
 [[package]]

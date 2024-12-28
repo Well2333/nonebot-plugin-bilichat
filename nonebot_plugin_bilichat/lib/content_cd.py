@@ -8,8 +8,8 @@ from ..config import plugin_config
 
 class BilichatCD:
     cd: dict[str, dict[str, datetime]] = {}  # {content_id: {session_id: datetime_to_expire}}
-    cd_size_limit = plugin_config.bilichat_cd_time // 2
-    expiration_duration = timedelta(seconds=plugin_config.bilichat_cd_time)
+    cd_size_limit = plugin_config.analyze.cd_time // 2
+    expiration_duration = timedelta(seconds=plugin_config.analyze.cd_time)
 
     @classmethod
     def check_cd(cls, session_id: str, content_id: str):
@@ -28,7 +28,7 @@ class BilichatCD:
             cls.record_cd(session_id, content_id)
 
     @classmethod
-    def record_cd(cls, session_id: str, content_id: str):
+    def record_cd(cls, session_id: str, content_id: str) -> None:
         content_record = cls.cd.get(content_id, {})
         now = datetime.now()
 
@@ -40,7 +40,7 @@ class BilichatCD:
         cls.cd[content_id] = content_record
 
     @classmethod
-    def clean_expired_entries(cls, content_record: dict[str, datetime], current_time: datetime):
+    def clean_expired_entries(cls, content_record: dict[str, datetime], current_time: datetime) -> None:
         expired_entries = [
             session_id for session_id, expire_time in content_record.items() if expire_time <= current_time
         ]

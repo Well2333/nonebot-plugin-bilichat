@@ -1,12 +1,12 @@
 import datetime
 
 
-def calc_time_total(t: float | int):
+def calc_time_total(t: float):
     """
     Calculate the total time in a human-readable format.
 
     Args:
-        t (float | int): The time in seconds.
+        t (float): The time in seconds.
 
     Returns:
         str: The total time in a human-readable format.

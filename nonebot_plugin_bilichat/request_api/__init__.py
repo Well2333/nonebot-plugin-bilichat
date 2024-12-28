@@ -8,8 +8,7 @@ from yarl import URL
 
 from nonebot_plugin_bilichat.config import plugin_config
 from nonebot_plugin_bilichat.model.exception import RequestError
-
-from .model import Account, Content, Dynamic, LiveRoom, Note, VersionInfo
+from nonebot_plugin_bilichat.model.request_api import Account, Content, Dynamic, LiveRoom, Note, VersionInfo
 
 MINIMUM_API_VERSION = Version("0.1.0")
 
@@ -97,7 +96,7 @@ class RequestAPI:
 
 
 request_apis: list[RequestAPI] = []
-for api in plugin_config.bilichat_request_api:
+for api in plugin_config.api.request_api:
     try:
         request_api = RequestAPI(URL(api.api), api.token, api.weight)
         request_apis.append(request_api)
