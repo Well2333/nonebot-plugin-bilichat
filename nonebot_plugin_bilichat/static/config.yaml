@@ -63,7 +63,7 @@ api:
   local_api_token: "" # 本地 API 的 Token
   browser_shot_quality: 75 # 浏览器截图质量, 范围为 10-100
 
-push:
+subs:
   # 推送相关配置
   subs_limit: 5 # 全局订阅数量限制
   dynamic_interval: 90 # 动态轮询间隔, 单位为秒

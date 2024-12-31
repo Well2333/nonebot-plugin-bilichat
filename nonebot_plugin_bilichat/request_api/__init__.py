@@ -6,9 +6,9 @@ from nonebot.log import logger
 from packaging.version import Version
 from yarl import URL
 
-from nonebot_plugin_bilichat.config import plugin_config
+from nonebot_plugin_bilichat.config import config
 from nonebot_plugin_bilichat.model.exception import RequestError
-from nonebot_plugin_bilichat.model.request_api import Account, Content, Dynamic, LiveRoom, Note, VersionInfo
+from nonebot_plugin_bilichat.model.request_api import Account, Content, Dynamic, LiveRoom, Note, SearchUp, VersionInfo
 
 MINIMUM_API_VERSION = Version("0.1.0")
 
@@ -83,9 +83,10 @@ class RequestAPI:
     async def sub_lives(self, uids: list[int]) -> list[LiveRoom]:
         return [LiveRoom.model_validate(live) for live in (await self._post("/sub/lives", json={"uids": uids})).json()]
 
-    async def subs_dynamic(self, uid: int) -> list[Dynamic]:
+    async def subs_dynamic(self, uid: int, offset: int = 0) -> list[Dynamic]:
         return [
-            Dynamic.model_validate(dynamic) for dynamic in (await self._get("/sub/dynamic", params={"uid": uid})).json()
+            Dynamic.model_validate(dynamic)
+            for dynamic in (await self._get("/sub/dynamic", params={"uid": uid, "offset": offset})).json()
         ]
 
     async def tools_b23_extract(self, b23: str) -> str:
@@ -94,9 +95,15 @@ class RequestAPI:
     async def tools_b23_generate(self, url: str) -> str:
         return (await self._get("/tools/b23_generate", params={"url": url})).text
 
+    async def tools_search_up(self, keyword: str, ps: int = 5) -> list[SearchUp] | SearchUp:
+        resq = (await self._get("/tools/search_up", params={"keyword": keyword, "ps": ps})).json()
+        if isinstance(resq, list):
+            return [SearchUp.model_validate(up) for up in resq]
+        return SearchUp.model_validate(resq)
+
 
 request_apis: list[RequestAPI] = []
-for api in plugin_config.api.request_api:
+for api in config.api.request_api:
     try:
         request_api = RequestAPI(URL(api.api), api.token, api.weight)
         request_apis.append(request_api)

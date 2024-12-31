@@ -1,6 +1,8 @@
 from enum import Enum
 
+from nonebot_plugin_alconna import Target
 from nonebot_plugin_uninfo import Session
+from nonebot_plugin_uninfo.target import to_target
 from pydantic import BaseModel
 
 from nonebot_plugin_bilichat.model.request_api import DynamicType
@@ -43,3 +45,7 @@ class UP(BaseModel):
 class User(BaseModel):
     info: Session
     subscribes: dict[str, UP]
+
+    @property
+    def target(self) -> Target:
+        return to_target(self.info)

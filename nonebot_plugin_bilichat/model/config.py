@@ -1,6 +1,4 @@
-from asyncio import Lock
 from importlib.metadata import version
-from typing import ClassVar
 
 from pydantic import BaseModel, Field
 
@@ -89,7 +87,7 @@ class ApiConfig(BaseModel):
     """浏览器截图质量, 范围为 10-100"""
 
 
-class PushConfig(BaseModel):
+class SubscribeConfig(BaseModel):
     """推送相关配置"""
 
     subs_limit: int = Field(5, ge=0, le=50)
@@ -104,16 +102,7 @@ class PushConfig(BaseModel):
     # 推送数据
     users: dict[str, User] = {}
     """已添加订阅的用户"""
-    _online_users: dict[str, User] = {}
-    """在线的用户"""
-    _modify_lock = Lock()
-    """用户锁"""
 
-    class Config:
-        fields: ClassVar[dict[str, dict[str, bool]]] = {
-            "_online_users": {"exclude": True},
-            "_modify_lock": {"exclude": True},
-        }
 
 
 class Config(BaseModel):
@@ -121,4 +110,4 @@ class Config(BaseModel):
     nonebot: NoneBotConfig = NoneBotConfig()
     analyze: AnalyzeConfig = AnalyzeConfig()
     api: ApiConfig = ApiConfig()
-    push: PushConfig = PushConfig()  # type: ignore
+    subs: SubscribeConfig = SubscribeConfig()  # type: ignore

@@ -34,4 +34,4 @@ if not config_path.exists():
     config_path.write_text(yaml.dump(Config().model_dump(), allow_unicode=True), encoding="utf-8")  # type: ignore
     raise SystemExit
 
-plugin_config: Config = Config.model_validate(yaml.safe_load(config_path.read_text()))
+config: Config = Config.model_validate(yaml.safe_load(config_path.read_text()))

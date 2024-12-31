@@ -1,3 +1,4 @@
+import base64
 from datetime import datetime
 from enum import Enum
 from typing import Any, Literal
@@ -83,9 +84,20 @@ class LiveRoom(BaseModel):
     uname: str
 
 
-
 class Content(BaseModel):
     type: Literal["video", "column", "dynamic"]
     id: str
     b23: str
     img: str
+
+    @property
+    def img_bytes(self) -> bytes:
+        return base64.b64decode(self.img)
+
+
+class SearchUp(BaseModel):
+    nickname: str
+    uid: int
+
+    def __str__(self) -> str:
+        return f"{self.nickname}({self.uid})"

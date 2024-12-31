@@ -3,13 +3,13 @@ from datetime import datetime, timedelta
 from nonebot.exception import FinishedException
 from nonebot.log import logger
 
-from ..config import plugin_config
+from ..config import config
 
 
 class BilichatCD:
     cd: dict[str, dict[str, datetime]] = {}  # {content_id: {session_id: datetime_to_expire}}
-    cd_size_limit = plugin_config.analyze.cd_time // 2
-    expiration_duration = timedelta(seconds=plugin_config.analyze.cd_time)
+    cd_size_limit = config.analyze.cd_time // 2
+    expiration_duration = timedelta(seconds=config.analyze.cd_time)
 
     @classmethod
     def check_cd(cls, session_id: str, content_id: str):
