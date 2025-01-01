@@ -1,11 +1,11 @@
-from typing import Literal, Type, TypeVar
+from typing import Literal, TypeVar
 
 from nonebot.adapters.onebot.v11 import Adapter
-from nonebot.adapters.onebot.v11.event import Event, GroupMessageEvent, PrivateMessageEvent
+from nonebot.adapters.onebot.v11.event import Event, GroupMessageEvent
 from nonebot.log import logger
 from nonebot.typing import overrides
 
-Event_T = TypeVar("Event_T", bound=Type[Event])
+Event_T = TypeVar("Event_T", bound=type[Event])
 
 
 def register_event(event: Event_T) -> Event_T:

@@ -1,0 +1,72 @@
+_version: "1.0.0" # nonebot_plugin_bilichat 的版本
+
+nonebot:
+  # nonebot 相关配置, 无法热修改
+  block: false # 是否拦截事件(防止其他插件二次解析)
+  enable_self: false # 是否允许响应自身的消息
+  only_self: false # 是否仅响应自身的消息, 开启后会覆盖全部其他规则(人机合一特供)
+  only_to_me: false # 非自身消息是否需要 @机器人 或使用机器人的昵称才响应
+  command_to_me: false # 命令是否需要@机器人或使用机器人的昵称才响应
+  cmd_start: "" # 命令的起始词, 可设置为空
+  cmd_add_sub: # `sub`命令的别名
+    - "订阅"
+    - "关注"
+  cmd_remove_sub: # `unsub`命令的别名
+    - "退订"
+    - "取关"
+  cmd_check_sub: # `check`命令的别名
+    - "查看"
+    - "查看订阅"
+  cmd_reset_sub: # `reset`命令的别名
+    - "重置"
+    - "重置配置"
+  cmd_at_all: # `atall`命令的别名
+    - "全体成员"
+    - "at全体"
+  cmd_dynamic: # `dynamic`命令的别名
+    - "动态通知"
+    - "动态订阅"
+  cmd_live: # `live`命令的别名
+    - "直播通知"
+    - "直播订阅"
+  cmd_checkdynamic: # `checkdynamic`命令的别名
+    - "查看动态"
+  cmd_fetch: # `fetch`命令的别名
+    - "获取内容"
+    - "解析内容"
+  cmd_check_login: # `check_login`命令的别名
+    - "查看登录账号"
+  cmd_login_qrcode: # `qrlogin`命令的别名
+    - "扫码登录"
+  cmd_logout: # `logout`命令的别名
+    - "登出账号"
+  cmd_modify_cfg: # `cfg`命令的别名
+    - "修改配置"
+
+analyze:
+  # 解析相关配置
+  video: true # 是否解析视频
+  dynamic: true # 是否解析动态
+  column: true # 是否解析专栏
+  whitelist: [] # 响应的会话名单, 会覆盖黑名单
+  blacklist: [] # 不响应的会话名单
+  cd_time: 120 # 对同一视频的响应冷却时间(防止刷屏)
+
+api:
+  # API 相关配置
+  request_api:
+    - api: "https://api.example.com" # API 地址
+      token: "your_api_token" # API Token, 服务端未设置则留空
+      weight: 1 # 权重, 用于负载均衡, 越大越优先
+    # 可以根据需要添加更多 API 配置
+  enable_local_api: false # 是否启用本地 API
+  local_api_token: "" # 本地 API 的 Token
+  browser_shot_quality: 75 # 浏览器截图质量, 范围为 10-100
+
+subs:
+  # 推送相关配置
+  subs_limit: 5 # 全局订阅数量限制
+  dynamic_interval: 90 # 动态轮询间隔, 单位为秒
+  live_interval: 30 # 直播轮询间隔, 单位为秒
+  push_delay: 3 # 每条推送的延迟, 单位为秒
+  users: {} # 已添加订阅的用户
