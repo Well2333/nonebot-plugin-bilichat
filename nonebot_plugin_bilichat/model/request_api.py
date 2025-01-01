@@ -27,6 +27,9 @@ class Account(BaseModel):
     note: Note
     uid: int
 
+    def __str__(self) -> str:
+        return f"{self.uid}({self.note.source})"
+
 
 class DynamicType(str, Enum):
     DYNAMIC_TYPE_AD = "DYNAMIC_TYPE_AD"

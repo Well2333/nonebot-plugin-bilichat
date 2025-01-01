@@ -1,9 +1,10 @@
 from enum import Enum
+from typing import overload
 
 from nonebot_plugin_alconna import Target
 from nonebot_plugin_uninfo import Session
 from nonebot_plugin_uninfo.target import to_target
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from nonebot_plugin_bilichat.model.request_api import DynamicType
 
@@ -44,8 +45,35 @@ class UP(BaseModel):
 
 class User(BaseModel):
     info: Session
-    subscribes: dict[str, UP]
+    subscribes: dict[str, UP] = {}
+    """订阅的UP主, UP.uid: UP"""
+
+    @field_validator("info", mode="before")
+    @classmethod
+    def construct_info(cls, value: dict) -> Session:
+        return Session.load(value)
 
     @property
     def target(self) -> Target:
         return to_target(self.info)
+
+    @property
+    def id(self) -> str:
+        return self.info.id
+
+    def __str__(self) -> str:
+        return f"User {self.info.dump_json()}"
+
+    @overload
+    def add_subscription(self, *, uid: int | str, uname: str) -> None: ...
+
+    @overload
+    def add_subscription(self, *, up: UP) -> None: ...
+
+    def add_subscription(self, *, uid: int | str | None = None, uname: str | None = None, up: UP | None = None):
+        if up:
+            self.subscribes[str(up.uid)] = up
+        elif uid and uname:
+            self.subscribes[str(uid)] = UP(uid=int(uid), uname=uname)
+        else:
+            raise ValueError("uid uname 和 up 不能同时为空")

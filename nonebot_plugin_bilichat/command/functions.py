@@ -1,4 +1,5 @@
 from nonebot.adapters import Message
+from nonebot.log import logger
 from nonebot.params import CommandArg
 from nonebot.typing import T_State
 from nonebot_plugin_alconna.uniseg import Image, MsgTarget, UniMessage, UniMsg
@@ -37,3 +38,6 @@ bili_fetch_content = bilichat.command("fetch", aliases=set(config.nonebot.cmd_fe
 @bili_fetch_content.handle()
 async def fetch_check(state: T_State, msg: UniMsg, target: MsgTarget):
     await bili_fetch_content.finish("WIP")
+
+
+logger.success("Loaded: nonebot_plugin_bilichat.command.functions")

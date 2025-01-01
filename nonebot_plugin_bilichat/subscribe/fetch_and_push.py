@@ -7,9 +7,10 @@ from nonebot_plugin_apscheduler import scheduler
 
 from nonebot_plugin_bilichat.config import config
 from nonebot_plugin_bilichat.lib.tools import calc_time_total
+from nonebot_plugin_bilichat.model.exception import AbortError
 from nonebot_plugin_bilichat.request_api import get_request_api
 
-from .status import SubsStatus, UPStatus
+from .status import SubsStatus
 
 
 @scheduler.scheduled_job(
@@ -17,9 +18,12 @@ from .status import SubsStatus, UPStatus
 )
 async def dynamic():
     logger.info("[动态] 检查新动态")
-    ups = await SubsStatus.get_online_ups()
+    try:
+        ups = await SubsStatus.get_online_ups()
+    except AbortError:
+        return
     for up in ups:
-        logger.info(f"[动态] 获取 UP {up.name}({up.uid}) 动态")
+        logger.debug(f"[动态] 获取 UP {up.name}({up.uid}) 动态")
         api = get_request_api()
         try:
             all_dyns = await api.subs_dynamic(up.uid)
@@ -28,7 +32,7 @@ async def dynamic():
             continue
         # 第一次获取, 仅更新offset
         if up.dyn_offset == -1:
-            up.dyn_offset = max([dyn.dyn_id for dyn in all_dyns])
+            up.dyn_offset = 1016349395806847017  # max([dyn.dyn_id for dyn in all_dyns])
             return
         # 新动态
         new_dyns = sorted([dyn for dyn in all_dyns if dyn.dyn_id > up.dyn_offset], key=lambda x: x.dyn_id)
@@ -44,6 +48,8 @@ async def dynamic():
                 msg = UniMessage(
                     [Text(f"{up_name} 发布了新动态\n"), Image(raw=content.img_bytes), Text(f"\n{content.b23}")]
                 )
+                target = user.target
+                logger.debug(f"target: {target}")
                 await user.target.send(msg)
 
 
@@ -52,7 +58,10 @@ async def dynamic():
 )
 async def live():
     logger.info("[直播] 检查直播状态")
-    ups: list[UPStatus] = await SubsStatus.get_online_ups()
+    try:
+        ups = await SubsStatus.get_online_ups()
+    except AbortError:
+        return
     api = get_request_api()
     try:
         lives = {lv.uid: lv for lv in await api.sub_lives([up.uid for up in ups])}
@@ -61,7 +70,7 @@ async def live():
         return
     for up in ups:
         live = lives[up.uid]
-        logger.info(f"[直播] UP {up.name}({up.uid}) 直播状态: {live.live_status}")
+        logger.debug(f"[直播] UP {up.name}({up.uid}) 直播状态: {live.live_status}")
         # 第一次获取, 仅更新状态
         if up.live_status == -1:
             up.live_status = live.live_status

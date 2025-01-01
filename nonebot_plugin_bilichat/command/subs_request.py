@@ -51,12 +51,12 @@ async def add_sub(uid: Message = CommandArg(), user: User = Depends(get_user)):
     elif up.uid in user.subscriptions:
         await bili_add_sub_request.finish("本群已经订阅了此UP主呢...\n`(*>﹏<*)′")
     elif up in reqs["sub"]:
-        await bili_add_sub_request.finish(f"已经申请过添加 {up} 啦，无需再次申请\n(*^▽^*)")
+        await bili_add_sub_request.finish(f"已经申请过添加 {up} 啦, 无需再次申请\n(*^▽^*)")
 
     reqs["sub"].append(up)
     REQUESTS[user] = reqs
 
-    await bili_add_sub_request.finish("已记录此次添加申请，请联系管理员处理\n(*^▽^*)")
+    await bili_add_sub_request.finish("已记录此次添加申请, 请联系管理员处理\n(*^▽^*)")
 
 
 @bili_remove_sub_request.handle()
@@ -70,11 +70,11 @@ async def remove_sub(msg: Message = CommandArg(), user: User = Depends(get_user)
             if up.uid not in user.subscriptions:
                 await bili_remove_sub_request.finish("本群并未订阅此UP主呢...\n`(*>﹏<*)′")
             elif up in reqs["unsub"]:
-                await bili_remove_sub_request.finish(f"已经申请过移除 {up} 啦，无需再次申请\n(*^▽^*)")
+                await bili_remove_sub_request.finish(f"已经申请过移除 {up} 啦, 无需再次申请\n(*^▽^*)")
 
             reqs["unsub"].append(up)
             REQUESTS[user] = reqs
-            await bili_remove_sub_request.finish("已记录此次添加申请，请联系管理员处理\n(*^▽^*)")
+            await bili_remove_sub_request.finish("已记录此次添加申请, 请联系管理员处理\n(*^▽^*)")
     await bili_remove_sub_request.finish("未找到该 UP 主呢\n`(*>﹏<*)′")
 
 
@@ -115,7 +115,7 @@ async def handle_request(lock: Lock = Depends(check_lock)):
                     for up in reqs["unsub"]:
                         store[up] = await user.remove_subscription(up) or f"已移除 {up.nickname}({up.uid})"
                     await bili_request_handle.send(
-                        "已同意该用户的全部请求，具体如下：\n"
+                        "已同意该用户的全部请求, 具体如下：\n"
                         + "\n".join([f"{up.nickname}({up.uid}): {m}" for up, m in store.items()])
                     )
                     break
@@ -136,7 +136,7 @@ async def handle_request(lock: Lock = Depends(check_lock)):
                                 await bili_request_handle.send(f"已拒绝添加 {up.nickname}({up.uid})")
                                 break
                             else:
-                                await bili_request_handle.send(f"请输入 y 或 n，而不是 {resp1}")
+                                await bili_request_handle.send(f"请输入 y 或 n, 而不是 {resp1}")
                     for up in reqs["unsub"]:
                         await bili_request_handle.send(f"是否移除 {up.nickname}({up.uid})")
 
@@ -150,7 +150,7 @@ async def handle_request(lock: Lock = Depends(check_lock)):
                                 await bili_request_handle.send(f"已拒绝移除 {up.nickname}({up.uid})")
                                 break
                             else:
-                                await bili_request_handle.send(f"请输入 y 或 n，而不是 {resp2}")
+                                await bili_request_handle.send(f"请输入 y 或 n, 而不是 {resp2}")
                     break
             else:
-                await bili_request_handle.send("输入无效，请输入：\n`y` 同意全部请求\n`n` 拒绝全部请求\n`e` 逐条审查")
+                await bili_request_handle.send("输入无效, 请输入：\n`y` 同意全部请求\n`n` 拒绝全部请求\n`e` 逐条审查")

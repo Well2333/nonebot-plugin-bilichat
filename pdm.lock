@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = []
 lock_version = "4.5.0"
-content_hash = "sha256:e480ab6030caa7521d79d2ad1caa82b040188359709e77d3293946911b3b4076"
+content_hash = "sha256:7b4dae22cef9fe0e2b2567e686c967e5ed04ae8bdacfc602eb26cc11ff8a3eb9"
 
 [[metadata.targets]]
 requires_python = "~=3.10"
@@ -521,7 +521,7 @@ files = [
 
 [[package]]
 name = "nonebot-plugin-alconna"
-version = "0.54.1"
+version = "0.54.2"
 summary = ""
 dependencies = [
     "arclet-alconna",
@@ -533,8 +533,8 @@ dependencies = [
     "tarina",
 ]
 files = [
-    {file = "nonebot_plugin_alconna-0.54.1-py3-none-any.whl", hash = "sha256:4edb4b081cd64ce37717c7a92d31aadd2cf287a5a0adc2ac86ed82d9bcad5048"},
-    {file = "nonebot_plugin_alconna-0.54.1.tar.gz", hash = "sha256:66fae03120b8eff25bb0027d65f149e399aa6f73c7585ebdd388d1904cecdeee"},
+    {file = "nonebot_plugin_alconna-0.54.2-py3-none-any.whl", hash = "sha256:ab9a1a5f0f8c9a30ba57a49bed5d3e9c3f761ea5954cbafb15bcd2aa9c7d5507"},
+    {file = "nonebot_plugin_alconna-0.54.2.tar.gz", hash = "sha256:0216da3bc2e5f8b4c4c44c2701f8f0a536d35ea0db79e708cc2ecd002b57ace6"},
 ]
 
 [[package]]
@@ -582,15 +582,15 @@ files = [
 
 [[package]]
 name = "nonebot-plugin-uninfo"
-version = "0.6.2"
+version = "0.6.4"
 summary = ""
 dependencies = [
     "importlib-metadata",
     "nonebot2",
 ]
 files = [
-    {file = "nonebot_plugin_uninfo-0.6.2-py3-none-any.whl", hash = "sha256:6d53559ab3ef23fe750a445cbc1ffd6abbbd7ba6dd6ab375a0c7d7d55bdc5175"},
-    {file = "nonebot_plugin_uninfo-0.6.2.tar.gz", hash = "sha256:8f8b1351d4ae1a34766c68dee2b05f358416b310314fead4d9d6776a4b3535f3"},
+    {file = "nonebot_plugin_uninfo-0.6.4-py3-none-any.whl", hash = "sha256:ebb8468a0680d3d986695a60cf17ff383930084395004d3262f2188267beb012"},
+    {file = "nonebot_plugin_uninfo-0.6.4.tar.gz", hash = "sha256:9d4fcfc26f757c88ff77546bfda1aacb551dc33cb9b714579bd6fa4e2e477c55"},
 ]
 
 [[package]]
@@ -607,7 +607,7 @@ files = [
 
 [[package]]
 name = "nonebot2"
-version = "2.4.0"
+version = "2.4.1"
 summary = ""
 dependencies = [
     "anyio",
@@ -621,37 +621,37 @@ dependencies = [
     "yarl",
 ]
 files = [
-    {file = "nonebot2-2.4.0-py3-none-any.whl", hash = "sha256:7c712e05561afa4795c9135a5b27a43d076220f4538ffec518e68c344e3e51d4"},
-    {file = "nonebot2-2.4.0.tar.gz", hash = "sha256:4b10e33d389847500c9bde9ef3c5533b604a90ca1529750245f1aaf82b28f1e1"},
+    {file = "nonebot2-2.4.1-py3-none-any.whl", hash = "sha256:fec95f075efc89dbe9ce148618b413b02f46ba284200367749b035e794695111"},
+    {file = "nonebot2-2.4.1.tar.gz", hash = "sha256:8fea364318501ed79721403a8ecd76587bc884d58c356260f691a8bbda9b05e6"},
 ]
 
 [[package]]
 name = "nonebot2"
-version = "2.4.0"
+version = "2.4.1"
 extras = ["fastapi"]
 summary = ""
 dependencies = [
     "fastapi",
-    "nonebot2==2.4.0",
+    "nonebot2==2.4.1",
     "uvicorn",
 ]
 files = [
-    {file = "nonebot2-2.4.0-py3-none-any.whl", hash = "sha256:7c712e05561afa4795c9135a5b27a43d076220f4538ffec518e68c344e3e51d4"},
-    {file = "nonebot2-2.4.0.tar.gz", hash = "sha256:4b10e33d389847500c9bde9ef3c5533b604a90ca1529750245f1aaf82b28f1e1"},
+    {file = "nonebot2-2.4.1-py3-none-any.whl", hash = "sha256:fec95f075efc89dbe9ce148618b413b02f46ba284200367749b035e794695111"},
+    {file = "nonebot2-2.4.1.tar.gz", hash = "sha256:8fea364318501ed79721403a8ecd76587bc884d58c356260f691a8bbda9b05e6"},
 ]
 
 [[package]]
 name = "nonebot2"
-version = "2.4.0"
+version = "2.4.1"
 extras = ["websockets"]
 summary = ""
 dependencies = [
-    "nonebot2==2.4.0",
+    "nonebot2==2.4.1",
     "websockets",
 ]
 files = [
-    {file = "nonebot2-2.4.0-py3-none-any.whl", hash = "sha256:7c712e05561afa4795c9135a5b27a43d076220f4538ffec518e68c344e3e51d4"},
-    {file = "nonebot2-2.4.0.tar.gz", hash = "sha256:4b10e33d389847500c9bde9ef3c5533b604a90ca1529750245f1aaf82b28f1e1"},
+    {file = "nonebot2-2.4.1-py3-none-any.whl", hash = "sha256:fec95f075efc89dbe9ce148618b413b02f46ba284200367749b035e794695111"},
+    {file = "nonebot2-2.4.1.tar.gz", hash = "sha256:8fea364318501ed79721403a8ecd76587bc884d58c356260f691a8bbda9b05e6"},
 ]
 
 [[package]]
@@ -853,6 +853,15 @@ files = [
 ]
 
 [[package]]
+name = "pypng"
+version = "0.20220715.0"
+summary = ""
+files = [
+    {file = "pypng-0.20220715.0-py3-none-any.whl", hash = "sha256:4a43e969b8f5aaafb2a415536c1a8ec7e341cd6a3f957fd5b5f32a4cfeed902c"},
+    {file = "pypng-0.20220715.0.tar.gz", hash = "sha256:739c433ba96f078315de54c0db975aee537cbc3e1d0ae4ed9aab0ca1e427e2c1"},
+]
+
+[[package]]
 name = "python-dotenv"
 version = "1.0.1"
 summary = ""
@@ -868,6 +877,15 @@ summary = ""
 files = [
     {file = "python_multipart-0.0.20-py3-none-any.whl", hash = "sha256:8a62d3a8335e06589fe01f2a3e178cdcc632f3fbe0d492ad9ee0ec35aab1f104"},
     {file = "python_multipart-0.0.20.tar.gz", hash = "sha256:8dd0cab45b8e23064ae09147625994d090fa46f5b0d1e13af944c331a7fa9d13"},
+]
+
+[[package]]
+name = "pytz"
+version = "2024.2"
+summary = ""
+files = [
+    {file = "pytz-2024.2-py2.py3-none-any.whl", hash = "sha256:31c7c1817eb7fae7ca4b8c7ee50c72f93aa2dd863de768e1ef4245d426aa0725"},
+    {file = "pytz-2024.2.tar.gz", hash = "sha256:2aa355083c50a0f93fa581709deac0c9ad65cca8a9e9beac660adcbd493c798a"},
 ]
 
 [[package]]
@@ -912,6 +930,18 @@ files = [
     {file = "PyYAML-6.0.2-cp313-cp313-win32.whl", hash = "sha256:bc2fa7c6b47d6bc618dd7fb02ef6fdedb1090ec036abab80d4681424b84c1183"},
     {file = "PyYAML-6.0.2-cp313-cp313-win_amd64.whl", hash = "sha256:8388ee1976c416731879ac16da0aff3f63b286ffdd57cdeb95f3f2e085687563"},
     {file = "pyyaml-6.0.2.tar.gz", hash = "sha256:d584d9ec91ad65861cc08d42e834324ef890a082e591037abe114850ff7bbc3e"},
+]
+
+[[package]]
+name = "qrcode"
+version = "8.0"
+summary = ""
+dependencies = [
+    "colorama; sys_platform == \"win32\"",
+]
+files = [
+    {file = "qrcode-8.0-py3-none-any.whl", hash = "sha256:9fc05f03305ad27a709eb742cf3097fa19e6f6f93bb9e2f039c0979190f6f1b1"},
+    {file = "qrcode-8.0.tar.gz", hash = "sha256:025ce2b150f7fe4296d116ee9bad455a6643ab4f6e7dce541613a4758cbce347"},
 ]
 
 [[package]]

@@ -1,3 +1,4 @@
+import json
 from importlib.metadata import version
 from pathlib import Path
 
@@ -34,4 +35,9 @@ if not config_path.exists():
     config_path.write_text(yaml.dump(Config().model_dump(), allow_unicode=True), encoding="utf-8")  # type: ignore
     raise SystemExit
 
-config: Config = Config.model_validate(yaml.safe_load(config_path.read_text()))
+
+def save_config():
+    config_path.write_text(yaml.dump(json.loads(config.model_dump_json()), allow_unicode=True), encoding="utf-8")  # type: ignore
+
+
+config: Config = Config.model_validate(yaml.safe_load(config_path.read_text(encoding="utf-8")))

@@ -72,6 +72,8 @@ class RequestApiInfo(BaseModel):
     """API Token, 服务端未设置则留空"""
     weight: int = 1
     """权重, 用于负载均衡, 越大越优先"""
+    note: str = ""
+    """备注"""
 
 
 class ApiConfig(BaseModel):
