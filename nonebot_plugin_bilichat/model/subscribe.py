@@ -50,8 +50,12 @@ class User(BaseModel):
 
     @field_validator("info", mode="before")
     @classmethod
-    def construct_info(cls, value: dict) -> Session:
-        return Session.load(value)
+    def construct_info(cls, value: dict | Session) -> Session:
+        if isinstance(value, dict):
+            value["member"] = None
+            return Session.load(value)
+        value.member = None
+        return value
 
     @property
     def target(self) -> Target:
@@ -59,10 +63,7 @@ class User(BaseModel):
 
     @property
     def id(self) -> str:
-        return self.info.id
-
-    def __str__(self) -> str:
-        return f"User {self.info.dump_json()}"
+        return f"{self.info.scope}_type{self.info.scene.type}_{self.info.scene.id}"
 
     @overload
     def add_subscription(self, *, uid: int | str, uname: str) -> None: ...

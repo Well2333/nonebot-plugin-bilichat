@@ -1,8 +1,10 @@
 from asyncio import Lock
 
 from nonebot.adapters import Message
+from nonebot.log import logger
 from nonebot.params import CommandArg, Depends
 from nonebot.permission import SUPERUSER
+from nonebot_plugin_uninfo.permission import ADMIN
 
 from nonebot_plugin_bilichat.model.subscribe import User
 from nonebot_plugin_bilichat.request_api import get_request_api
@@ -11,8 +13,8 @@ from nonebot_plugin_bilichat.subscribe.status import SubsStatus, UPStatus
 from ..config import config, save_config
 from .base import bilichat, check_lock, get_user
 
-bili_add_sub = bilichat.command("sub", permission=SUPERUSER, aliases=set(config.nonebot.cmd_add_sub))
-bili_remove_sub = bilichat.command("unsub", permission=SUPERUSER, aliases=set(config.nonebot.cmd_remove_sub))
+bili_add_sub = bilichat.command("sub", permission=ADMIN() | SUPERUSER, aliases=set(config.nonebot.cmd_add_sub))
+bili_remove_sub = bilichat.command("unsub", permission=ADMIN() | SUPERUSER, aliases=set(config.nonebot.cmd_remove_sub))
 bili_check_sub = bilichat.command("check", aliases=set(config.nonebot.cmd_check_sub))
 
 
@@ -44,7 +46,8 @@ async def remove_sub(user: User = Depends(get_user), msg: Message = CommandArg()
         # 获取 UP 对象
         if not msg:
             await bili_add_sub.finish("请输入 UP 主的昵称或 UID")
-        keyword = msg.extract_plain_text().lower()
+        keyword = msg.extract_plain_text().strip()
+        logger.info(f"keyword: {keyword}")
         if keyword in ["all", "全部"]:
             user.subscribes.clear()
             config.subs.users[user.id] = user
@@ -55,7 +58,7 @@ async def remove_sub(user: User = Depends(get_user), msg: Message = CommandArg()
                 user.subscribes.pop(str(up.uid))
                 config.subs.users[user.id] = user
                 save_config()
-                await bili_add_sub.finish(f"已经成功取关 UP {up.nickname}({up.uid})")
+                await bili_add_sub.finish(f"已经成功取关 UP {up.nickname or up.uname}({up.uid})")
         await bili_add_sub.finish("未找到该 UP 主")
 
 
@@ -69,7 +72,7 @@ async def check_sub(user: User = Depends(get_user), lock: Lock = Depends(check_l
         ups_prompt = []
         for index, up in enumerate(ups):
             text = f"{index+1}."
-            text += f" {up!s}"
+            text += f" {up.nickname or up.uname}({up.uid})"
             ups_prompt.append(text)
         re_msg = f"ID:{user.id}\n共订阅 {len(ups)} 个 UP:\n" + "\n".join(ups_prompt)
         await bili_check_sub.finish(re_msg)

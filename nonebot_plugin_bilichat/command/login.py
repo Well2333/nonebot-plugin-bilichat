@@ -5,12 +5,12 @@ from io import BytesIO
 
 import qrcode
 from httpx import AsyncClient
-from loguru import logger
 from nonebot.adapters import Message
 from nonebot.log import logger
 from nonebot.params import CommandArg
 from nonebot.permission import SUPERUSER
-from nonebot_plugin_alconna.uniseg import Image, MsgTarget, UniMessage
+from nonebot_plugin_alconna.uniseg import Image, MsgTarget, Text, UniMessage
+from nonebot_plugin_uninfo.permission import ADMIN
 from pytz import timezone
 from qrcode.image.pure import PyPNGImage
 
@@ -23,14 +23,14 @@ from .base import bilichat
 bili_check_login = bilichat.command(
     "checklogin",
     aliases=set(config.nonebot.cmd_check_login),
-    permission=SUPERUSER,
+    permission=ADMIN()|SUPERUSER,
 )
 
 
 bili_login_qrcode = bilichat.command(
     "qrlogin",
     aliases=set(config.nonebot.cmd_login_qrcode),
-    permission=SUPERUSER,
+    permission=ADMIN()|SUPERUSER,
 )
 bili_logout = bilichat.command(
     "logout",
@@ -93,7 +93,9 @@ async def bili_qrcode_login(target: MsgTarget):
         img = qr.make_image(fill_color="black", back_color="white")
         img_data = BytesIO()
         img.save(img_data)
-        await UniMessage(Image(raw=img_data.getvalue())).send(target=target)
+        await UniMessage([Text("请在 120s 内使用 bilibili 客户端扫描二维码登录"), Image(raw=img_data.getvalue())]).send(
+            target=target
+        )
 
         # 轮询登录状态
         start_time = time.time()

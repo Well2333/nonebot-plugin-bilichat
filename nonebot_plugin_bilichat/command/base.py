@@ -1,6 +1,7 @@
 import asyncio
 from asyncio import Lock
 
+from nonebot.log import logger
 from nonebot.plugin import CommandGroup
 from nonebot.rule import to_me
 from nonebot_plugin_uninfo import Uninfo
@@ -22,4 +23,6 @@ async def check_lock() -> Lock:
 
 
 async def get_user(session: Uninfo) -> User:
-    return config.subs.users.get(session.id, User(info=session, subscribes={}))
+    user = config.subs.users.get(f"{session.scope}_type{session.scene.type}_{session.scene.id}", User(info=session, subscribes={}))
+    logger.info(f"get user: {user}")
+    return user

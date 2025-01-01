@@ -13,6 +13,8 @@ class VersionInfo(BaseModel):
     """包名"""
     version: str
     """版本号"""
+    bilichat_min_version: str
+    """Bilichat 最低版本号"""
 
 
 class Note(BaseModel):

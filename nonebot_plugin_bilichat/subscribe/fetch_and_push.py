@@ -17,31 +17,31 @@ from .status import SubsStatus
     "interval", id="dynamic", seconds=config.subs.dynamic_interval, jitter=config.subs.dynamic_interval // 2
 )
 async def dynamic():
-    logger.info("[动态] 检查新动态")
+    logger.debug("[Dynamic] 检查新动态")
     try:
         ups = await SubsStatus.get_online_ups()
     except AbortError:
         return
     for up in ups:
-        logger.debug(f"[动态] 获取 UP {up.name}({up.uid}) 动态")
+        logger.debug(f"[Dynamic] 获取 UP {up.name}({up.uid}) 动态")
         api = get_request_api()
         try:
             all_dyns = await api.subs_dynamic(up.uid)
         except Exception as e:
-            logger.error(f"[动态] 获取 UP {up.name}({up.uid}) 动态失败: {e}")
+            logger.error(f"[Dynamic] 获取 UP {up.name}({up.uid}) 动态失败: {e}")
             continue
         # 第一次获取, 仅更新offset
         if up.dyn_offset == -1:
-            up.dyn_offset = 1016349395806847017  # max([dyn.dyn_id for dyn in all_dyns])
+            up.dyn_offset = max([dyn.dyn_id for dyn in all_dyns])
             return
         # 新动态
         new_dyns = sorted([dyn for dyn in all_dyns if dyn.dyn_id > up.dyn_offset], key=lambda x: x.dyn_id)
         for dyn in new_dyns:
-            logger.info(f"[动态] UP {up.name}({up.uid}) 发布了新动态: {dyn.dyn_id}")
+            logger.info(f"[Dynamic] UP {up.name}({up.uid}) 发布了新动态: {dyn.dyn_id}")
             up.dyn_offset = dyn.dyn_id
             content = await api.content_dynamic(dyn.dyn_id, config.api.browser_shot_quality)
             for user in up.users:
-                logger.info(f"[动态] 推送 UP {up.name}({up.uid}) 动态给用户 {user.info.id}")
+                logger.info(f"[Dynamic] 推送 UP {up.name}({up.uid}) 动态给用户 {user.id}")
                 up_info = user.subscribes[str(up.uid)]
                 up_info.uname = up.name  # 更新up名字
                 up_name = up_info.nickname or up_info.uname
@@ -57,7 +57,7 @@ async def dynamic():
     "interval", id="live", seconds=config.subs.live_interval, jitter=config.subs.live_interval // 2
 )
 async def live():
-    logger.info("[直播] 检查直播状态")
+    logger.debug("[Live] 检查直播状态")
     try:
         ups = await SubsStatus.get_online_ups()
     except AbortError:
@@ -66,11 +66,11 @@ async def live():
     try:
         lives = {lv.uid: lv for lv in await api.sub_lives([up.uid for up in ups])}
     except Exception as e:
-        logger.error(f"[直播] 获取直播信息失败: {e}")
+        logger.error(f"[Live] 获取直播信息失败: {e}")
         return
     for up in ups:
         live = lives[up.uid]
-        logger.debug(f"[直播] UP {up.name}({up.uid}) 直播状态: {live.live_status}")
+        logger.debug(f"[Live] UP {up.name}({up.uid}) 直播状态: {live.live_status}")
         # 第一次获取, 仅更新状态
         if up.live_status == -1:
             up.live_status = live.live_status
@@ -81,7 +81,7 @@ async def live():
             if up.live_status == 0:
                 cover = (await AsyncClient().get(live.cover_from_user)).content
                 for user in up.users:
-                    logger.info(f"[直播] 推送 UP {up.name}({up.uid}) 开播给用户 {user.info.id}")
+                    logger.info(f"[Live] 推送 UP {up.name}({up.uid}) 开播给用户 {user.id}")
                     up_info = user.subscribes[str(up.uid)]
                     up_info.uname = up.name  # 更新up名字
                     up_name = up_info.nickname or up_info.uname
@@ -96,7 +96,7 @@ async def live():
         # 下播通知
         elif up.live_status == 1:
             for user in up.users:
-                logger.info(f"[直播] 推送 UP {up.name}({up.uid}) 下播给用户 {user.info.id}")
+                logger.info(f"[Live] 推送 UP {up.name}({up.uid}) 下播给用户 {user.id}")
                 up_info = user.subscribes[str(up.uid)]
                 up_info.uname = up.name  # 更新up名字
                 up_name = up_info.nickname or up_info.uname

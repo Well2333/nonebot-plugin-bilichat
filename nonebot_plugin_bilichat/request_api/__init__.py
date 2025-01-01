@@ -6,7 +6,7 @@ from nonebot.log import logger
 from packaging.version import Version
 from yarl import URL
 
-from nonebot_plugin_bilichat.config import config
+from nonebot_plugin_bilichat.config import __version__, config
 from nonebot_plugin_bilichat.lib.tools import shorten_long_items
 from nonebot_plugin_bilichat.model.exception import RequestError
 from nonebot_plugin_bilichat.model.request_api import Account, Content, Dynamic, LiveRoom, Note, SearchUp, VersionInfo
@@ -27,7 +27,11 @@ class RequestAPI:
             str(api_base.joinpath("version")),
             headers={"Authorization": f"Bearer {api_token}"},
         ).json()
-        if not ((Version(version["version"]) >= MINIMUM_API_VERSION) and (version["package"] == "bilichat-request")):
+        if not (
+            (Version(version["version"]) >= MINIMUM_API_VERSION)  # API version check
+            and (version["package"] == "bilichat-request")  # API package check
+            and (Version(version["bilichat_min_version"] <= Version(__version__)))  # Bilichat version check
+        ):
             raise RuntimeError(f"API 版本不兼容, {version}")
 
     async def _request(self, method: str, url: str, **kwargs) -> httpx.Response:
@@ -36,7 +40,7 @@ class RequestAPI:
         if not 199 < resp.status_code < 300:
             logger.error(f"Request {method} {url} failed: {resp.status_code} {resp.json()}")
             raise RequestError(resp.status_code, resp.json()["detail"])
-        logger.debug(f"Response {resp.status_code} {shorten_long_items(resp.json().copy())}")
+        logger.trace(f"Response {resp.status_code} {shorten_long_items(resp.json().copy())}")
         return resp
 
     async def _get(self, url: str, **kwargs) -> httpx.Response:

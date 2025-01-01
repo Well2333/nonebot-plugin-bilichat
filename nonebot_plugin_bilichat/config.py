@@ -41,3 +41,4 @@ def save_config():
 
 
 config: Config = Config.model_validate(yaml.safe_load(config_path.read_text(encoding="utf-8")))
+save_config()
