@@ -1,7 +1,7 @@
 [project]
 name = "nonebot-plugin-bilichat"
 
-version = "6.0.0"
+version = "6.0.1"
 
 description = "全功能的 bilibili 内容解析器及订阅器"
 authors = [
@@ -29,7 +29,7 @@ requires-python = ">=3.10,<4.0"
 readme = "README.md"
 license = { text = "AGPL3.0" }
 [project.optional-dependencies]
-extra = []
+extra = ["bilichat-request>=0.1.0"]
 
 [build-system]
 requires = ["pdm-backend"]
@@ -178,6 +178,9 @@ ignore = [
     "S311", # 标准伪随机生成器不适用于安全/加密目的
     "S324", # 使用不安全的 MD5 哈希函数
     "S501", # 请求禁用证书验证
+
+    # toadd
+    "TC001",
 ]
 
 

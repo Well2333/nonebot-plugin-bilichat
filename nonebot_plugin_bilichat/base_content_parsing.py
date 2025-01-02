@@ -14,7 +14,8 @@ from .config import config
 from .lib.content_cd import BilichatCD
 from .model.arguments import Options, parser
 from .model.exception import AbortError, RequestError
-from .request_api import Content, get_request_api
+from .model.request_api import Content
+from .request_api import get_request_api
 
 lock = asyncio.Lock()
 
