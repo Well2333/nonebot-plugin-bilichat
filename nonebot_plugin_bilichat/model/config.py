@@ -5,6 +5,15 @@ from pydantic import BaseModel, Field
 from .subscribe import User
 
 
+class LocalApiConfig(BaseModel):
+    retry: int = 3
+    playwright_download_host: str = ""
+    api_path: str = "bilichatapi"
+    api_access_token: str = ""
+    api_sub_dynamic_limit: str = "12/minute"
+    api_sub_live_limit: str = "30/minute"
+
+
 class NoneBotConfig(BaseModel):
     """nonebot 相关配置, 无法热修改"""
 
@@ -81,10 +90,8 @@ class ApiConfig(BaseModel):
 
     request_api: list[RequestApiInfo] = []
     """bilichat-request 的 API, 留空则会本地启动"""
-    enable_local_api: bool = False
-    """是否启用本地 API"""
-    local_api_token: str = ""
-    """本地 API 的 Token"""
+    local_api_config: LocalApiConfig | None = None
+    """本地 API 的配置"""
     browser_shot_quality: int = Field(default=75, ge=10, le=100)
     """浏览器截图质量, 范围为 10-100"""
 
@@ -104,7 +111,6 @@ class SubscribeConfig(BaseModel):
     # 推送数据
     users: dict[str, User] = {}
     """已添加订阅的用户"""
-
 
 
 class Config(BaseModel):
