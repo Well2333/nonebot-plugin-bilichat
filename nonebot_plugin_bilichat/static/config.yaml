@@ -1,5 +1,3 @@
-_version: "1.0.0" # nonebot_plugin_bilichat 的版本
-
 nonebot:
   # nonebot 相关配置, 无法热修改
   block: false # 是否拦截事件(防止其他插件二次解析)
@@ -58,9 +56,16 @@ api:
     - api: "https://api.example.com" # API 地址
       token: "your_api_token" # API Token, 服务端未设置则留空
       weight: 1 # 权重, 用于负载均衡, 越大越优先
+      enable: true # 是否启用该 API
     # 可以根据需要添加更多 API 配置
-  enable_local_api: false # 是否启用本地 API
-  local_api_token: "" # 本地 API 的 Token
+  local_api_config: # 本地 API 配置
+    enable: false # 是否启用本地 API
+    api_access_token: "" # 本地 API Token, 服务端未设置则留空
+    api_path: bilichatapi # 本地 API 挂载路径
+    api_sub_dynamic_limit: 12/minute # 动态订阅限速
+    api_sub_live_limit: 30/minute # 直播订阅限速
+    playwright_download_host: "" # Playwright 下载服务地址镜像
+    retry: 3 # API 请求重试次数
   browser_shot_quality: 75 # 浏览器截图质量, 范围为 10-100
 
 subs:
@@ -69,4 +74,4 @@ subs:
   dynamic_interval: 90 # 动态轮询间隔, 单位为秒
   live_interval: 30 # 直播轮询间隔, 单位为秒
   push_delay: 3 # 每条推送的延迟, 单位为秒
-  users: {} # 已添加订阅的用户
+  users: {} # 已添加订阅的用户, 请勿手动添加
