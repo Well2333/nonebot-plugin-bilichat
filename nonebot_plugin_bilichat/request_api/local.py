@@ -15,7 +15,7 @@ from .base import MINIMUM_API_VERSION
 LOCAL_REQUEST_API_PATH = ""
 LOCAL_REQUEST_API_TOKEN = ""
 
-if bilichat_config.api.local_api_config is not None:
+if bilichat_config.api.local_api_config is not None and bilichat_config.api.local_api_config.enable:
     try:
         from bilichat_request.config import config as bilichat_request_config
         from bilichat_request.config import set_config

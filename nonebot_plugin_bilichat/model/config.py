@@ -6,6 +6,7 @@ from .subscribe import User
 
 
 class LocalApiConfig(BaseModel):
+    enable: bool = False
     retry: int = 3
     playwright_download_host: str = ""
     api_path: str = "bilichatapi"
@@ -81,6 +82,8 @@ class RequestApiInfo(BaseModel):
     """API Token, 服务端未设置则留空"""
     weight: int = 1
     """权重, 用于负载均衡, 越大越优先"""
+    enabled: bool = True
+    """是否启用"""
     note: str = ""
     """备注"""
 
@@ -114,7 +117,7 @@ class SubscribeConfig(BaseModel):
 
 
 class Config(BaseModel):
-    _version: str = version("nonebot_plugin_bilichat")
+    version: str = version("nonebot_plugin_bilichat")
     nonebot: NoneBotConfig = NoneBotConfig()
     analyze: AnalyzeConfig = AnalyzeConfig()
     api: ApiConfig = ApiConfig()

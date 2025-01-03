@@ -107,7 +107,7 @@ files = [
 
 [[package]]
 name = "bilichat-request"
-version = "0.1.1"
+version = "0.1.2"
 summary = ""
 dependencies = [
     "bcrypt",
@@ -129,8 +129,8 @@ dependencies = [
     "yarl",
 ]
 files = [
-    {file = "bilichat_request-0.1.1-py3-none-any.whl", hash = "sha256:765eed57ee2c48cc65d4afb10c342e9fb7a4c09dd516b0247d60cdd979e9f7b4"},
-    {file = "bilichat_request-0.1.1.tar.gz", hash = "sha256:39abfc07d2ee9bfef8b9949aaee3775d9cf6bb5c9e603b8e4c21a0c03bc62dfb"},
+    {file = "bilichat_request-0.1.2-py3-none-any.whl", hash = "sha256:676a3a6ad0eaa0536eb5965d320c6f3c320523e0cc44169b8fa9812bb516a4df"},
+    {file = "bilichat_request-0.1.2.tar.gz", hash = "sha256:e3254b4d62bf4e01c5d5a5b20457af431bb858013d90ebdaa11c7d79730f12f4"},
 ]
 
 [[package]]

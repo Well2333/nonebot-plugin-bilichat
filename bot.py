@@ -1,8 +1,8 @@
 import nonebot
 
 # from nonebot.adapters.mirai2 import Adapter as Mirai_Adapter
-from nonebot.adapters.onebot.v11 import Adapter as ONEBOT_V11Adapter
-from nonebot.adapters.satori import Adapter as Satori_Adapter
+from nonebot.adapters.onebot.v11 import Adapter as ONEBOT_V11Adapter  # noqa: F401, RUF100
+from nonebot.adapters.satori import Adapter as Satori_Adapter  # noqa: F401, RUF100
 
 # from nonebot.adapters.qq import Adapter as QQ_Adapter
 from nonebot.log import logger

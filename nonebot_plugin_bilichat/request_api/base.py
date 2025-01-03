@@ -1,4 +1,3 @@
-
 import httpx
 from httpx import AsyncClient
 from nonebot.log import logger
@@ -10,7 +9,7 @@ from nonebot_plugin_bilichat.lib.tools import shorten_long_items
 from nonebot_plugin_bilichat.model.exception import RequestError
 from nonebot_plugin_bilichat.model.request_api import Account, Content, Dynamic, LiveRoom, Note, SearchUp, VersionInfo
 
-MINIMUM_API_VERSION = Version("0.1.2")
+MINIMUM_API_VERSION = Version("0.1.3")
 
 
 class RequestAPI:
@@ -33,7 +32,7 @@ class RequestAPI:
             if not (
                 (Version(version["version"]) >= MINIMUM_API_VERSION)  # API version check
                 and (version["package"] == "bilichat-request")  # API package check
-                and (Version(version["bilichat_min_version"] <= Version(__version__)))  # Bilichat version check
+                and (Version(version["bilichat_min_version"]) <= Version(__version__))  # Bilichat version check
             ):
                 raise RuntimeError(f"API 版本不兼容, {version}")
 
@@ -43,7 +42,10 @@ class RequestAPI:
         if not 199 < resp.status_code < 300:
             logger.error(f"Request {method} {url} failed: {resp.status_code} {resp.json()}")
             raise RequestError(resp.status_code, resp.json()["detail"])
-        logger.trace(f"Response {resp.status_code} {shorten_long_items(resp.json().copy())}")
+        try:
+            logger.trace(f"Response {resp.status_code} {shorten_long_items(resp.json().copy())}")
+        except AttributeError:
+            logger.trace(f"Response {resp.status_code} {resp.text}")
         return resp
 
     async def _get(self, url: str, **kwargs) -> httpx.Response:
