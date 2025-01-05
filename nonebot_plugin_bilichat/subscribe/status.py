@@ -51,7 +51,7 @@ class SubsStatus:
                     cls.online_users[user.id] = user
                 except Exception as e:
                     logger.debug(f"用户 [{user.id}] 未在线: {e}")
-            logger.debug(f"当前可推送的用户: {list(cls.online_users.keys()) or "无"}")
+            logger.debug(f"当前可推送的用户: {list(cls.online_users.keys()) or '无'}")
 
     @classmethod
     async def get_online_ups(cls) -> list[UPStatus]:
