@@ -11,8 +11,8 @@ class LocalApiConfig(BaseModel):
     playwright_download_host: str = ""
     api_path: str = "bilichatapi"
     api_access_token: str = ""
-    api_sub_dynamic_limit: str = "12/minute"
-    api_sub_live_limit: str = "30/minute"
+    api_sub_dynamic_limit: str = "720/hour"
+    api_sub_live_limit: str = "1800/hour"
 
 
 class NoneBotConfig(BaseModel):
@@ -104,9 +104,9 @@ class SubscribeConfig(BaseModel):
 
     subs_limit: int = Field(5, ge=0, le=50)
     """全局订阅数量限制"""
-    dynamic_interval: int = Field(90, ge=10)
+    dynamic_interval: int = Field(180, ge=15)
     """动态轮询间隔, 单位为秒"""
-    live_interval: int = Field(30, ge=10)
+    live_interval: int = Field(60, ge=10)
     """直播轮询间隔, 单位为秒"""
     push_delay: int = Field(3, ge=0)
     """每条推送的延迟, 单位为秒"""

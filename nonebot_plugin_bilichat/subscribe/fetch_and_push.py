@@ -2,7 +2,7 @@ import time
 
 from httpx import AsyncClient
 from nonebot.log import logger
-from nonebot_plugin_alconna import Image, Text, UniMessage
+from nonebot_plugin_alconna import AtAll, Image, Text, UniMessage
 from nonebot_plugin_apscheduler import scheduler
 
 from nonebot_plugin_bilichat.config import config
@@ -40,14 +40,14 @@ async def dynamic():
             logger.info(f"[Dynamic] UP {up.name}({up.uid}) 发布了新动态: {dyn.dyn_id}")
             up.dyn_offset = dyn.dyn_id
             content = await api.content_dynamic(dyn.dyn_id, config.api.browser_shot_quality)
+            dyn_img = Image(raw=content.img_bytes)
             for user in up.users:
                 logger.info(f"[Dynamic] 推送 UP {up.name}({up.uid}) 动态给用户 {user.id}")
                 up_info = user.subscribes[str(up.uid)]
                 up_info.uname = up.name  # 更新up名字
                 up_name = up_info.nickname or up_info.uname
-                msg = UniMessage(
-                    [Text(f"{up_name} 发布了新动态\n"), Image(raw=content.img_bytes), Text(f"\n{content.b23}")]
-                )
+                at_all = AtAll() if user.subscribes[str(up.uid)].dynamic.get(dyn.dyn_type) == "AT_ALL" else Text("")
+                msg = UniMessage([at_all, Text(f"{up_name} 发布了新动态\n"), dyn_img, Text(f"\n{content.b23}")])
                 target = user.target
                 logger.debug(f"target: {target}")
                 await user.target.send(msg)
@@ -80,15 +80,18 @@ async def live():
             # 开播通知
             if up.live_status == 0:
                 cover = (await AsyncClient().get(live.cover_from_user)).content
+                live_cover = Image(raw=cover)
                 for user in up.users:
                     logger.info(f"[Live] 推送 UP {up.name}({up.uid}) 开播给用户 {user.id}")
                     up_info = user.subscribes[str(up.uid)]
                     up_info.uname = up.name  # 更新up名字
                     up_name = up_info.nickname or up_info.uname
+                    at_all = AtAll() if user.subscribes[str(up.uid)].live == "AT_ALL" else Text("")
                     msg = UniMessage(
                         [
+                            at_all,
                             Text(f"{up_name} 开播了: {live.title}\n"),
-                            Image(raw=cover),
+                            live_cover,
                             Text(f"\nhttps://live.bilibili.com/{live.room_id}"),
                         ]
                     )
