@@ -1,6 +1,7 @@
 import json
 from importlib.metadata import version
 from pathlib import Path
+from shutil import copyfile
 
 import yaml
 from nonebot import get_driver, require
@@ -32,7 +33,7 @@ except Exception as e:
 
 if not config_path.exists():
     logger.error(f"默认配置文件路径 {config_path} 不存在, 已在该位置创建默认配置文件, 请修改配置后重新加载插件")
-    config_path.write_text(yaml.dump(Config().model_dump(), allow_unicode=True), encoding="utf-8")  # type: ignore
+    copyfile(STATIC_DIR.joinpath("config.yaml"), config_path)
     raise SystemExit
 
 

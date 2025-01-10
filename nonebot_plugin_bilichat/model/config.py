@@ -7,12 +7,19 @@ from .subscribe import User
 
 class LocalApiConfig(BaseModel):
     enable: bool = False
+    """是否启用本地 API"""
     retry: int = 3
+    """API 请求重试次数"""
     playwright_download_host: str = ""
+    """Playwright 下载服务地址镜像"""
     api_path: str = "bilichatapi"
+    """本地 API 挂载路径"""
     api_access_token: str = ""
-    api_sub_dynamic_limit: str = "12/minute"
-    api_sub_live_limit: str = "30/minute"
+    """本地 API Token, 服务端未设置则留空"""
+    api_sub_dynamic_limit: str = "720/hour"
+    """动态订阅限速"""
+    api_sub_live_limit: str = "1800/hour"
+    """直播订阅限速"""
 
 
 class NoneBotConfig(BaseModel):
@@ -104,9 +111,9 @@ class SubscribeConfig(BaseModel):
 
     subs_limit: int = Field(5, ge=0, le=50)
     """全局订阅数量限制"""
-    dynamic_interval: int = Field(90, ge=10)
+    dynamic_interval: int = Field(180, ge=15)
     """动态轮询间隔, 单位为秒"""
-    live_interval: int = Field(30, ge=10)
+    live_interval: int = Field(60, ge=10)
     """直播轮询间隔, 单位为秒"""
     push_delay: int = Field(3, ge=0)
     """每条推送的延迟, 单位为秒"""
@@ -118,7 +125,12 @@ class SubscribeConfig(BaseModel):
 
 class Config(BaseModel):
     version: str = version("nonebot_plugin_bilichat")
+    """插件版本"""
     nonebot: NoneBotConfig = NoneBotConfig()
+    """nonebot 相关配置, 无法热修改"""
     analyze: AnalyzeConfig = AnalyzeConfig()
+    """解析相关配置"""
     api: ApiConfig = ApiConfig()
+    """API 相关配置"""
     subs: SubscribeConfig = SubscribeConfig()  # type: ignore
+    """推送相关配置"""
