@@ -29,7 +29,7 @@ class SubsStatus:
     """在线的用户"""
     modify_lock = Lock()
     """用户锁"""
-    online_ups_cache: dict[int, UPStatus] = {}
+    online_ups_cache: dict[int, UPStatus] = {}  # noqa: RUF012
     """已激活的up主缓存, up.uid: UPStatus"""
 
     @classmethod

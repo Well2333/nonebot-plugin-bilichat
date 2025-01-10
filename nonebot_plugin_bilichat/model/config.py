@@ -7,12 +7,19 @@ from .subscribe import User
 
 class LocalApiConfig(BaseModel):
     enable: bool = False
+    """是否启用本地 API"""
     retry: int = 3
+    """API 请求重试次数"""
     playwright_download_host: str = ""
+    """Playwright 下载服务地址镜像"""
     api_path: str = "bilichatapi"
+    """本地 API 挂载路径"""
     api_access_token: str = ""
+    """本地 API Token, 服务端未设置则留空"""
     api_sub_dynamic_limit: str = "720/hour"
+    """动态订阅限速"""
     api_sub_live_limit: str = "1800/hour"
+    """直播订阅限速"""
 
 
 class NoneBotConfig(BaseModel):
@@ -118,7 +125,12 @@ class SubscribeConfig(BaseModel):
 
 class Config(BaseModel):
     version: str = version("nonebot_plugin_bilichat")
+    """插件版本"""
     nonebot: NoneBotConfig = NoneBotConfig()
+    """nonebot 相关配置, 无法热修改"""
     analyze: AnalyzeConfig = AnalyzeConfig()
+    """解析相关配置"""
     api: ApiConfig = ApiConfig()
+    """API 相关配置"""
     subs: SubscribeConfig = SubscribeConfig()  # type: ignore
+    """推送相关配置"""

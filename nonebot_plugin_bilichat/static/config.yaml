@@ -62,8 +62,8 @@ api:
     enable: false # 是否启用本地 API
     api_access_token: "" # 本地 API Token, 服务端未设置则留空
     api_path: bilichatapi # 本地 API 挂载路径
-    api_sub_dynamic_limit: 12/minute # 动态订阅限速
-    api_sub_live_limit: 30/minute # 直播订阅限速
+    api_sub_dynamic_limit: 720/hour # 动态订阅限速
+    api_sub_live_limit: 1800/hour # 直播订阅限速
     playwright_download_host: "" # Playwright 下载服务地址镜像
     retry: 3 # API 请求重试次数
   browser_shot_quality: 75 # 浏览器截图质量, 范围为 10-100
