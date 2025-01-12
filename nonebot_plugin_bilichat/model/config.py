@@ -8,10 +8,6 @@ from .subscribe import User
 class LocalApiConfig(BaseModel):
     enable: bool = False
     """是否启用本地 API"""
-    retry: int = 3
-    """API 请求重试次数"""
-    playwright_download_host: str = ""
-    """Playwright 下载服务地址镜像"""
     api_path: str = "bilichatapi"
     """本地 API 挂载路径"""
     api_access_token: str = ""
@@ -20,6 +16,9 @@ class LocalApiConfig(BaseModel):
     """动态订阅限速"""
     api_sub_live_limit: str = "1800/hour"
     """直播订阅限速"""
+    
+    class Config:
+        extra = "allow"
 
 
 class NoneBotConfig(BaseModel):

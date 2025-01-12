@@ -22,7 +22,7 @@ if bilichat_config.api.local_api_config is not None and bilichat_config.api.loca
     except ImportError as e:
         raise ImportError("bilichat-request 未安装, 请先安装 bilichat-request") from e
 
-    bilichat_request_config = bilichat_request_config.model_validate(bilichat_config.api.local_api_config.model_dump())
+    bilichat_request_config = bilichat_request_config.model_validate(bilichat_config.api.local_api_config.model_dump(exclude={"enable"}))
     bilichat_request_config.data_path = DATA_DIR.joinpath("bilichat_request").as_posix()
 
     set_config(bilichat_request_config)

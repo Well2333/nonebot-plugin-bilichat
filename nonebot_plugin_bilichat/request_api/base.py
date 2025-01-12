@@ -9,13 +9,15 @@ from nonebot_plugin_bilichat.lib.tools import shorten_long_items
 from nonebot_plugin_bilichat.model.exception import RequestError
 from nonebot_plugin_bilichat.model.request_api import Account, Content, Dynamic, LiveRoom, Note, SearchUp, VersionInfo
 
-MINIMUM_API_VERSION = Version("0.2.1")
+MINIMUM_API_VERSION = Version("0.2.2")
 
 
 class RequestAPI:
     def __init__(
         self, api_base: URL, api_token: str, weight: int, note: str = "", *, skip_version_checking: bool = False
     ) -> None:
+        if ".example.com" in str(api_base):
+            raise ValueError(f"请设置正确的 API 地址 --> {api_base}")
         self._api_base = api_base
         self._api_token = api_token
         self._weight = weight

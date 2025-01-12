@@ -26,7 +26,7 @@ logger.info(f"nonebot_plugin_bilichat 数据文件夹 ->  {DATA_DIR.absolute()}"
 
 nonebot_config = get_driver().config
 try:
-    config_path = Path(nonebot_config.config_path)
+    config_path = Path(nonebot_config.bilichat_config_path)
 except Exception as e:
     config_path = CONFIG_DIR.joinpath("config.yaml")
     logger.warning(f"用户未设置配置文件路径, 尝试默认配置文件路径 {config_path}")
