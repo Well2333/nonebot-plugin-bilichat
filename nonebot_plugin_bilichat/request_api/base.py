@@ -16,8 +16,8 @@ class RequestAPI:
     def __init__(
         self, api_base: URL, api_token: str, weight: int, note: str = "", *, skip_version_checking: bool = False
     ) -> None:
-        if ".example.com" in str(api_base):
-            raise ValueError(f"请设置正确的 API 地址 --> {api_base}")
+        if ".example.com" in str(api_base.host_subcomponent):
+            raise ValueError(f"无效的 API URL: {api_base}, 请配置一个有效的 API")
         self._api_base = api_base
         self._api_token = api_token
         self._weight = weight
