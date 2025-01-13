@@ -17,12 +17,14 @@ LOCAL_REQUEST_API_TOKEN = ""
 
 if bilichat_config.api.local_api_config is not None and bilichat_config.api.local_api_config.enable:
     try:
+        from bilichat_request.config import BILICHAT_MIN_VERSION, set_config
         from bilichat_request.config import config as bilichat_request_config
-        from bilichat_request.config import set_config
     except ImportError as e:
         raise ImportError("bilichat-request 未安装, 请先安装 bilichat-request") from e
 
-    bilichat_request_config = bilichat_request_config.model_validate(bilichat_config.api.local_api_config.model_dump(exclude={"enable"}))
+    bilichat_request_config = bilichat_request_config.model_validate(
+        bilichat_config.api.local_api_config.model_dump(exclude={"enable"})
+    )
     bilichat_request_config.data_path = DATA_DIR.joinpath("bilichat_request").as_posix()
 
     set_config(bilichat_request_config)
@@ -36,9 +38,9 @@ if bilichat_config.api.local_api_config is not None and bilichat_config.api.loca
             f"bilichat-request 版本过低, 当前: {version('bilichat-request')} 最低: {MINIMUM_API_VERSION}"
         )
 
-    if Version(bilichat_request_config.bilichat_min_version) > Version(__version__):
+    if Version(BILICHAT_MIN_VERSION) > Version(__version__):
         raise RuntimeError(
-            f"bilichat-request 需求更高版本 nonebot-plugin-bilichat 当前: {__version__} 最低: {bilichat_request_config.bilichat_min_version}"
+            f"bilichat-request 需求更高版本 nonebot-plugin-bilichat 当前: {__version__} 最低: {BILICHAT_MIN_VERSION}"
         )
 
     from bilichat_request.api.base import app
