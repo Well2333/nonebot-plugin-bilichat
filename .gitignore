@@ -9,6 +9,7 @@ venv
 .pdm-python
 .pdm-python
 .pdm.toml
+pdm.lock
 
 .env
 logs

@@ -9,7 +9,7 @@ from nonebot_plugin_bilichat.lib.tools import shorten_long_items
 from nonebot_plugin_bilichat.model.exception import RequestError
 from nonebot_plugin_bilichat.model.request_api import Account, Content, Dynamic, LiveRoom, Note, SearchUp, VersionInfo
 
-MINIMUM_API_VERSION = Version("0.2.2")
+MINIMUM_API_VERSION = Version("0.2.4")
 
 
 class RequestAPI:
