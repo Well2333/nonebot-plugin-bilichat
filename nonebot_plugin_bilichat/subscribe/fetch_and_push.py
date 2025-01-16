@@ -9,6 +9,7 @@ from nonebot_plugin_bilichat.config import config
 from nonebot_plugin_bilichat.lib.tools import calc_time_total
 from nonebot_plugin_bilichat.model.exception import AbortError
 from nonebot_plugin_bilichat.request_api import get_request_api
+from nonebot_plugin_bilichat.subscribe.status import UPStatus
 
 from .status import SubsStatus
 
@@ -19,8 +20,9 @@ from .status import SubsStatus
 async def dynamic():
     logger.debug("[Dynamic] 检查新动态")
     try:
-        ups = await SubsStatus.get_online_ups()
+        ups = await SubsStatus.get_online_ups("dynamic")
     except AbortError:
+        logger.debug("[Dynamic] 没有需要推送的用户, 跳过")
         return
     for up in ups:
         logger.debug(f"[Dynamic] 获取 UP {up.name}({up.uid}) 动态")
@@ -59,8 +61,9 @@ async def dynamic():
 async def live():
     logger.debug("[Live] 检查直播状态")
     try:
-        ups = await SubsStatus.get_online_ups()
+        ups: list[UPStatus] = await SubsStatus.get_online_ups("live")
     except AbortError:
+        logger.debug("[Live] 没有需要推送的用户, 跳过")
         return
     api = get_request_api()
     try:

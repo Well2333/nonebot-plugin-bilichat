@@ -27,10 +27,12 @@ class RequestAPI:
 
         if not skip_version_checking:
             # Check API version
-            version = httpx.get(
+            req = httpx.get(
                 str(api_base.joinpath("version")),
                 headers=headers,
-            ).json()
+            )
+            req.raise_for_status()
+            version = req.json()
             if not (
                 (Version(version["version"]) >= MINIMUM_API_VERSION)  # API version check
                 and (version["package"] == "bilichat-request")  # API package check

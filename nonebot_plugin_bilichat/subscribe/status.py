@@ -1,4 +1,5 @@
 from asyncio import Lock
+from typing import Literal
 
 from nonebot.log import logger
 from nonebot_plugin_uninfo.target import to_target
@@ -6,7 +7,7 @@ from pydantic import BaseModel
 
 from nonebot_plugin_bilichat.config import config, save_config
 from nonebot_plugin_bilichat.model.exception import AbortError
-from nonebot_plugin_bilichat.model.subscribe import User
+from nonebot_plugin_bilichat.model.subscribe import PushType, User
 
 
 class UPStatus(BaseModel):
@@ -54,19 +55,24 @@ class SubsStatus:
             logger.debug(f"当前可推送的用户: {list(cls.online_users.keys()) or '无'}")
 
     @classmethod
-    async def get_online_ups(cls) -> list[UPStatus]:
+    async def get_online_ups(cls, type_: Literal["dynamic", "live"]) -> list[UPStatus]:
         await cls.refresh_online_users()
         if not cls.online_users:
             raise AbortError("没有可用激活的用户, 跳过")
 
-        online_ups = []
+        online_ups: list[UPStatus] = []
         for user in cls.online_users.values():
             for up in user.subscribes.values():
+                if (type_ == "dynamic" and all(b == PushType.IGNORE for b in up.dynamic.values())) or (
+                    type_ == "live" and up.live == PushType.IGNORE
+                ):
+                    continue
                 up_status = cls.online_ups_cache.get(up.uid, UPStatus(uid=up.uid, name=up.uname))
-                online_ups.append(up_status)
                 cls.online_ups_cache[up.uid] = up_status
+                if up_status not in online_ups:
+                    online_ups.append(up_status)
 
         if not online_ups:
-            return await cls.get_online_ups()
+            raise AbortError(f"{type_} 类型没有需要推送的up主, 跳过")
 
         return online_ups

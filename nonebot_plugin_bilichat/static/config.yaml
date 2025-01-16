@@ -70,7 +70,7 @@ api:
 subs:
   # 推送相关配置
   subs_limit: 5 # 全局订阅数量限制
-  dynamic_interval: 90 # 动态轮询间隔, 单位为秒
-  live_interval: 30 # 直播轮询间隔, 单位为秒
+  dynamic_interval: 300 # 动态轮询间隔, 单位为秒
+  live_interval: 60 # 直播轮询间隔, 单位为秒
   push_delay: 3 # 每条推送的延迟, 单位为秒
   users: {} # 已添加订阅的用户, 请勿手动添加
