@@ -1,4 +1,5 @@
 import random
+import sys
 
 from nonebot.log import logger
 from yarl import URL
@@ -26,6 +27,9 @@ if config.api.local_api_config is not None and config.api.local_api_config.enabl
         RequestAPI(URL(LOCAL_REQUEST_API_PATH), LOCAL_REQUEST_API_TOKEN, 0, "本地 API", skip_version_checking=True)
     )
 
+if not request_apis:
+    [logger.error("未找到可用 API!!!!!!!!!!!!!!!!!") for _ in range(10)]
+    sys.exit()
 
 def get_request_api() -> RequestAPI:
     if not request_apis:
