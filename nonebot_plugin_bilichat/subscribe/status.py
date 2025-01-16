@@ -68,8 +68,9 @@ class SubsStatus:
                 ):
                     continue
                 up_status = cls.online_ups_cache.get(up.uid, UPStatus(uid=up.uid, name=up.uname))
-                online_ups.append(up_status)
                 cls.online_ups_cache[up.uid] = up_status
+                if up_status not in online_ups:
+                    online_ups.append(up_status)
 
         if not online_ups:
             raise AbortError(f"{type_} 类型没有需要推送的up主, 跳过")
