@@ -110,7 +110,7 @@ class SubscribeConfig(BaseModel):
 
     subs_limit: int = Field(5, ge=0, le=50)
     """全局订阅数量限制"""
-    dynamic_interval: int = Field(180, ge=15)
+    dynamic_interval: int = Field(300, ge=15)
     """动态轮询间隔, 单位为秒"""
     live_interval: int = Field(60, ge=10)
     """直播轮询间隔, 单位为秒"""

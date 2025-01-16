@@ -1,5 +1,4 @@
 import random
-import sys
 
 from nonebot.log import logger
 from yarl import URL
@@ -28,10 +27,12 @@ if config.api.local_api_config is not None and config.api.local_api_config.enabl
     )
 
 if not request_apis:
-    [logger.error("未找到可用 API!!!!!!!!!!!!!!!!!") for _ in range(10)]
-    sys.exit()
+    for _ in range(10):
+        logger.error("未找到可用的 Bilichat API 服务, 请在配置文件中添加至少一个 API 服务或启用本地 API")
+    raise SystemExit
+
 
 def get_request_api() -> RequestAPI:
     if not request_apis:
-        raise RuntimeError("未找到可用的 Bilichat API 服务, 请添加至少一个 API 服务")
+        raise RuntimeError("未找到可用的 Bilichat API 服务, 请在配置文件中添加至少一个 API 服务或启用本地 API")
     return random.choice(request_apis)
