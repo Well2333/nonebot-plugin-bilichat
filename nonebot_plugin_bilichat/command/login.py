@@ -23,14 +23,14 @@ from .base import bilichat
 bili_check_login = bilichat.command(
     "checklogin",
     aliases=set(config.nonebot.cmd_check_login),
-    permission=ADMIN()|SUPERUSER,
+    permission=ADMIN() | SUPERUSER,
 )
 
 
 bili_login_qrcode = bilichat.command(
     "qrlogin",
     aliases=set(config.nonebot.cmd_login_qrcode),
-    permission=ADMIN()|SUPERUSER,
+    permission=ADMIN() | SUPERUSER,
 )
 bili_logout = bilichat.command(
     "logout",
@@ -130,7 +130,6 @@ async def bili_qrcode_login(target: MsgTarget):
                     cookies = dict(client.cookies)
                     api = request_apis[0]
                     await api.account_web_creat(
-                        int(cookies["DedeUserID"]),
                         cookies,
                         Note(
                             source=f"nonebot {target!r}",
