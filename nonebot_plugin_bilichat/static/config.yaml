@@ -56,7 +56,7 @@ api:
     - api: "https://api.example.com" # API 地址
       token: "your_api_token" # API Token, 服务端未设置则留空
       weight: 1 # 权重, 用于负载均衡, 越大越优先
-      enable: true # 是否启用该 API
+      enable: false # 是否启用该 API
     # 可以根据需要添加更多 API 配置
   local_api_config: # 本地 API 配置
     enable: false # 是否启用本地 API

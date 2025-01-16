@@ -9,12 +9,15 @@ from .base import RequestAPI
 
 request_apis: list[RequestAPI] = []
 for api in config.api.request_api:
-    try:
-        request_api = RequestAPI(URL(api.api), api.token, api.weight, api.note)
-        request_apis.append(request_api)
-        logger.info(f"API {api.api} 初始化成功, 权重: {api.weight}, 备注: {api.note}")
-    except Exception as e:  # noqa: PERF203
-        logger.exception(f"API {api.api} 初始化失败, 跳过: {e}")
+    if api.enabled:
+        try:
+            request_api = RequestAPI(URL(api.api), api.token, api.weight, api.note)
+            request_apis.append(request_api)
+            logger.info(f"API {api.api} 初始化成功, 权重: {api.weight}, 备注: {api.note}")
+        except Exception as e:
+            logger.exception(f"API {api.api} 初始化失败, 跳过: {e}")
+    else:
+        logger.warning(f"API {api.api} 未启用")
 
 if config.api.local_api_config is not None and config.api.local_api_config.enable:
     from .local import LOCAL_REQUEST_API_PATH, LOCAL_REQUEST_API_TOKEN
