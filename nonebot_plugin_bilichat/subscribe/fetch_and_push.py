@@ -108,12 +108,17 @@ async def live():
         # 下播通知
         elif up.live_status == 1:
             for user in up.users:
+                if user.subscribes[str(up.uid)].live == PushType.IGNORE:
+                    continue
                 logger.info(f"[Live] 推送 UP {up.name}({up.uid}) 下播给用户 {user.id}")
                 up_info = user.subscribes[str(up.uid)]
                 up_info.uname = up.name  # 更新up名字
                 up_name = up_info.nickname or up_info.uname
-                msg = UniMessage(
-                    Text(f"{up_name} 下播了\n本次直播时长 {calc_time_total(time.time() - live.live_time)}")
+                live_time = (
+                    Text(f"\n本次直播时长 {calc_time_total(time.time() - live.live_time)}")
+                    if live.live_time > 1500000000
+                    else Text("")
                 )
+                msg = UniMessage([Text(f"{up_name} 下播了"), live_time])
                 await user.target.send(msg)
         up.live_status = live.live_status
