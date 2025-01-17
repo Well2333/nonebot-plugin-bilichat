@@ -57,7 +57,7 @@ body:
       label: 插件的配置项
       description: 去除敏感信息的插件相关配置项
 
-  - type: textarea
+  - type: code
     id: logs
     attributes:
       label: 截图或日志
