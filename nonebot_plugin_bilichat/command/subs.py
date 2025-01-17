@@ -54,7 +54,7 @@ async def remove_sub(user: User = Depends(get_user), msg: Message = CommandArg()
             save_config()
             await bili_add_sub.finish("已经成功取关本会话订阅的全部 UP 主")
         for up in user.subscribes.values():
-            if keyword in (up.uname, up.nickname) or str(up.uid) == keyword:
+            if keyword in (up.uname, up.nickname) or str(up.uid) == keyword.lower().replace("uid:", "").strip():
                 user.subscribes.pop(str(up.uid))
                 config.subs.users[user.id] = user
                 save_config()
