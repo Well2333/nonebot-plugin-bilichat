@@ -29,8 +29,6 @@ if bilichat_config.api.local_api_config is not None and bilichat_config.api.loca
 
     set_config(bilichat_request_config)
 
-    logger.info(f"本地 API 配置: {bilichat_request_config}")
-
     # 版本检查
 
     if Version(version("bilichat-request")) < MINIMUM_API_VERSION:
@@ -52,5 +50,8 @@ if bilichat_config.api.local_api_config is not None and bilichat_config.api.loca
 
     driver.server_app.mount("/", app, name="bilichat_api")
 
-    LOCAL_REQUEST_API_PATH = f"http://127.0.0.1:{nonebot_config.port}/{bilichat_request_config.api_path}"
+    LOCAL_REQUEST_API_PATH = f"http://{nonebot_config.host}:{nonebot_config.port}/{bilichat_request_config.api_path}"
     LOCAL_REQUEST_API_TOKEN = bilichat_request_config.api_access_token
+
+    cfg = bilichat_request_config.model_dump_json(exclude={"api_host", "api_port", "api_path"})
+    logger.info(f"本地 API 已启用, 地址: {LOCAL_REQUEST_API_PATH} 配置: {cfg}")
