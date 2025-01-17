@@ -50,7 +50,7 @@ if bilichat_config.api.local_api_config is not None and bilichat_config.api.loca
 
     driver.server_app.mount("/", app, name="bilichat_api")
 
-    LOCAL_REQUEST_API_PATH = f"http://{nonebot_config.host}:{nonebot_config.port}/{bilichat_request_config.api_path}"
+    LOCAL_REQUEST_API_PATH = f"http://127.0.0.1:{nonebot_config.port}/{bilichat_request_config.api_path}"
     LOCAL_REQUEST_API_TOKEN = bilichat_request_config.api_access_token
 
     cfg = bilichat_request_config.model_dump_json(exclude={"api_host", "api_port", "api_path"})
