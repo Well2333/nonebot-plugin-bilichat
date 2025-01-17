@@ -9,7 +9,7 @@ from nonebot_plugin_bilichat.config import config
 from nonebot_plugin_bilichat.lib.tools import calc_time_total
 from nonebot_plugin_bilichat.model.exception import AbortError
 from nonebot_plugin_bilichat.request_api import get_request_api
-from nonebot_plugin_bilichat.subscribe.status import UPStatus
+from nonebot_plugin_bilichat.subscribe.status import PushType, UPStatus
 
 from .status import SubsStatus
 
@@ -44,11 +44,15 @@ async def dynamic():
             content = await api.content_dynamic(dyn.dyn_id, config.api.browser_shot_quality)
             dyn_img = Image(raw=content.img_bytes)
             for user in up.users:
+                if user.subscribes[str(up.uid)].dynamic[dyn.dyn_type] == PushType.IGNORE:
+                    continue
                 logger.info(f"[Dynamic] 推送 UP {up.name}({up.uid}) 动态给用户 {user.id}")
                 up_info = user.subscribes[str(up.uid)]
                 up_info.uname = up.name  # 更新up名字
                 up_name = up_info.nickname or up_info.uname
-                at_all = AtAll() if user.subscribes[str(up.uid)].dynamic.get(dyn.dyn_type) == "AT_ALL" else Text("")
+                at_all = (
+                    AtAll() if user.subscribes[str(up.uid)].dynamic.get(dyn.dyn_type) == PushType.AT_ALL else Text("")
+                )
                 msg = UniMessage([at_all, Text(f"{up_name} 发布了新动态\n"), dyn_img, Text(f"\n{content.b23}")])
                 target = user.target
                 logger.debug(f"target: {target}")
@@ -85,11 +89,13 @@ async def live():
                 cover = (await AsyncClient().get(live.cover_from_user)).content
                 live_cover = Image(raw=cover)
                 for user in up.users:
+                    if user.subscribes[str(up.uid)].live == PushType.IGNORE:
+                        continue
                     logger.info(f"[Live] 推送 UP {up.name}({up.uid}) 开播给用户 {user.id}")
                     up_info = user.subscribes[str(up.uid)]
                     up_info.uname = up.name  # 更新up名字
                     up_name = up_info.nickname or up_info.uname
-                    at_all = AtAll() if user.subscribes[str(up.uid)].live == "AT_ALL" else Text("")
+                    at_all = AtAll() if user.subscribes[str(up.uid)].live == PushType.AT_ALL else Text("")
                     msg = UniMessage(
                         [
                             at_all,
