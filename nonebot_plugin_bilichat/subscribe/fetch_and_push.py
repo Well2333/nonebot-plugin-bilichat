@@ -29,6 +29,9 @@ async def dynamic():
         api = get_request_api()
         try:
             all_dyns = await api.subs_dynamic(up.uid)
+            if not all_dyns:
+                logger.info(f"[Dynamic] UP {up.name}({up.uid}) 未发布动态")
+                continue
         except Exception as e:
             logger.error(f"[Dynamic] 获取 UP {up.name}({up.uid}) 动态失败: {e}")
             continue
