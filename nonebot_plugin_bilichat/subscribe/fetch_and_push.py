@@ -14,9 +14,6 @@ from nonebot_plugin_bilichat.subscribe.status import PushType, UPStatus
 from .status import SubsStatus
 
 
-@scheduler.scheduled_job(
-    "interval", id="dynamic", seconds=config.subs.dynamic_interval, jitter=config.subs.dynamic_interval // 2
-)
 async def dynamic():
     logger.debug("[Dynamic] 检查新动态")
     try:
@@ -62,9 +59,6 @@ async def dynamic():
                 await user.target.send(msg)
 
 
-@scheduler.scheduled_job(
-    "interval", id="live", seconds=config.subs.live_interval, jitter=config.subs.live_interval // 2
-)
 async def live():
     logger.debug("[Live] 检查直播状态")
     try:
@@ -125,3 +119,18 @@ async def live():
                 msg = UniMessage([Text(f"{up_name} 下播了"), live_time])
                 await user.target.send(msg)
         up.live_status = live.live_status
+
+def set_subs_job():
+    scheduler.add_job(
+        dynamic, "interval", id="dynamic", seconds=config.subs.dynamic_interval, jitter=config.subs.dynamic_interval // 2
+    )
+    scheduler.add_job(live, "interval", id="live", seconds=config.subs.live_interval, jitter=config.subs.live_interval // 2)
+
+def reset_subs_job():
+    scheduler.remove_job("dynamic")
+    scheduler.remove_job("live")
+    set_subs_job()
+    logger.info("已重置订阅定时任务")
+    return True
+
+set_subs_job()

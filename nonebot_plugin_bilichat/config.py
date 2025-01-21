@@ -1,4 +1,3 @@
-import json
 from importlib.metadata import version
 from pathlib import Path
 from shutil import copyfile
@@ -29,7 +28,7 @@ try:
     config_path = Path(nonebot_config.bilichat_config_path)
 except Exception as e:
     config_path = CONFIG_DIR.joinpath("config.yaml")
-    logger.warning(f"用户未设置配置文件路径, 尝试默认配置文件路径 {config_path}")
+    logger.info(f"用户未设置配置文件路径, 尝试默认配置文件路径 {config_path}")
 
 if not config_path.exists():
     logger.error(f"默认配置文件路径 {config_path} 不存在, 已在该位置创建默认配置文件, 请修改配置后重新加载插件")
@@ -38,7 +37,7 @@ if not config_path.exists():
 
 
 def save_config():
-    config_path.write_text(yaml.dump(json.loads(config.model_dump_json()), allow_unicode=True), encoding="utf-8")  # type: ignore
+    config_path.write_text(yaml.dump(config.model_dump(mode="json"), allow_unicode=True), encoding="utf-8")  # type: ignore
 
 
 config: Config = Config.model_validate(yaml.safe_load(config_path.read_text(encoding="utf-8")))

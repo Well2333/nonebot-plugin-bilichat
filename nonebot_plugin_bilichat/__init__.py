@@ -67,4 +67,4 @@ __plugin_meta__ = PluginMetadata(
     },
 )
 
-from . import base_content_parsing, command  # noqa: F401, E402
+from . import api, base_content_parsing, command  # noqa: F401, E402

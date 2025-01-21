@@ -5,20 +5,15 @@ from pydantic import BaseModel, Field
 from .subscribe import User
 
 
-class LocalApiConfig(BaseModel):
-    enable: bool = False
-    """是否启用本地 API"""
-    api_path: str = "bilichatapi"
-    """本地 API 挂载路径"""
+class WebUIConfig(BaseModel):
+    """WebUI 相关配置, 无法热修改"""
+
+    enable: bool = True
+    """是否启用 WebUI"""
+    api_path: str = "bilichatwebui"
+    """WebUI 挂载路径"""
     api_access_token: str = ""
-    """本地 API Token, 服务端未设置则留空"""
-    api_sub_dynamic_limit: str = "720/hour"
-    """动态订阅限速"""
-    api_sub_live_limit: str = "1800/hour"
-    """直播订阅限速"""
-    
-    class Config:
-        extra = "allow"
+    """WebUI Token"""
 
 
 class NoneBotConfig(BaseModel):
@@ -81,7 +76,27 @@ class AnalyzeConfig(BaseModel):
     """对同一视频的响应冷却时间(防止刷屏)"""
 
 
+class LocalApiConfig(BaseModel):
+    """本地 API 相关配置, 无法热修改"""
+
+    enable: bool = False
+    """是否启用本地 API"""
+    api_path: str = "bilichatapi"
+    """本地 API 挂载路径"""
+    api_access_token: str = ""
+    """本地 API Token"""
+    api_sub_dynamic_limit: str = "720/hour"
+    """动态订阅限速"""
+    api_sub_live_limit: str = "1800/hour"
+    """直播订阅限速"""
+
+    class Config:
+        extra = "allow"
+
+
 class RequestApiInfo(BaseModel):
+    """请求 API 信息"""
+
     api: str
     """API 地址"""
     token: str
@@ -98,9 +113,9 @@ class ApiConfig(BaseModel):
     """API 相关配置"""
 
     request_api: list[RequestApiInfo] = []
-    """bilichat-request 的 API, 留空则会本地启动"""
+    """bilichat-request 的 API"""
     local_api_config: LocalApiConfig | None = None
-    """本地 API 的配置"""
+    """本地 API 的配置, 无法热修改"""
     browser_shot_quality: int = Field(default=75, ge=10, le=100)
     """浏览器截图质量, 范围为 10-100"""
 
@@ -108,8 +123,6 @@ class ApiConfig(BaseModel):
 class SubscribeConfig(BaseModel):
     """推送相关配置"""
 
-    subs_limit: int = Field(5, ge=0, le=50)
-    """全局订阅数量限制"""
     dynamic_interval: int = Field(300, ge=15)
     """动态轮询间隔, 单位为秒"""
     live_interval: int = Field(60, ge=10)
@@ -124,7 +137,7 @@ class SubscribeConfig(BaseModel):
 
 class Config(BaseModel):
     version: str = version("nonebot_plugin_bilichat")
-    """插件版本"""
+    """插件版本, 无法热修改"""
     nonebot: NoneBotConfig = NoneBotConfig()
     """nonebot 相关配置, 无法热修改"""
     analyze: AnalyzeConfig = AnalyzeConfig()
@@ -133,3 +146,7 @@ class Config(BaseModel):
     """API 相关配置"""
     subs: SubscribeConfig = SubscribeConfig()  # type: ignore
     """推送相关配置"""
+    webui: WebUIConfig = WebUIConfig()
+    """WebUI 相关配置, 无法热修改"""
+    
+Config.model_json_schema
