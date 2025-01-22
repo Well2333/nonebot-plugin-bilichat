@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi.staticfiles import StaticFiles
 
-from nonebot_plugin_bilichat.config import ConfigCTX
+from nonebot_plugin_bilichat.config import STATIC_DIR, ConfigCTX
 
 from .base import app
 from .config import router as config_router
@@ -23,4 +24,9 @@ app.include_router(
     router,
     prefix=f"/{ConfigCTX.get().webui.api_path}",
     dependencies=[Depends(verify_token)] if ConfigCTX.get().webui.api_access_token else [],
+)
+app.mount(
+    f"/{ConfigCTX.get().webui.api_path}",
+    StaticFiles(directory=STATIC_DIR.joinpath("html"), html=True),
+    name="bilichat_webui",
 )
