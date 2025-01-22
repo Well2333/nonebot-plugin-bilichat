@@ -148,5 +148,3 @@ class Config(BaseModel):
     """推送相关配置"""
     webui: WebUIConfig = WebUIConfig()
     """WebUI 相关配置, 无法热修改"""
-    
-Config.model_json_schema

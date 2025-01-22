@@ -2,11 +2,11 @@ from enum import Enum
 from typing import overload
 
 from nonebot_plugin_alconna import Target
-from nonebot_plugin_uninfo import Session
-from nonebot_plugin_uninfo.target import to_target
 from pydantic import BaseModel, field_validator
 
 from nonebot_plugin_bilichat.model.request_api import DynamicType
+from nonebot_plugin_uninfo import Session
+from nonebot_plugin_uninfo.target import to_target
 
 
 class PushType(str, Enum):
@@ -45,6 +45,7 @@ class UP(BaseModel):
 
 class User(BaseModel):
     info: Session
+    """用户身份信息, 请勿手动添加或修改"""
     subscribes: dict[str, UP] = {}
     """订阅的UP主, UP.uid: UP"""
 
