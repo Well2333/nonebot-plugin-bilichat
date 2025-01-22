@@ -68,79 +68,79 @@ class NoneBotConfig(BaseModel):
         default=["订阅", "关注"],
         title="订阅命令别名",
         description="`sub`命令的别名",
-        json_schema_extra={"ui:options": {"disabled": True}},
+        json_schema_extra={"ui:options": {"disabled": True}, "ui:hidden": True},
     )
     cmd_remove_sub: list[str] = Field(
         default=["退订", "取关"],
         title="退订命令别名",
         description="`unsub`命令的别名",
-        json_schema_extra={"ui:options": {"disabled": True}},
+        json_schema_extra={"ui:options": {"disabled": True}, "ui:hidden": True},
     )
     cmd_check_sub: list[str] = Field(
         default=["查看", "查看订阅"],
         title="查看订阅命令别名",
         description="`check`命令的别名",
-        json_schema_extra={"ui:options": {"disabled": True}},
+        json_schema_extra={"ui:options": {"disabled": True}, "ui:hidden": True},
     )
     cmd_reset_sub: list[str] = Field(
         default=["重置", "重置配置"],
         title="重置配置命令别名",
         description="`reset`命令的别名",
-        json_schema_extra={"ui:options": {"disabled": True}},
+        json_schema_extra={"ui:options": {"disabled": True}, "ui:hidden": True},
     )
     cmd_at_all: list[str] = Field(
         default=["全体成员", "at全体"],
         title="全体命令别名",
         description="`atall`命令的别名",
-        json_schema_extra={"ui:options": {"disabled": True}},
+        json_schema_extra={"ui:options": {"disabled": True}, "ui:hidden": True},
     )
     cmd_dynamic: list[str] = Field(
         default=["动态通知", "动态订阅"],
         title="动态命令别名",
         description="`dynamic`命令的别名",
-        json_schema_extra={"ui:options": {"disabled": True}},
+        json_schema_extra={"ui:options": {"disabled": True}, "ui:hidden": True},
     )
     cmd_live: list[str] = Field(
         default=["直播通知", "直播订阅"],
         title="直播命令别名",
         description="`live`命令的别名",
-        json_schema_extra={"ui:options": {"disabled": True}},
+        json_schema_extra={"ui:options": {"disabled": True}, "ui:hidden": True},
     )
     cmd_checkdynamic: list[str] = Field(
         default=["查看动态"],
         title="查看动态命令别名",
         description="`checkdynamic`命令的别名",
-        json_schema_extra={"ui:options": {"disabled": True}},
+        json_schema_extra={"ui:options": {"disabled": True}, "ui:hidden": True},
     )
     cmd_fetch: list[str] = Field(
         default=["获取内容", "解析内容"],
         title="获取内容命令别名",
         description="`fetch`命令的别名",
-        json_schema_extra={"ui:options": {"disabled": True}},
+        json_schema_extra={"ui:options": {"disabled": True}, "ui:hidden": True},
     )
     cmd_check_login: list[str] = Field(
         default=["查看登录账号"],
         title="查看登录账号命令别名",
         description="`check_login`命令的别名",
-        json_schema_extra={"ui:options": {"disabled": True}},
+        json_schema_extra={"ui:options": {"disabled": True}, "ui:hidden": True},
     )
     cmd_login_qrcode: list[str] = Field(
         default=["扫码登录"],
         title="扫码登录命令别名",
         description="`qrlogin`命令的别名",
-        json_schema_extra={"ui:options": {"disabled": True}},
+        json_schema_extra={"ui:options": {"disabled": True}, "ui:hidden": True},
     )
     cmd_logout: list[str] = Field(
         default=["登出账号"],
         title="登出账号命令别名",
         description="`logout`命令的别名",
-        json_schema_extra={"ui:options": {"disabled": True}},
+        json_schema_extra={"ui:options": {"disabled": True}, "ui:hidden": True},
     )
     cmd_modify_cfg: list[str] = Field(
         default=["修改配置"],
         title="修改配置命令别名",
         description="`cfg`命令的别名",
-        json_schema_extra={"ui:options": {"disabled": True}},
+        json_schema_extra={"ui:options": {"disabled": True}, "ui:hidden": True},
     )
 
 
@@ -209,7 +209,12 @@ class ApiConfig(BaseModel):
         title="API 请求列表",
         description="bilichat-request 的 API",
     )
-    local_api_config: LocalApiConfig | None = Field(default=None, title="本地 API 配置", description="本地 API 的配置")
+    local_api_config: LocalApiConfig | None = Field(
+        default=LocalApiConfig(),
+        title="本地 API 配置",
+        description="本地 API 的配置",
+        json_schema_extra={"ui:options": {"disabled": True}},
+    )
     browser_shot_quality: int = Field(
         default=75, title="浏览器截图质量", description="浏览器截图质量, 范围为 10-100", ge=10, le=100
     )
@@ -235,4 +240,6 @@ class Config(BaseModel):
     analyze: AnalyzeConfig = Field(default=AnalyzeConfig(), title="内容解析配置", description="解析相关配置")
     api: ApiConfig = Field(default=ApiConfig(), title="API 配置", description="API 相关配置")
     subs: SubscribeConfig = Field(default=SubscribeConfig(), title="订阅配置", description="推送相关配置")
-    webui: WebUIConfig = Field(default=WebUIConfig(), title="WebUI 配置", description="WebUI 相关配置")
+    webui: WebUIConfig = Field(
+        default=WebUIConfig(), title="WebUI 配置", description="WebUI 相关配置", json_schema_extra={"ui:hidden": True}
+    )

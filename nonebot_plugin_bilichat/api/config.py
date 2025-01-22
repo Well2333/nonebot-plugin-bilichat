@@ -16,10 +16,15 @@ async def get_config() -> Config:
     return config
 
 
+@router.get("/config/schema")
+async def get_config_schema() -> dict:
+    return Config.model_json_schema(mode="serialization")
+
+
 @router.post("/config")
 async def set_config(data: Config) -> Config:
     global config  # noqa: PLW0603
-    # 检查配置是否合法
+    # 检查配置是否合法s
     try:
         new_cfg = Config.model_validate(
             data.model_dump(exclude={"version", "webui", "nonebot", "api.local_api_config"})
