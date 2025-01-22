@@ -4,11 +4,11 @@ from nonebot.adapters import Message
 from nonebot.log import logger
 from nonebot.params import CommandArg, Depends
 from nonebot.permission import SUPERUSER
-from nonebot_plugin_uninfo.permission import ADMIN
 
-from nonebot_plugin_bilichat.model.subscribe import User
+from nonebot_plugin_bilichat.model.subscribe import UserInfo
 from nonebot_plugin_bilichat.request_api import get_request_api
 from nonebot_plugin_bilichat.subscribe.status import SubsStatus, UPStatus
+from nonebot_plugin_uninfo.permission import ADMIN
 
 from ..config import config, save_config
 from .base import bilichat, check_lock, get_user
@@ -19,7 +19,7 @@ bili_check_sub = bilichat.command("check", aliases=set(config.nonebot.cmd_check_
 
 
 @bili_add_sub.handle()
-async def add_sub(user: User = Depends(get_user), msg: Message = CommandArg(), lock: Lock = Depends(check_lock)):
+async def add_sub(user: UserInfo = Depends(get_user), msg: Message = CommandArg(), lock: Lock = Depends(check_lock)):
     async with lock:
         # 获取 UP 对象
         if not msg:
@@ -41,7 +41,7 @@ async def add_sub(user: User = Depends(get_user), msg: Message = CommandArg(), l
 
 
 @bili_remove_sub.handle()
-async def remove_sub(user: User = Depends(get_user), msg: Message = CommandArg(), lock: Lock = Depends(check_lock)):
+async def remove_sub(user: UserInfo = Depends(get_user), msg: Message = CommandArg(), lock: Lock = Depends(check_lock)):
     async with lock:
         # 获取 UP 对象
         if not msg:
@@ -63,7 +63,7 @@ async def remove_sub(user: User = Depends(get_user), msg: Message = CommandArg()
 
 
 @bili_check_sub.handle()
-async def check_sub(user: User = Depends(get_user), lock: Lock = Depends(check_lock)):
+async def check_sub(user: UserInfo = Depends(get_user), lock: Lock = Depends(check_lock)):
     async with lock:
         if not user.subscribes:
             await bili_check_sub.finish("本会话并未订阅任何UP主")

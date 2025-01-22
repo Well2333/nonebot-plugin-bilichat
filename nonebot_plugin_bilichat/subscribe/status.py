@@ -2,12 +2,12 @@ from asyncio import Lock
 from typing import Literal
 
 from nonebot.log import logger
-from nonebot_plugin_uninfo.target import to_target
 from pydantic import BaseModel
 
 from nonebot_plugin_bilichat.config import config, save_config
 from nonebot_plugin_bilichat.model.exception import AbortError
-from nonebot_plugin_bilichat.model.subscribe import PushType, User
+from nonebot_plugin_bilichat.model.subscribe import PushType, UserInfo
+from nonebot_plugin_uninfo.target import to_target
 
 
 class UPStatus(BaseModel):
@@ -21,12 +21,12 @@ class UPStatus(BaseModel):
     """直播状态, 0: 未开播, 1: 开播, 2: 轮播"""
 
     @property
-    def users(self) -> list[User]:
+    def users(self) -> list[UserInfo]:
         return [user for user in SubsStatus.online_users.values() if user.subscribes.get(str(self.uid))]
 
 
 class SubsStatus:
-    online_users: dict[str, User] = {}  # noqa: RUF012
+    online_users: dict[str, UserInfo] = {}  # noqa: RUF012
     """在线的用户"""
     modify_lock = Lock()
     """用户锁"""

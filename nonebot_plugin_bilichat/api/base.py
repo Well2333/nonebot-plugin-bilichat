@@ -11,6 +11,8 @@ if not isinstance(driver, ReverseDriver) or not isinstance(driver.server_app, Fa
 
 app = driver.server_app
 
+app.separate_input_output_schemas= False
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
