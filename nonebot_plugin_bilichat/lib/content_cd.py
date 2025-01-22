@@ -2,21 +2,22 @@ from datetime import datetime, timedelta
 
 from nonebot.exception import FinishedException
 from nonebot.log import logger
+from pytz import timezone
 
 from ..config import ConfigCTX
 
 
 class BilichatCD:
-    cd: dict[str, dict[str, datetime]] = {}  # {content_id: {session_id: datetime_to_expire}}
+    cd: dict[str, dict[str, datetime]] = {}  # {content_id: {session_id: datetime_to_expire}}  # noqa: RUF012
     cd_size_limit = ConfigCTX.get().analyze.cd_time // 2
     expiration_duration = timedelta(seconds=ConfigCTX.get().analyze.cd_time)
 
     @classmethod
-    def check_cd(cls, session_id: str, content_id: str):
+    def check_cd(cls, session_id: str, content_id: str) -> None:
         logger.trace(f"当前记录信息: {cls.cd}")
         logger.trace(f"content:{content_id} session:{session_id}")
         content_record = cls.cd.get(content_id, {})
-        now = datetime.now()
+        now = datetime.now(timezone("Asia/Shanghai"))
 
         if session_id in content_record and content_record[session_id] > now:
             logger.warning(f"会话 [{session_id}] 的重复内容 [{content_id}]. 跳过解析")
@@ -30,7 +31,7 @@ class BilichatCD:
     @classmethod
     def record_cd(cls, session_id: str, content_id: str) -> None:
         content_record = cls.cd.get(content_id, {})
-        now = datetime.now()
+        now = datetime.now(timezone("Asia/Shanghai"))
 
         # Clean up expired entries
         cls.clean_expired_entries(content_record, now)

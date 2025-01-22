@@ -1,3 +1,5 @@
+from typing import NoReturn
+
 from nonebot.adapters import Message
 from nonebot.log import logger
 from nonebot.params import CommandArg
@@ -36,7 +38,7 @@ bili_fetch_content = bilichat.command("fetch", aliases=set(ConfigCTX.get().noneb
 
 
 @bili_fetch_content.handle()
-async def fetch_check(state: T_State, msg: UniMsg, target: MsgTarget):
+async def fetch_check(state: T_State, msg: UniMsg, target: MsgTarget) -> NoReturn:  # noqa: ARG001
     await bili_fetch_content.finish("WIP")
 
 
