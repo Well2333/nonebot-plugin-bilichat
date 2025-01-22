@@ -14,7 +14,7 @@ from nonebot_plugin_uninfo.permission import ADMIN
 from pytz import timezone
 from qrcode.image.pure import PyPNGImage
 
-from nonebot_plugin_bilichat.config import config
+from nonebot_plugin_bilichat.config import ConfigCTX
 from nonebot_plugin_bilichat.model.request_api import Account, Note
 from nonebot_plugin_bilichat.request_api import request_apis
 
@@ -22,19 +22,19 @@ from .base import bilichat
 
 bili_check_login = bilichat.command(
     "checklogin",
-    aliases=set(config.nonebot.cmd_check_login),
+    aliases=set(ConfigCTX.get().nonebot.cmd_check_login),
     permission=ADMIN() | SUPERUSER,
 )
 
 
 bili_login_qrcode = bilichat.command(
     "qrlogin",
-    aliases=set(config.nonebot.cmd_login_qrcode),
+    aliases=set(ConfigCTX.get().nonebot.cmd_login_qrcode),
     permission=ADMIN() | SUPERUSER,
 )
 bili_logout = bilichat.command(
     "logout",
-    aliases=set(config.nonebot.cmd_logout),
+    aliases=set(ConfigCTX.get().nonebot.cmd_logout),
     permission=SUPERUSER,
 )
 

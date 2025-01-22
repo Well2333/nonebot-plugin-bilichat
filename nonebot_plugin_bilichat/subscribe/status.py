@@ -2,12 +2,12 @@ from asyncio import Lock
 from typing import Literal
 
 from nonebot.log import logger
+from nonebot_plugin_uninfo.target import to_target
 from pydantic import BaseModel
 
-from nonebot_plugin_bilichat.config import config, save_config
+from nonebot_plugin_bilichat.config import ConfigCTX
 from nonebot_plugin_bilichat.model.exception import AbortError
 from nonebot_plugin_bilichat.model.subscribe import PushType, UserInfo
-from nonebot_plugin_uninfo.target import to_target
 
 
 class UPStatus(BaseModel):
@@ -38,11 +38,12 @@ class SubsStatus:
         logger.debug("重新检查可推送的用户")
         async with cls.modify_lock:
             cls.online_users.clear()
+            config = ConfigCTX.get()
             for user in config.subs.users.copy().values():
                 # 清理无订阅的用户
                 if not user.subscribes:
                     config.subs.users.pop(user.id)
-                    save_config()
+                    ConfigCTX.set()
                     continue
                 # 检查用户是否在线
                 target = to_target(user.info)

@@ -209,7 +209,7 @@ class ApiConfig(BaseModel):
         title="API 请求列表",
         description="bilichat-request 的 API",
     )
-    local_api_config: LocalApiConfig | None = Field(
+    local_api_config: LocalApiConfig = Field(
         default=LocalApiConfig(),
         title="本地 API 配置",
         description="本地 API 的配置",
@@ -236,10 +236,10 @@ class Config(BaseModel):
         description="插件版本",
         json_schema_extra={"ui:options": {"disabled": True}},
     )
-    nonebot: NoneBotConfig = Field(default=NoneBotConfig(), title="nonebot 配置", description="nonebot 相关配置")
-    analyze: AnalyzeConfig = Field(default=AnalyzeConfig(), title="内容解析配置", description="解析相关配置")
-    api: ApiConfig = Field(default=ApiConfig(), title="API 配置", description="API 相关配置")
-    subs: SubscribeConfig = Field(default=SubscribeConfig(), title="订阅配置", description="推送相关配置")
     webui: WebUIConfig = Field(
         default=WebUIConfig(), title="WebUI 配置", description="WebUI 相关配置", json_schema_extra={"ui:hidden": True}
     )
+    nonebot: NoneBotConfig = Field(default=NoneBotConfig(), title="nonebot 配置", description="nonebot 相关配置")
+    api: ApiConfig = Field(default=ApiConfig(), title="API 配置", description="API 相关配置")
+    analyze: AnalyzeConfig = Field(default=AnalyzeConfig(), title="内容解析配置", description="解析相关配置")
+    subs: SubscribeConfig = Field(default=SubscribeConfig(), title="订阅配置", description="推送相关配置")

@@ -3,6 +3,7 @@ from pathlib import Path
 from shutil import copyfile
 
 import yaml
+from deepdiff.diff import DeepDiff
 from nonebot import get_driver, require
 from nonebot.log import logger
 
@@ -36,9 +37,31 @@ if not config_path.exists():
     raise SystemExit
 
 
-def save_config():
-    config_path.write_text(yaml.dump(config.model_dump(mode="json"), allow_unicode=True), encoding="utf-8")  # type: ignore
+class ConfigCTX:
+    _config = Config()
+
+    @classmethod
+    def get(cls) -> Config:
+        return cls._config
+
+    @classmethod
+    def set(cls, cfg: Config | None = None, *, diff_msg: bool = True) -> None:
+        cls._config = cfg or cls._config
+        old_cfg = cls._load_config_file()
+        if cfg_diff := DeepDiff(cls._config, old_cfg, ignore_order=True).get("values_changed", {}):
+            if diff_msg:
+                for k, v in cfg_diff.items():
+                    logger.info(f"{k}: " + str(v["new_value"]) + " -> " + str(v["old_value"]))
+            logger.info("配置已更新, 保存配置文件")
+            config_path.write_text(
+                yaml.dump(cls._config.model_dump(mode="json"), indent=4, allow_unicode=True), encoding="utf-8"
+            )  # type: ignore
+        else:
+            logger.info("配置未发生变化")
+
+    @staticmethod
+    def _load_config_file() -> Config:
+        return Config.model_validate(yaml.safe_load(config_path.read_text(encoding="utf-8")))
 
 
-config: Config = Config.model_validate(yaml.safe_load(config_path.read_text(encoding="utf-8")))
-save_config()
+ConfigCTX.set(ConfigCTX._load_config_file(), diff_msg=False)

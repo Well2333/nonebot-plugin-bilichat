@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from nonebot.log import logger
 from pydantic import ValidationError
 
-from nonebot_plugin_bilichat.config import config, save_config
+from nonebot_plugin_bilichat.config import ConfigCTX
 from nonebot_plugin_bilichat.model.config import Config
 from nonebot_plugin_bilichat.model.subscribe import UserInfo
 from nonebot_plugin_bilichat.request_api import init_request_apis
@@ -13,7 +13,7 @@ router = APIRouter()
 
 @router.get("/config")
 async def get_config() -> Config:
-    return config
+    return ConfigCTX.get()
 
 
 @router.get("/config/schema")
@@ -23,13 +23,12 @@ async def get_config_schema() -> dict:
 
 @router.post("/config")
 async def set_config(data: Config) -> Config:
-    global config  # noqa: PLW0603
-    # 检查配置是否合法s
+    # 检查配置是否合法
     try:
         new_cfg = Config.model_validate(
             data.model_dump(exclude={"version", "webui", "nonebot", "api.local_api_config"})
         )
-        old_cfg = config.model_copy()
+        old_cfg = ConfigCTX.get()
         new_cfg.version = old_cfg.version
         new_cfg.nonebot = old_cfg.nonebot
         new_cfg.webui = old_cfg.webui
@@ -43,16 +42,15 @@ async def set_config(data: Config) -> Config:
     except ValidationError as e:
         raise HTTPException(status_code=422, detail=e.json()) from e
 
-    # 尝试应用配置
     try:
-        config = new_cfg
+        # 尝试应用配置
+        ConfigCTX.set(new_cfg)
         # 重新加载一些配置
         reset_subs_job()
         init_request_apis()
-        # 保存配置
-        save_config()
     except Exception as e:
-        config = old_cfg
+        logger.exception("应用配置失败, 回滚配置")
+        ConfigCTX.set(old_cfg)
         raise HTTPException(status_code=400, detail=str(e)) from e
 
-    return config
+    return ConfigCTX.get()

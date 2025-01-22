@@ -5,7 +5,7 @@ from nonebot.log import logger
 from nonebot_plugin_alconna import AtAll, Image, Text, UniMessage
 from nonebot_plugin_apscheduler import scheduler
 
-from nonebot_plugin_bilichat.config import config
+from nonebot_plugin_bilichat.config import ConfigCTX
 from nonebot_plugin_bilichat.lib.tools import calc_time_total
 from nonebot_plugin_bilichat.model.exception import AbortError
 from nonebot_plugin_bilichat.request_api import get_request_api
@@ -41,7 +41,7 @@ async def dynamic():
         for dyn in new_dyns:
             logger.info(f"[Dynamic] UP {up.name}({up.uid}) 发布了新动态: {dyn.dyn_id}")
             up.dyn_offset = dyn.dyn_id
-            content = await api.content_dynamic(dyn.dyn_id, config.api.browser_shot_quality)
+            content = await api.content_dynamic(dyn.dyn_id, ConfigCTX.get().api.browser_shot_quality)
             dyn_img = Image(raw=content.img_bytes)
             for user in up.users:
                 if user.subscribes[str(up.uid)].dynamic[dyn.dyn_type] == PushType.IGNORE:
@@ -120,11 +120,27 @@ async def live():
                 await user.target.send(msg)
         up.live_status = live.live_status
 
+
 def set_subs_job():
-    scheduler.add_job(
-        dynamic, "interval", id="dynamic", seconds=config.subs.dynamic_interval, jitter=config.subs.dynamic_interval // 2
-    )
-    scheduler.add_job(live, "interval", id="live", seconds=config.subs.live_interval, jitter=config.subs.live_interval // 2)
+    if dynamic_interval := ConfigCTX.get().subs.dynamic_interval:
+        logger.info(f"启动动态检查定时任务, 间隔 {dynamic_interval} 秒")
+        scheduler.add_job(
+            dynamic,
+            "interval",
+            id="dynamic",
+            seconds=ConfigCTX.get().subs.dynamic_interval,
+            jitter=ConfigCTX.get().subs.dynamic_interval // 2,
+        )
+    if live_interval := ConfigCTX.get().subs.live_interval:
+        logger.info(f"启动直播检查定时任务, 间隔 {live_interval} 秒")
+        scheduler.add_job(
+            live,
+            "interval",
+            id="live",
+            seconds=ConfigCTX.get().subs.live_interval,
+            jitter=ConfigCTX.get().subs.live_interval // 2,
+        )
+
 
 def reset_subs_job():
     scheduler.remove_job("dynamic")
@@ -132,5 +148,6 @@ def reset_subs_job():
     set_subs_job()
     logger.info("已重置订阅定时任务")
     return True
+
 
 set_subs_job()

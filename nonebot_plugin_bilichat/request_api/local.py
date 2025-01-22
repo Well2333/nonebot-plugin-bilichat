@@ -8,14 +8,14 @@ from nonebot.log import logger
 from packaging.version import Version
 
 from nonebot_plugin_bilichat.config import DATA_DIR, __version__, nonebot_config
-from nonebot_plugin_bilichat.config import config as bilichat_config
+from nonebot_plugin_bilichat.config import ConfigCTX as BilichatConfigCTX
 
 from .base import MINIMUM_API_VERSION
 
 LOCAL_REQUEST_API_PATH = ""
 LOCAL_REQUEST_API_TOKEN = ""
 
-if bilichat_config.api.local_api_config is not None and bilichat_config.api.local_api_config.enable:
+if BilichatConfigCTX.get().api.local_api_config is not None and BilichatConfigCTX.get().api.local_api_config.enable:
     try:
         from bilichat_request.config import BILICHAT_MIN_VERSION, set_config
         from bilichat_request.config import config as bilichat_request_config
@@ -23,7 +23,7 @@ if bilichat_config.api.local_api_config is not None and bilichat_config.api.loca
         raise ImportError("bilichat-request 未安装, 请先安装 bilichat-request") from e
 
     bilichat_request_config = bilichat_request_config.model_validate(
-        bilichat_config.api.local_api_config.model_dump(exclude={"enable"})
+        BilichatConfigCTX.get().api.local_api_config.model_dump(exclude={"enable"})
     )
     bilichat_request_config.data_path = DATA_DIR.joinpath("bilichat_request").as_posix()
 

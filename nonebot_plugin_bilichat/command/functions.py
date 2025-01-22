@@ -4,13 +4,13 @@ from nonebot.params import CommandArg
 from nonebot.typing import T_State
 from nonebot_plugin_alconna.uniseg import Image, MsgTarget, UniMessage, UniMsg
 
-from nonebot_plugin_bilichat.config import config
+from nonebot_plugin_bilichat.config import ConfigCTX
 from nonebot_plugin_bilichat.lib.content_cd import BilichatCD
 from nonebot_plugin_bilichat.request_api import get_request_api
 
 from .base import bilichat
 
-bili_check_dyn = bilichat.command("checkdynamic", aliases=set(config.nonebot.cmd_checkdynamic))
+bili_check_dyn = bilichat.command("checkdynamic", aliases=set(ConfigCTX.get().nonebot.cmd_checkdynamic))
 
 
 @bili_check_dyn.handle()
@@ -28,11 +28,11 @@ async def check_dynamic_v11(target: MsgTarget, uid: Message = CommandArg()):
     if dyns := await api.subs_dynamic(up.uid):
         latest_dyn = max(dyns, key=lambda x: x.dyn_id)
         BilichatCD.record_cd(session_id=target.id, content_id=str(latest_dyn.dyn_id))
-        if dyn := await api.content_dynamic(latest_dyn.dyn_id, config.api.browser_shot_quality):
+        if dyn := await api.content_dynamic(latest_dyn.dyn_id, ConfigCTX.get().api.browser_shot_quality):
             await UniMessage(Image(raw=dyn.img_bytes)).send(target=target)
 
 
-bili_fetch_content = bilichat.command("fetch", aliases=set(config.nonebot.cmd_fetch), block=True)
+bili_fetch_content = bilichat.command("fetch", aliases=set(ConfigCTX.get().nonebot.cmd_fetch), block=True)
 
 
 @bili_fetch_content.handle()

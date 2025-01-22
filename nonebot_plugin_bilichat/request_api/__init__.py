@@ -3,7 +3,7 @@ import random
 from nonebot.log import logger
 from yarl import URL
 
-from nonebot_plugin_bilichat.config import config
+from nonebot_plugin_bilichat.config import ConfigCTX
 
 from .base import RequestAPI
 
@@ -11,7 +11,7 @@ request_apis: list[RequestAPI] = []
 
 
 local_api: RequestAPI | None = None
-if config.api.local_api_config is not None and config.api.local_api_config.enable:
+if ConfigCTX.get().api.local_api_config is not None and ConfigCTX.get().api.local_api_config.enable:
     from .local import LOCAL_REQUEST_API_PATH, LOCAL_REQUEST_API_TOKEN
 
     local_api = RequestAPI(URL(LOCAL_REQUEST_API_PATH), LOCAL_REQUEST_API_TOKEN, 0, "本地 API", local_api=True)
@@ -22,7 +22,7 @@ def init_request_apis():
     if local_api:
         request_apis.append(local_api)
         logger.info(f"本地 API 初始化成功, Token: {LOCAL_REQUEST_API_TOKEN}")
-    for api in config.api.request_api:
+    for api in ConfigCTX.get().api.request_api:
         if api.enabled:
             try:
                 request_api = RequestAPI(URL(api.api), api.token, api.weight, api.note)
