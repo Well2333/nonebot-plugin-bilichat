@@ -11,5 +11,5 @@ class Options(Namespace):
     refresh: bool = False
     force: bool = False
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return any(value for value in vars(self).values())

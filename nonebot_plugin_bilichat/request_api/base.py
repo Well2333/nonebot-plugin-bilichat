@@ -14,7 +14,7 @@ MINIMUM_API_VERSION = Version("0.2.4")
 
 class RequestAPI:
     def __init__(
-        self, api_base: URL, api_token: str, weight: int, note: str = "", *, skip_version_checking: bool = False
+        self, api_base: URL, api_token: str, weight: int, note: str = "", *, local_api: bool = False
     ) -> None:
         if ".example.com" in str(api_base.host_subcomponent):
             raise ValueError(f"无效的 API URL: {api_base}, 请配置一个有效的 API")
@@ -22,10 +22,11 @@ class RequestAPI:
         self._api_token = api_token
         self._weight = weight
         self._note = note
+        self._local_api = local_api
         headers = {"Authorization": f"Bearer {api_token}"} if api_token else {}
         self._client = AsyncClient(base_url=str(api_base), headers=headers, timeout=60)
 
-        if not skip_version_checking:
+        if not local_api:
             # Check API version
             req = httpx.get(
                 str(api_base.joinpath("version")),

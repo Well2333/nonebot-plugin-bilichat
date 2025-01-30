@@ -43,8 +43,9 @@ class UP(BaseModel):
     """直播推送方式"""
 
 
-class User(BaseModel):
+class UserInfo(BaseModel):
     info: Session
+    """用户身份信息, 请勿手动添加或修改"""
     subscribes: dict[str, UP] = {}
     """订阅的UP主, UP.uid: UP"""
 
