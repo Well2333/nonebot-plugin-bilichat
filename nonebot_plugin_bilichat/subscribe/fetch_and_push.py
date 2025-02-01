@@ -88,11 +88,11 @@ async def live():
         # 第一次获取, 仅更新状态
         if up.live_status == -1:
             up.live_status = live.live_status
-            return
-        # 正在直播
+            continue
+        # 正在直播, live.live_status == 1
         if live.live_status == 1:
-            # 开播通知
-            if up.live_status == 0:
+            # 开播通知, up.live_status != 1
+            if up.live_status != 0:
                 cover = (await AsyncClient().get(live.cover_from_user)).content
                 live_cover = Image(raw=cover)
                 for user in up.users:
@@ -112,7 +112,7 @@ async def live():
                         ]
                     )
                     await user.target.send(msg)
-        # 下播通知
+        # 下播通知, up.live_status == 1 且 live.live_status != 1
         elif up.live_status == 1:
             for user in up.users:
                 if user.subscribes[str(up.uid)].live == PushType.IGNORE:
@@ -137,24 +137,26 @@ def set_subs_job():
         scheduler.add_job(
             dynamic,
             "interval",
-            id="dynamic",
+            id="bilichat_dynamic",
             seconds=ConfigCTX.get().subs.dynamic_interval,
             jitter=ConfigCTX.get().subs.dynamic_interval // 2,
+            max_instances=1,
         )
     if live_interval := ConfigCTX.get().subs.live_interval:
         logger.info(f"启动直播检查定时任务, 间隔 {live_interval} 秒")
         scheduler.add_job(
             live,
             "interval",
-            id="live",
+            id="bilichat_live",
             seconds=ConfigCTX.get().subs.live_interval,
             jitter=ConfigCTX.get().subs.live_interval // 2,
+            max_instances=1,
         )
 
 
 def reset_subs_job():
-    scheduler.remove_job("dynamic")
-    scheduler.remove_job("live")
+    scheduler.remove_job("bilichat_dynamic")
+    scheduler.remove_job("bilichat_live")
     set_subs_job()
     logger.info("已重置订阅定时任务")
     return True
