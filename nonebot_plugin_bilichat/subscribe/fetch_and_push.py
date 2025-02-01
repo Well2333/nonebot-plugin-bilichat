@@ -88,10 +88,10 @@ async def live():
         # 第一次获取, 仅更新状态
         if up.live_status == -1:
             up.live_status = live.live_status
-            return
-        # 正在直播
+            continue
+        # 正在直播, live.live_status == 1
         if live.live_status == 1:
-            # 开播通知
+            # 开播通知, up.live_status != 1
             if up.live_status != 0:
                 cover = (await AsyncClient().get(live.cover_from_user)).content
                 live_cover = Image(raw=cover)
@@ -112,7 +112,7 @@ async def live():
                         ]
                     )
                     await user.target.send(msg)
-        # 下播通知
+        # 下播通知, up.live_status == 1 且 live.live_status != 1
         elif up.live_status == 1:
             for user in up.users:
                 if user.subscribes[str(up.uid)].live == PushType.IGNORE:
