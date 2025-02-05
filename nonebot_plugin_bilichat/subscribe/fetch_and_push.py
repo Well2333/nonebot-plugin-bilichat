@@ -84,7 +84,7 @@ async def live():
         return
     for up in ups:
         live = lives[up.uid]
-        logger.debug(f"[Live] UP {up.name}({up.uid}) 直播状态: {live.live_status}")
+        logger.debug(f"[Live] UP {up.name}({up.uid}) 直播状态: {live.live_status} 历史状态: {up.live_status}")
         # 第一次获取, 仅更新状态
         if up.live_status == -1:
             up.live_status = live.live_status
@@ -92,7 +92,7 @@ async def live():
         # 正在直播, live.live_status == 1
         if live.live_status == 1:
             # 开播通知, up.live_status != 1
-            if up.live_status != 0:
+            if up.live_status != 1:
                 cover = (await AsyncClient().get(live.cover_from_user)).content
                 live_cover = Image(raw=cover)
                 for user in up.users:
