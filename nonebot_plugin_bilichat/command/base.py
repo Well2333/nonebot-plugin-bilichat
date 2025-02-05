@@ -21,8 +21,10 @@ async def check_lock() -> Lock:
         await asyncio.sleep(0)
     return SubsStatus.modify_lock
 
-
 async def get_user(session: Uninfo) -> UserInfo:
-    user = ConfigCTX.get().subs.users.get(f"{session.scope}_type{session.scene.type}_{session.scene.id}", UserInfo(info=session, subscribes={}))
+    user = ConfigCTX.get().subs.get_user(
+        f"{session.scope}_type{session.scene.type}_{session.scene.id}", UserInfo(info=session, subscribes=[])
+    )
+    assert user
     logger.info(f"get user: {user}")
     return user

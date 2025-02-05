@@ -7,6 +7,7 @@ from deepdiff.diff import DeepDiff
 from nonebot import get_driver, require
 from nonebot.log import logger
 
+from .migrate import migrate
 from .model.config import Config
 
 __version__ = version("nonebot_plugin_bilichat")
@@ -68,7 +69,7 @@ class ConfigCTX:
 
     @staticmethod
     def _load_config_file() -> Config:
-        return Config.model_validate(yaml.safe_load(config_path.read_text(encoding="utf-8")))
+        return Config.model_validate(migrate(yaml.safe_load(config_path.read_text(encoding="utf-8"))))
 
 
 ConfigCTX.set(ConfigCTX._load_config_file(), diff_msg=False)

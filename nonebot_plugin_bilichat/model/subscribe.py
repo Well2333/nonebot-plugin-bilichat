@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import overload
+from typing import Literal, overload
 
 from nonebot_plugin_alconna import Target
 from nonebot_plugin_uninfo import Session
@@ -46,7 +46,7 @@ class UP(BaseModel):
 class UserInfo(BaseModel):
     info: Session
     """用户身份信息, 请勿手动添加或修改"""
-    subscribes: dict[str, UP] = {}
+    subscribes: list[UP] = []
     """订阅的UP主, UP.uid: UP"""
 
     @field_validator("info", mode="before")
@@ -74,8 +74,33 @@ class UserInfo(BaseModel):
 
     def add_subscription(self, *, uid: int | str | None = None, uname: str | None = None, up: UP | None = None):
         if up:
-            self.subscribes[str(up.uid)] = up
+            self.set_up(up)
         elif uid and uname:
-            self.subscribes[str(uid)] = UP(uid=int(uid), uname=uname)
+            self.set_up(UP(uid=int(uid), uname=uname))
         else:
             raise ValueError("uid uname 和 up 不能同时为空")
+
+    @overload
+    def get_up(self, uid: int | str) -> UP: ...
+
+    @overload
+    def get_up(self, uid: int | str, default: UP) -> UP: ...
+
+    @overload
+    def get_up(self, uid: int | str, default: None) -> UP | None: ...
+
+    def get_up(self, uid: int | str, default: UP | Literal["Raise"] | None = "Raise") -> UP | None:
+        uid = int(uid)
+        for up in self.subscribes:
+            if up.uid == uid:
+                return up
+        if (default and default != "Raise") or default is None:
+            return default
+        raise KeyError(f"用户 {self.id} 未订阅 UP: {uid}")
+
+    def set_up(self, up: UP) -> None:
+        for i, u in enumerate(self.subscribes):
+            if u.uid == up.uid:
+                self.subscribes[i] = up
+                return
+        self.subscribes.append(up)

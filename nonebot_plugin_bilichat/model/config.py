@@ -1,6 +1,7 @@
 from importlib.metadata import version
+from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from .subscribe import UserInfo
 
@@ -226,7 +227,23 @@ class SubscribeConfig(BaseModel):
     dynamic_interval: int = Field(default=300, title="动态轮询间隔", description="动态轮询间隔, 单位为秒", ge=15)
     live_interval: int = Field(default=60, title="直播轮询间隔", description="直播轮询间隔, 单位为秒", ge=10)
     push_delay: int = Field(default=3, title="推送延迟", description="每条推送的延迟, 单位为秒", ge=0)
-    users: dict[str, UserInfo] = Field(default={}, title="已订阅用户", description="已添加订阅的用户")
+    users: list[UserInfo] = Field(default=[], title="已订阅用户", description="已添加订阅的用户")
+
+    def get_user(self, user_id: str, default: UserInfo | Literal["Raise"] | None = "Raise") -> UserInfo | None:
+        for user in self.users:
+            if user.id == user_id:
+                return user
+        if (default and default != "Raise") or default is None:
+            return default
+        raise KeyError(f"用户 {user_id} 不存在")
+
+    def set_user(self, user: UserInfo) -> None:
+        user_id = user.id
+        for i, u in enumerate(self.users):
+            if u.info.id == user_id:
+                self.users[i] = user
+                return
+        self.users.append(user)
 
 
 class Config(BaseModel):
@@ -243,3 +260,8 @@ class Config(BaseModel):
     api: ApiConfig = Field(default=ApiConfig(), title="API 配置", description="API 相关配置")
     analyze: AnalyzeConfig = Field(default=AnalyzeConfig(), title="内容解析配置", description="解析相关配置")
     subs: SubscribeConfig = Field(default=SubscribeConfig(), title="订阅配置", description="推送相关配置")
+
+    @field_validator("version")
+    @classmethod
+    def _version_validator(cls, _: str) -> str:
+        return version("nonebot_plugin_bilichat")

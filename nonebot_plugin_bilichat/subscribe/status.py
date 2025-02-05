@@ -22,7 +22,7 @@ class UPStatus(BaseModel):
 
     @property
     def users(self) -> list[UserInfo]:
-        return [user for user in SubsStatus.online_users.values() if user.subscribes.get(str(self.uid))]
+        return [user for user in SubsStatus.online_users.values() if user.get_up(self.uid)]
 
 
 class SubsStatus:
@@ -39,10 +39,10 @@ class SubsStatus:
         async with cls.modify_lock:
             cls.online_users.clear()
             config = ConfigCTX.get()
-            for user in config.subs.users.copy().values():
+            for user in config.subs.users.copy():
                 # 清理无订阅的用户
                 if not user.subscribes:
-                    config.subs.users.pop(user.id)
+                    config.subs.users.remove(user)
                     ConfigCTX.set()
                     continue
                 # 检查用户是否在线
@@ -63,7 +63,7 @@ class SubsStatus:
 
         online_ups: list[UPStatus] = []
         for user in cls.online_users.values():
-            for up in user.subscribes.values():
+            for up in user.subscribes:
                 if (type_ == "dynamic" and all(b == PushType.IGNORE for b in up.dynamic.values())) or (
                     type_ == "live" and up.live == PushType.IGNORE
                 ):
