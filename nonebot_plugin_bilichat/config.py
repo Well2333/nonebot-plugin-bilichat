@@ -48,14 +48,21 @@ class ConfigCTX:
     def set(cls, cfg: Config | None = None, *, diff_msg: bool = True) -> None:
         cls._config = cfg or cls._config
         old_cfg = cls._load_config_file()
-        if cfg_diff := DeepDiff(cls._config, old_cfg, ignore_order=True).get("values_changed", {}):
-            if diff_msg:
-                for k, v in cfg_diff.items():
-                    logger.info(f"{k}: " + str(v["new_value"]) + " -> " + str(v["old_value"]))
+
+        if diff_msg and (cfg_diff := DeepDiff(old_cfg, cls._config, ignore_order=True, threshold_to_diff_deeper=0)):
+            if "values_changed" in cfg_diff:
+                for diff_path, diff_info in cfg_diff["values_changed"].items():
+                    logger.info(f"[⚙️] 修改配置项 {diff_path}: {diff_info['old_value']} --> {diff_info['new_value']}")
+            if "dictionary_item_added" in cfg_diff:
+                for diff_path in cfg_diff["dictionary_item_added"]:
+                    logger.info(f"[🎉] 新增配置项: {diff_path}")
+            if "dictionary_item_removed" in cfg_diff:
+                for diff_path in cfg_diff["dictionary_item_removed"]:
+                    logger.info(f"[♻️] 移除配置项: {diff_path}")
             logger.info("配置已更新, 保存配置文件")
             config_path.write_text(
                 yaml.dump(cls._config.model_dump(mode="json"), indent=4, allow_unicode=True), encoding="utf-8"
-            )  # type: ignore
+            )
         else:
             logger.info("配置未发生变化")
 
