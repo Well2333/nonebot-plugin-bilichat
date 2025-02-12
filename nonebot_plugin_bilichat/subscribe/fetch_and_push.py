@@ -83,7 +83,10 @@ async def live():
         logger.error(f"[Live] 获取直播信息失败: {e}")
         return
     for up in ups:
-        live = lives[up.uid]
+        live = lives.get(up.uid, None)
+        if not live:
+            logger.info(f"[Live] 未查询到 UP {up.name}({up.uid}) 直播间信息, 可能是 UP 没有直播间")
+            continue
         # 更新up名字
         if up.name != live.uname:
             up.name = live.uname
