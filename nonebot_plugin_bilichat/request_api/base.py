@@ -13,9 +13,7 @@ MINIMUM_API_VERSION = Version("0.2.4")
 
 
 class RequestAPI:
-    def __init__(
-        self, api_base: URL, api_token: str, weight: int, note: str = "", *, local_api: bool = False
-    ) -> None:
+    def __init__(self, api_base: URL, api_token: str, weight: int, note: str = "", *, local_api: bool = False) -> None:
         if ".example.com" in str(api_base.host_subcomponent):
             raise ValueError(f"无效的 API URL: {api_base}, 请配置一个有效的 API")
         self._api_base = api_base

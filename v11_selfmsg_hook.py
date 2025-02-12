@@ -29,8 +29,8 @@ class GroupMessageSentEvent(GroupMessageEvent):
         return "message"
 
 
-#@register_event
-#class PrivateMessageSentEvent(PrivateMessageEvent):
+# @register_event
+# class PrivateMessageSentEvent(PrivateMessageEvent):
 #    """私聊消息里自己发送的消息"""
 #
 #    post_type: Literal["message_sent"]

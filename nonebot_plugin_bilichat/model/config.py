@@ -1,7 +1,6 @@
 from importlib.metadata import version
-from typing import Literal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, computed_field, field_validator
 
 from .subscribe import UserInfo
 
@@ -227,23 +226,25 @@ class SubscribeConfig(BaseModel):
     dynamic_interval: int = Field(default=300, title="动态轮询间隔", description="动态轮询间隔, 单位为秒", ge=15)
     live_interval: int = Field(default=60, title="直播轮询间隔", description="直播轮询间隔, 单位为秒", ge=10)
     push_delay: int = Field(default=3, title="推送延迟", description="每条推送的延迟, 单位为秒", ge=0)
-    users: list[UserInfo] = Field(default=[], title="已订阅用户", description="已添加订阅的用户")
+    # users: list[UserInfo] = Field(default=[], title="已订阅用户", description="已添加订阅的用户")
+    users_dict: dict[str, UserInfo] = Field(default={}, alias="users", exclude=True)
 
-    def get_user(self, user_id: str, default: UserInfo | Literal["Raise"] | None = "Raise") -> UserInfo | None:
-        for user in self.users:
-            if user.id == user_id:
-                return user
-        if (default and default != "Raise") or default is None:
-            return default
-        raise KeyError(f"用户 {user_id} 不存在")
+    @computed_field
+    @property
+    def users(self) -> list[UserInfo]:
+        return list(self.users_dict.values())
 
-    def set_user(self, user: UserInfo) -> None:
-        user_id = user.id
-        for i, u in enumerate(self.users):
-            if u.info.id == user_id:
-                self.users[i] = user
-                return
-        self.users.append(user)
+    @field_validator("users_dict", mode="before")
+    @classmethod
+    def users_setter(cls, value: list[UserInfo] | dict[str, UserInfo]) -> dict[str, UserInfo]:
+        if isinstance(value, list):
+            users = {}
+            for _user in value:
+                user = UserInfo.model_validate(_user)
+                users[user.id] = user
+            return users
+        else:
+            return value
 
 
 class Config(BaseModel):

@@ -33,13 +33,12 @@ async def set_config(data: Config) -> Config:
         new_cfg.nonebot = old_cfg.nonebot
         new_cfg.webui = old_cfg.webui
         new_cfg.api.local_api_config = old_cfg.api.local_api_config
-        users: list[UserInfo] = []
-        for new_user in new_cfg.subs.users:
-            if old_user := old_cfg.subs.get_user(new_user.id, None):
-                users.append(old_user.model_copy(update={"subscribes": new_user.subscribes}))
+        subscribes: dict[str, UserInfo] = {}
+        for _id, new_user in new_cfg.subs.users_dict.items():
+            if old_user := old_cfg.subs.users_dict.get(_id):
+                subscribes[_id] = old_user.model_copy(update={"subscribes": new_user.subscribes_dict})
             else:
-                logger.warning(f"User {new_user.id} 不是原有的用户, 忽略")
-        new_cfg.subs.users = users
+                logger.warning(f"User {_id} 不是原有的用户, 忽略")
     except ValidationError as e:
         raise HTTPException(status_code=422, detail=e.json()) from e
 

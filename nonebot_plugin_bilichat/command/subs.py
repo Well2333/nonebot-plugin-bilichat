@@ -36,7 +36,7 @@ async def add_sub(user: UserInfo = Depends(get_user), msg: Message = CommandArg(
         # 添加订阅
         user.add_subscription(uid=up.uid, uname=up.nickname)
         config = ConfigCTX.get()
-        config.subs.set_user(user)
+        config.subs.users_dict[user.id] = user
         ConfigCTX.set()
         if up.uid not in SubsStatus.online_ups_cache:
             SubsStatus.online_ups_cache[up.uid] = UPStatus(uid=up.uid, name=up.nickname)
@@ -53,14 +53,14 @@ async def remove_sub(user: UserInfo = Depends(get_user), msg: Message = CommandA
         keyword = msg.extract_plain_text().strip()
         logger.info(f"keyword: {keyword}")
         if keyword in ["all", "全部"]:
-            user.subscribes.clear()
-            config.subs.set_user(user)
+            user.subscribes_dict.clear()
+            config.subs.users_dict[user.id] = user
             ConfigCTX.set()
             await bili_add_sub.finish("已经成功取关本会话订阅的全部 UP 主")
-        for up in user.subscribes:
+        for up in user.subscribes_dict.values():
             if keyword in (up.uname, up.nickname) or str(up.uid) == keyword.lower().replace("uid:", "").strip():
-                user.subscribes.remove(up)
-                config.subs.set_user(user)
+                user.subscribes_dict.pop(up.uid)
+                config.subs.users_dict[user.id] = user
                 ConfigCTX.set()
                 await bili_add_sub.finish(f"已经成功取关 UP {up.nickname or up.uname}({up.uid})")
         await bili_add_sub.finish("未找到该 UP 主")
@@ -69,13 +69,14 @@ async def remove_sub(user: UserInfo = Depends(get_user), msg: Message = CommandA
 @bili_check_sub.handle()
 async def check_sub(user: UserInfo = Depends(get_user), lock: Lock = Depends(check_lock)):
     async with lock:
-        if not user.subscribes:
+        if not user.subscribes_dict:
             await bili_check_sub.finish("本会话并未订阅任何UP主")
         # 查看本会话的订阅
+        ups = user.subscribes_dict.values()
         ups_prompt = []
-        for index, up in enumerate(user.subscribes):
+        for index, up in enumerate(ups):
             text = f"{index+1}."
             text += f" {up.nickname or up.uname}({up.uid})"
             ups_prompt.append(text)
-        re_msg = f"ID:{user.id}\n共订阅 {len(user.subscribes)} 个 UP:\n" + "\n".join(ups_prompt)
+        re_msg = f"ID:{user.id}\n共订阅 {len(ups)} 个 UP:\n" + "\n".join(ups_prompt)
         await bili_check_sub.finish(re_msg)

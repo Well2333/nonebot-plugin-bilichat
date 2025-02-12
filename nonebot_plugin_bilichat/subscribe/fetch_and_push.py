@@ -48,13 +48,17 @@ async def dynamic():
                 content = await api.content_dynamic(dyn.dyn_id, ConfigCTX.get().api.browser_shot_quality)
                 dyn_img = Image(raw=content.img_bytes)
                 for user in up.users:
-                    if user.get_up(up.uid).dynamic[dyn.dyn_type] == PushType.IGNORE:
+                    if user.subscribes_dict[up.uid].dynamic[dyn.dyn_type] == PushType.IGNORE:
                         continue
                     logger.info(f"[Dynamic] 推送 UP {up.name}({up.uid}) 动态给用户 {user.id}")
-                    up_info = user.get_up(up.uid)
+                    up_info = user.subscribes_dict[up.uid]
                     up_info.uname = up.name  # 更新up名字
                     up_name = up_info.nickname or up_info.uname
-                    at_all = AtAll() if user.get_up(up.uid).dynamic.get(dyn.dyn_type) == PushType.AT_ALL else Text("")
+                    at_all = (
+                        AtAll()
+                        if user.subscribes_dict[up.uid].dynamic.get(dyn.dyn_type) == PushType.AT_ALL
+                        else Text("")
+                    )
                     msg = UniMessage([at_all, Text(f"{up_name} 发布了新动态\n"), dyn_img, Text(f"\n{content.b23}")])
                     target = user.target
                     logger.debug(f"target: {target}")
@@ -80,6 +84,9 @@ async def live():
         return
     for up in ups:
         live = lives[up.uid]
+        # 更新up名字
+        if up.name != live.uname:
+            up.name = live.uname
         logger.debug(f"[Live] UP {up.name}({up.uid}) 直播状态: {live.live_status} 历史状态: {up.live_status}")
         # 第一次获取, 仅更新状态
         if up.live_status == -1:
@@ -92,13 +99,13 @@ async def live():
                 cover = (await AsyncClient().get(live.cover_from_user)).content
                 live_cover = Image(raw=cover)
                 for user in up.users:
-                    if user.get_up(up.uid).live == PushType.IGNORE:
+                    if user.subscribes_dict[up.uid].live == PushType.IGNORE:
                         continue
                     logger.info(f"[Live] 推送 UP {up.name}({up.uid}) 开播给用户 {user.id}")
-                    up_info = user.get_up(up.uid)
+                    up_info = user.subscribes_dict[up.uid]
                     up_info.uname = up.name  # 更新up名字
                     up_name = up_info.nickname or up_info.uname
-                    at_all = AtAll() if user.get_up(up.uid).live == PushType.AT_ALL else Text("")
+                    at_all = AtAll() if user.subscribes_dict[up.uid].live == PushType.AT_ALL else Text("")
                     msg = UniMessage(
                         [
                             at_all,
@@ -111,10 +118,10 @@ async def live():
         # 下播通知, up.live_status == 1 且 live.live_status != 1
         elif up.live_status == 1:
             for user in up.users:
-                if user.get_up(up.uid).live == PushType.IGNORE:
+                if user.subscribes_dict[up.uid].live == PushType.IGNORE:
                     continue
                 logger.info(f"[Live] 推送 UP {up.name}({up.uid}) 下播给用户 {user.id}")
-                up_info = user.get_up(up.uid)
+                up_info = user.subscribes_dict[up.uid]
                 up_info.uname = up.name  # 更新up名字
                 up_name = up_info.nickname or up_info.uname
                 live_time = (
