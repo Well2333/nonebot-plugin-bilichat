@@ -208,6 +208,7 @@ class ApiConfig(BaseModel):
         default=[],
         title="API 请求列表",
         description="bilichat-request 的 API",
+        json_schema_extra={"ui:options": {"showIndexNumber": True}},
     )
     local_api_config: LocalApiConfig = Field(
         default=LocalApiConfig(),
@@ -229,7 +230,9 @@ class SubscribeConfig(BaseModel):
     # users: list[UserInfo] = Field(default=[], title="已订阅用户", description="已添加订阅的用户")
     users_dict: dict[str, UserInfo] = Field(default={}, alias="users", exclude=True)
 
-    @computed_field
+    @computed_field(
+        title="用户", description="已添加订阅的用户", json_schema_extra={"ui:options": {"showIndexNumber": True}}
+    )
     @property
     def users(self) -> list[UserInfo]:
         return list(self.users_dict.values())

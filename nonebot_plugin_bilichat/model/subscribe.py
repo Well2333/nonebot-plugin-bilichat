@@ -44,12 +44,19 @@ class UP(BaseModel):
 
 
 class UserInfo(BaseModel):
-    info: Session
+    info: Session = Field(json_schema_extra={"ui:hidden": True})
     """用户身份信息, 请勿手动添加或修改"""
     subscribes_dict: dict[int, UP] = Field(default={}, alias="subscribes", exclude=True)
     """订阅的UP主, UP.uid: UP"""
 
     @computed_field
+    @property
+    def id(self) -> str:
+        return f"{self.info.scope}_type{self.info.scene.type}_{self.info.scene.id}"
+
+    @computed_field(
+        title="订阅的UP主", description="订阅的UP主", json_schema_extra={"ui:options": {"showIndexNumber": True}}
+    )
     @property
     def subscribes(self) -> list[UP]:
         return list(self.subscribes_dict.values())
@@ -78,11 +85,6 @@ class UserInfo(BaseModel):
     @property
     def target(self) -> Target:
         return to_target(self.info)
-
-    @computed_field
-    @property
-    def id(self) -> str:
-        return f"{self.info.scope}_type{self.info.scene.type}_{self.info.scene.id}"
 
     @overload
     def add_subscription(self, *, uid: int | str, uname: str) -> None: ...

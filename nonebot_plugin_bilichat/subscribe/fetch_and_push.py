@@ -87,6 +87,7 @@ async def live():
         # 更新up名字
         if up.name != live.uname:
             up.name = live.uname
+            ConfigCTX.set()
         logger.debug(f"[Live] UP {up.name}({up.uid}) 直播状态: {live.live_status} 历史状态: {up.live_status}")
         # 第一次获取, 仅更新状态
         if up.live_status == -1:
