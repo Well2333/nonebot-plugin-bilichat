@@ -88,8 +88,7 @@ async def live():
         # 第一次获取, 仅更新状态
         if up.live_status == -1:
             up.live_status = live.live_status
-            if live.live_status == 1:
-                up.live_time = live.live_time
+            up.live_time = live.live_time
             continue
         # 正在直播, live.live_status == 1
         if live.live_status == 1:
@@ -124,14 +123,14 @@ async def live():
                 up_info.uname = up.name  # 更新up名字
                 up_name = up_info.nickname or up_info.uname
                 live_time = (
-                    Text(f"\n本次直播时长 {calc_time_total(time.time() - up.live_time)}")
+                    Text(f"\n本次直播时长 {calc_time_total(time.time() - up.live_time)}\n直播时间由 bilibili 返回，不代表真实直播时间，仅供参考")
                     if up.live_time > 1500000000
                     else Text("")
                 )
                 msg = UniMessage([Text(f"{up_name} 下播了"), live_time])
                 await user.target.send(msg)
         up.live_status = live.live_status
-        up.live_time = live.live_time
+        up.live_time = live.live_time if up.live_time <= live.live_time else 0
 
 
 def set_subs_job():

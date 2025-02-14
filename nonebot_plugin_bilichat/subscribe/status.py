@@ -19,8 +19,8 @@ class UPStatus(BaseModel):
     """最新的动态id"""
     live_status: int = -1
     """直播状态, 0: 未开播, 1: 开播, 2: 轮播"""
-    live_time: int = -1
-    """上次直播时间"""
+    live_time: int = 0
+    """直播开始时间"""
 
     @property
     def users(self) -> list[UserInfo]:
