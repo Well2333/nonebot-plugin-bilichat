@@ -88,7 +88,6 @@ async def live():
         # 第一次获取, 仅更新状态
         if up.live_status == -1:
             up.live_status = live.live_status
-            up.live_time = live.live_time
             continue
         # 正在直播, live.live_status == 1
         if live.live_status == 1:
@@ -130,7 +129,7 @@ async def live():
                 msg = UniMessage([Text(f"{up_name} 下播了"), live_time])
                 await user.target.send(msg)
         up.live_status = live.live_status
-        up.live_time = live.live_time if up.live_time <= live.live_time else 0
+        up.live_time = live.live_time or up.live_time
 
 
 def set_subs_job():
