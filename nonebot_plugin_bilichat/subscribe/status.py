@@ -21,6 +21,12 @@ class UPStatus(BaseModel):
     """直播状态, 0: 未开播, 1: 开播, 2: 轮播"""
     live_time: int = 0
     """直播开始时间"""
+    
+    def set_name(self, name: str) -> None:
+        self.name = name
+        for user in self.users:
+            user.subscribes_dict[self.uid].uname = name
+        ConfigCTX.set()
 
     @property
     def users(self) -> list[UserInfo]:
