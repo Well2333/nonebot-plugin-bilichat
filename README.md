@@ -113,6 +113,10 @@ _✨ 多功能的 B 站视频解析工具 ✨_
 
 您可以参考 [配置文件模板](https://github.com/Well2333/nonebot-plugin-bilichat/blob/v6.0.5/nonebot_plugin_bilichat/static/config.yaml) 来了解配置项及其含义。
 
+## 🌐 WebUI
+
+本项目提供了一个 WebUI 用于实时查看及部分热修改配置文件，启动时将会在日志中输出 WebUI 的访问地址，例如: `BiliChat WebUI 已启动 --> http://127.0.0.1:40094/bilichatwebui`
+
 ## 🔌 API
 
 > 从 6.0.0 版本开始，`bilibili` 请求已迁移至 [bilichat-request](https://github.com/Well2333/bilichat-request) 模块，并改为 API 通讯方式。这一改进带来了多项优化：支持一对多的负载均衡、提升 Cookies 管理效率，并有效应对更严格的风控措施。同时，原本需要浏览器操作（如截图）的任务被移至远程服务器处理，从而减轻本地机器的内存压力。
