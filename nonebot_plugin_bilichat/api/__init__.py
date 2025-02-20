@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi.staticfiles import StaticFiles
+from nonebot.log import logger
 
-from nonebot_plugin_bilichat.config import STATIC_DIR, ConfigCTX
+from nonebot_plugin_bilichat.config import STATIC_DIR, ConfigCTX, nonebot_config
 
 from .base import app
 from .config import router as config_router
@@ -30,3 +31,5 @@ app.mount(
     StaticFiles(directory=STATIC_DIR.joinpath("html"), html=True),
     name="bilichat_webui",
 )
+
+logger.success(f"BiliChat WebUI 已启动 --> http://127.0.0.1:{nonebot_config.port}/{ConfigCTX.get().webui.api_path}")
