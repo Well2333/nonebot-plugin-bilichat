@@ -87,10 +87,10 @@ async def live():
         if not live:
             logger.info(f"[Live] 未查询到 UP {up.name}({up.uid}) 直播间信息, 可能是 UP 没有直播间")
             continue
-        # 更新up名字
-        if up.name != live.uname:
-            up.name = live.uname
-            ConfigCTX.set()
+        # TODO: 更新up名字
+        # if up.name != live.uname:
+        #     up.name = live.uname
+        #     ConfigCTX.set()
         logger.debug(f"[Live] UP {up.name}({up.uid}) 直播状态: {live.live_status} 历史状态: {up.live_status}")
         # 第一次获取, 仅更新状态
         if up.live_status == -1:
