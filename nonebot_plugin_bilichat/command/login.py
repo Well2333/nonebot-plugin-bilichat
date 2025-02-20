@@ -51,7 +51,7 @@ async def bili_login_handle():
             continue
         for auth in auths:
             note = f" ({auth.note})" if auth.note else ""
-            texts.append(f" |-> {auth.uid}{note}")
+            texts.append(f" |-> {auth.uid}")
     await bili_check_login.finish("\n".join(texts) or "无已登录账号")
 
 

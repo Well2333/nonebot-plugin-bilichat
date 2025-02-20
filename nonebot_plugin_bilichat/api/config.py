@@ -34,9 +34,9 @@ async def set_config(data: Config) -> Config:
         new_cfg.webui = old_cfg.webui
         new_cfg.api.local_api_config = old_cfg.api.local_api_config
         subscribes: dict[str, UserInfo] = {}
-        for _id, new_user in new_cfg.subs.users.items():
-            if old_user := old_cfg.subs.users.get(_id):
-                subscribes[_id] = old_user.model_copy(update={"subscribes": new_user.subscribes})
+        for _id, new_user in new_cfg.subs.users_dict.items():
+            if old_user := old_cfg.subs.users_dict.get(_id):
+                subscribes[_id] = old_user.model_copy(update={"subscribes": new_user.subscribes_dict})
             else:
                 logger.warning(f"User {_id} 不是原有的用户, 忽略")
     except ValidationError as e:

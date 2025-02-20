@@ -13,6 +13,7 @@ from nonebot_plugin_bilichat.subscribe.status import SubsStatus
 bilichat = CommandGroup(
     ConfigCTX.get().nonebot.cmd_start,
     rule=to_me() if ConfigCTX.get().nonebot.command_to_me else None,
+    block=ConfigCTX.get().nonebot.block,
 )
 
 
@@ -23,6 +24,9 @@ async def check_lock() -> Lock:
 
 
 async def get_user(session: Uninfo) -> UserInfo:
-    user = ConfigCTX.get().subs.users.get(f"{session.scope}_type{session.scene.type}_{session.scene.id}", UserInfo(info=session, subscribes={}))
-    logger.info(f"get user: {user}")
+    user = ConfigCTX.get().subs.users_dict.get(
+        f"{session.scope}_type{session.scene.type}_{session.scene.id}",
+        UserInfo(info=session, subscribes={}),
+    )
+    logger.info(f"get user: {user.id}")
     return user

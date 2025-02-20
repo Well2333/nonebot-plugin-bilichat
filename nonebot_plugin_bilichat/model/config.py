@@ -1,6 +1,6 @@
 from importlib.metadata import version
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field, field_validator
 
 from .subscribe import UserInfo
 
@@ -208,6 +208,7 @@ class ApiConfig(BaseModel):
         default=[],
         title="API 请求列表",
         description="bilichat-request 的 API",
+        json_schema_extra={"ui:options": {"showIndexNumber": True}},
     )
     local_api_config: LocalApiConfig = Field(
         default=LocalApiConfig(),
@@ -226,7 +227,27 @@ class SubscribeConfig(BaseModel):
     dynamic_interval: int = Field(default=300, title="动态轮询间隔", description="动态轮询间隔, 单位为秒", ge=15)
     live_interval: int = Field(default=60, title="直播轮询间隔", description="直播轮询间隔, 单位为秒", ge=10)
     push_delay: int = Field(default=3, title="推送延迟", description="每条推送的延迟, 单位为秒", ge=0)
-    users: dict[str, UserInfo] = Field(default={}, title="已订阅用户", description="已添加订阅的用户")
+    # users: list[UserInfo] = Field(default=[], title="已订阅用户", description="已添加订阅的用户")
+    users_dict: dict[str, UserInfo] = Field(default={}, alias="users", exclude=True)
+
+    @computed_field(
+        title="用户", description="已添加订阅的用户", json_schema_extra={"ui:options": {"showIndexNumber": True}}
+    )
+    @property
+    def users(self) -> list[UserInfo]:
+        return list(self.users_dict.values())
+
+    @field_validator("users_dict", mode="before")
+    @classmethod
+    def users_setter(cls, value: list[UserInfo] | dict[str, UserInfo]) -> dict[str, UserInfo]:
+        if isinstance(value, list):
+            users = {}
+            for _user in value:
+                user = UserInfo.model_validate(_user)
+                users[user.id] = user
+            return users
+        else:
+            return value
 
 
 class Config(BaseModel):
@@ -243,3 +264,8 @@ class Config(BaseModel):
     api: ApiConfig = Field(default=ApiConfig(), title="API 配置", description="API 相关配置")
     analyze: AnalyzeConfig = Field(default=AnalyzeConfig(), title="内容解析配置", description="解析相关配置")
     subs: SubscribeConfig = Field(default=SubscribeConfig(), title="订阅配置", description="推送相关配置")
+
+    @field_validator("version")
+    @classmethod
+    def _version_validator(cls, _: str) -> str:
+        return version("nonebot_plugin_bilichat")

@@ -4,7 +4,7 @@ from typing import overload
 from nonebot_plugin_alconna import Target
 from nonebot_plugin_uninfo import Session
 from nonebot_plugin_uninfo.target import to_target
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, computed_field, field_validator
 
 from nonebot_plugin_bilichat.model.request_api import DynamicType
 
@@ -44,10 +44,34 @@ class UP(BaseModel):
 
 
 class UserInfo(BaseModel):
-    info: Session
+    info: Session = Field(json_schema_extra={"ui:hidden": True})
     """用户身份信息, 请勿手动添加或修改"""
-    subscribes: dict[str, UP] = {}
+    subscribes_dict: dict[int, UP] = Field(default={}, alias="subscribes", exclude=True)
     """订阅的UP主, UP.uid: UP"""
+
+    @computed_field
+    @property
+    def id(self) -> str:
+        return f"{self.info.scope}_type{self.info.scene.type}_{self.info.scene.id}"
+
+    @computed_field(
+        title="订阅的UP主", description="订阅的UP主", json_schema_extra={"ui:options": {"showIndexNumber": True}}
+    )
+    @property
+    def subscribes(self) -> list[UP]:
+        return list(self.subscribes_dict.values())
+
+    @field_validator("subscribes_dict", mode="before")
+    @classmethod
+    def subscribes_setter(cls, value: list[UP] | dict[int, UP]) -> dict[int, UP]:
+        if isinstance(value, list):
+            ups = {}
+            for up in value:
+                up_ = UP.model_validate(up)
+                ups[up_.uid] = up_
+            return ups
+        else:
+            return value
 
     @field_validator("info", mode="before")
     @classmethod
@@ -62,10 +86,6 @@ class UserInfo(BaseModel):
     def target(self) -> Target:
         return to_target(self.info)
 
-    @property
-    def id(self) -> str:
-        return f"{self.info.scope}_type{self.info.scene.type}_{self.info.scene.id}"
-
     @overload
     def add_subscription(self, *, uid: int | str, uname: str) -> None: ...
 
@@ -74,8 +94,8 @@ class UserInfo(BaseModel):
 
     def add_subscription(self, *, uid: int | str | None = None, uname: str | None = None, up: UP | None = None):
         if up:
-            self.subscribes[str(up.uid)] = up
+            self.subscribes_dict[up.uid] = up
         elif uid and uname:
-            self.subscribes[str(uid)] = UP(uid=int(uid), uname=uname)
+            self.subscribes_dict[int(uid)] = UP(uid=int(uid), uname=uname)
         else:
             raise ValueError("uid uname 和 up 不能同时为空")
