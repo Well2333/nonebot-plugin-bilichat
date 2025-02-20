@@ -67,8 +67,7 @@ class UserInfo(BaseModel):
         if isinstance(value, list):
             ups = {}
             for up in value:
-                up = UP.model_validate(up)
-                ups[up.uid] = up
+                ups[up.uid] = UP.model_validate(up)
             return ups
         else:
             return value

@@ -129,7 +129,9 @@ async def live():
                 up_info.uname = up.name  # 更新up名字
                 up_name = up_info.nickname or up_info.uname
                 live_time = (
-                    Text(f"\n本次直播时长 {calc_time_total(time.time() - up.live_time)}\n直播时间由 bilibili 返回，不代表真实直播时间，仅供参考")
+                    Text(
+                        f"\n本次直播时长 {calc_time_total(time.time() - up.live_time)}\n直播时间由 bilibili 返回, 不代表真实直播时间, 仅供参考"
+                    )
                     if up.live_time > 1500000000
                     else Text("")
                 )
