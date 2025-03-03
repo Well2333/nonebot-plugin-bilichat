@@ -41,6 +41,12 @@ _✨ 多功能的 B 站视频解析工具 ✨_
 
 </div>
 
+## 💬 
+
+由于本人的学业压力以及来自腾讯和B站的双重风控，同时项目的使用者、社区支持度也寥寥无几，本人短时间内已无力也**没有意愿**进行新特性的开发，因此本项目将会进入维护状态，仅进行必要的 BUG 修复。
+
+如果您有任何问题或建议，欢迎通过 Issue 或 Pull Request 为本项目进行贡献，本人在力所能及的范围内将会提供支持。
+
 ## 📖 介绍
 
 视频链接解析，并根据其内容生成**基本信息**、**词云**和**内容总结**
@@ -221,7 +227,7 @@ bilichat_cmd_start=""
 -   [hamo-reid](https://github.com/hamo-reid) 为 style_blue 绘制了界面
 -   [dynamicrender](https://pypi.org/project/dynrender-skia/) 曾经提供了 t2i 和动态渲染
 -   [ALC](https://github.com/nonebot/plugin-alconna) 提供跨平台支持
--   [凛雅](https://github.com/linya64/bili) 提供 QQ 免费 bili 推送姬 成品 BOT 服务
+-   [凛雅](https://github.com/linya64) 提供开发意见及大量 BUG 反馈
 
 ## ⏳ Star 趋势
 

@@ -33,9 +33,10 @@ except Exception as e:
     logger.info(f"用户未设置配置文件路径, 尝试默认配置文件路径 {config_path}")
 
 if not config_path.exists():
-    logger.error(f"默认配置文件路径 {config_path} 不存在, 已在该位置创建默认配置文件, 请修改配置后重新加载插件")
+    logger.error(f"默认配置文件路径 {config_path} 不存在, 已在该位置创建默认配置文件")
+    for _ in range(5):
+        logger.warning("Bilichat 将会以默认配置启动, 如需修改可通过 webui 修改或修改配置文件后重新启动")
     copyfile(STATIC_DIR.joinpath("config.yaml"), config_path)
-    raise SystemExit
 
 
 class ConfigCTX:

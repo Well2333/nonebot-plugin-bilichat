@@ -57,6 +57,9 @@ async def bili_login_handle():
 
 @bili_login_qrcode.handle()
 async def bili_qrcode_login(target: MsgTarget):
+    await bili_login_qrcode.send(
+        "由于通过 Bot 扫码获取的 cookies 缺失一部分数据, 有效期可能较短且无法实时更新, 因此此方法将不再维护, 建议使用 cookiescloud 登录。"
+    )
     async with AsyncClient(
         headers={
             "User-Agent": (
