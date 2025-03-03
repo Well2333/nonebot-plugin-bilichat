@@ -43,4 +43,4 @@ init_request_apis()
 def get_request_api() -> RequestAPI:
     if not request_apis:
         raise RuntimeError("未找到可用的 Bilichat API 服务, 请在配置文件中添加至少一个 API 服务或启用本地 API")
-    return random.choice(request_apis)
+    return random.choices(request_apis, weights=[api._weight for api in request_apis])[0]
