@@ -14,7 +14,7 @@ local_api: RequestAPI | None = None
 if ConfigCTX.get().api.local_api_config is not None and ConfigCTX.get().api.local_api_config.enable:
     from .local import LOCAL_REQUEST_API_PATH, LOCAL_REQUEST_API_TOKEN
 
-    local_api = RequestAPI(URL(LOCAL_REQUEST_API_PATH), LOCAL_REQUEST_API_TOKEN, 0, "本地 API", local_api=True)
+    local_api = RequestAPI(URL(LOCAL_REQUEST_API_PATH), LOCAL_REQUEST_API_TOKEN, 1, "本地 API", local_api=True)
 
 
 def init_request_apis():
