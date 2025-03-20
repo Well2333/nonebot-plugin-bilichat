@@ -31,7 +31,7 @@ async def check_dynamic_v11(target: MsgTarget, uid: Message = CommandArg()):
         latest_dyn = max(dyns, key=lambda x: x.dyn_id)
         BilichatCD.record_cd(session_id=target.id, content_id=str(latest_dyn.dyn_id))
         if dyn := await api.content_dynamic(latest_dyn.dyn_id, ConfigCTX.get().api.browser_shot_quality):
-            await UniMessage(Image(raw=dyn.img_bytes)).send(target=target)
+            await UniMessage(Image(raw=dyn.img_bytes)).send(target=target, fallback=ConfigCTX.get().nonebot.fallback)
 
 
 bili_fetch_content = bilichat.command("fetch", aliases=set(ConfigCTX.get().nonebot.cmd_fetch), block=True)

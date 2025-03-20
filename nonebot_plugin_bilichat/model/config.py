@@ -34,6 +34,12 @@ class NoneBotConfig(BaseModel):
         description="是否拦截事件(防止其他插件二次解析)",
         json_schema_extra={"ui:options": {"disabled": True}},
     )
+    fallback: bool = Field(
+        default=True,
+        title="启用发送失败回退",
+        description="是否启用 Alconna 的发送失败回退机制",
+        json_schema_extra={"ui:options": {"disabled": True}},
+    )
     enable_self: bool = Field(
         default=False,
         title="响应自身的消息",

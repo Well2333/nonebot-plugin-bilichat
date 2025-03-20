@@ -123,4 +123,4 @@ async def content_info(origin_msg: UniMsg, state: T_State):
         logger.error(e)
         msgs.append(Text(f"{e.type}: {e.message}"))
 
-    receipt = await msgs.send()
+    receipt = await msgs.send(fallback=ConfigCTX.get().nonebot.fallback)
