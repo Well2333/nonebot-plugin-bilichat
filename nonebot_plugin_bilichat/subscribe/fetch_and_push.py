@@ -1,5 +1,6 @@
 import time
 from contextlib import suppress
+from typing import Any
 
 from httpx import AsyncClient
 from nonebot.log import logger
@@ -11,10 +12,17 @@ from nonebot_plugin_bilichat.config import ConfigCTX
 from nonebot_plugin_bilichat.lib.tools import calc_time_total
 from nonebot_plugin_bilichat.model.exception import AbortError
 from nonebot_plugin_bilichat.request_api import get_request_api
-from nonebot_plugin_bilichat.subscribe.status import PushType, UPStatus
+from nonebot_plugin_bilichat.subscribe.status import PushType, UPStatus, UserInfo
 
 from .status import SubsStatus
 
+
+async def push_msg(user: UserInfo, msg: str | UniMessage[Any]):
+    try:
+        await user.target.send(msg, fallback=ConfigCTX.get().nonebot.fallback)
+    except Exception as e:
+        capture_exception(e)
+        logger.exception(e)
 
 async def dynamic():
     logger.debug("[Dynamic] 检查新动态")
@@ -62,11 +70,7 @@ async def dynamic():
                     msg = UniMessage([at_all, Text(f"{up_name} 发布了新动态\n"), dyn_img, Text(f"\n{content.b23}")])
                     target = user.target
                     logger.debug(f"target: {target}")
-                    try:
-                        await user.target.send(msg, fallback=ConfigCTX.get().nonebot.fallback)
-                    except Exception as e:
-                        capture_exception(e)
-                        logger.exception(e)
+                    await push_msg(user, msg)
         except Exception as e:
             capture_exception(e)
             logger.exception(e)
@@ -122,11 +126,7 @@ async def live():
                                 Text(f"\nhttps://live.bilibili.com/{live.room_id}"),
                             ]
                         )
-                        try:
-                            await user.target.send(msg, fallback=ConfigCTX.get().nonebot.fallback)
-                        except Exception as e:
-                            capture_exception(e)
-                            logger.exception(e)
+                        await push_msg(user, msg)
             # 下播通知, up.live_status == 1 且 live.live_status != 1
             elif up.live_status == 1:
                 for user in up.users:
@@ -144,11 +144,7 @@ async def live():
                         else Text("")
                     )
                     msg = UniMessage([Text(f"{up_name} 下播了"), live_time])
-                    try:
-                        await user.target.send(msg, fallback=ConfigCTX.get().nonebot.fallback)
-                    except Exception as e:
-                        capture_exception(e)
-                        logger.exception(e)
+                    await push_msg(user, msg)
         finally:
             up.live_status = live.live_status
             up.live_time = live.live_time or up.live_time

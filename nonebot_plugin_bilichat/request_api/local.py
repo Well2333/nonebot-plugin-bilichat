@@ -17,8 +17,8 @@ LOCAL_REQUEST_API_TOKEN = ""
 
 if BilichatConfigCTX.get().api.local_api_config is not None and BilichatConfigCTX.get().api.local_api_config.enable:
     try:
-        from bilichat_request.config import BILICHAT_MIN_VERSION, set_config
-        from bilichat_request.config import config as bilichat_request_config
+        from bilichat_request.config import BILICHAT_MIN_VERSION, set_config  # type: ignore
+        from bilichat_request.config import config as bilichat_request_config  # type: ignore
     except ImportError as e:
         raise ImportError("bilichat-request 未安装, 请先安装 bilichat-request") from e
 
@@ -41,7 +41,7 @@ if BilichatConfigCTX.get().api.local_api_config is not None and BilichatConfigCT
             f"bilichat-request 需求更高版本 nonebot-plugin-bilichat 当前: {__version__} 最低: {BILICHAT_MIN_VERSION}"
         )
 
-    from bilichat_request.api.base import app
+    from bilichat_request.api.base import app  # type: ignore
 
     driver: FastAPIDriver = nonebot.get_driver()  # type: ignore
 
