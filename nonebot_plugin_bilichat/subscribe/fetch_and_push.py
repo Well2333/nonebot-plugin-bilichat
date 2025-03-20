@@ -62,7 +62,7 @@ async def dynamic():
                     msg = UniMessage([at_all, Text(f"{up_name} 发布了新动态\n"), dyn_img, Text(f"\n{content.b23}")])
                     target = user.target
                     logger.debug(f"target: {target}")
-                    await user.target.send(msg)
+                    await user.target.send(msg, fallback=ConfigCTX.get().nonebot.fallback)
         except Exception as e:
             capture_exception(e)
             logger.exception(e)
@@ -117,7 +117,7 @@ async def live():
                             Text(f"\nhttps://live.bilibili.com/{live.room_id}"),
                         ]
                     )
-                    await user.target.send(msg)
+                    await user.target.send(msg, fallback=ConfigCTX.get().nonebot.fallback)
         # 下播通知, up.live_status == 1 且 live.live_status != 1
         elif up.live_status == 1:
             for user in up.users:
@@ -135,7 +135,7 @@ async def live():
                     else Text("")
                 )
                 msg = UniMessage([Text(f"{up_name} 下播了"), live_time])
-                await user.target.send(msg)
+                await user.target.send(msg, fallback=ConfigCTX.get().nonebot.fallback)
         up.live_status = live.live_status
         up.live_time = live.live_time or up.live_time
 

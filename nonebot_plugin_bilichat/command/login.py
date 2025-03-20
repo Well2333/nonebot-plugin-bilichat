@@ -58,7 +58,8 @@ async def bili_login_handle():
 @bili_login_qrcode.handle()
 async def bili_qrcode_login(target: MsgTarget):
     await bili_login_qrcode.send(
-        "由于通过 Bot 扫码获取的 cookies 缺失一部分数据, 有效期可能较短且无法实时更新, 因此此方法将不再维护, 建议使用 cookiescloud 登录。"
+        "由于通过 Bot 扫码获取的 cookies 缺失一部分数据, 有效期可能较短且无法实时更新, 因此此方法将不再维护, 建议使用 cookiescloud 登录。",
+        fallback=ConfigCTX.get().nonebot.fallback,
     )
     async with AsyncClient(
         headers={
@@ -97,7 +98,7 @@ async def bili_qrcode_login(target: MsgTarget):
         img_data = BytesIO()
         img.save(img_data)
         await UniMessage([Text("请在 120s 内使用 bilibili 客户端扫描二维码登录"), Image(raw=img_data.getvalue())]).send(
-            target=target
+            target=target, fallback=ConfigCTX.get().nonebot.fallback
         )
 
         # 轮询登录状态
