@@ -35,9 +35,9 @@ class NoneBotConfig(BaseModel):
         json_schema_extra={"ui:options": {"disabled": True}},
     )
     fallback: bool = Field(
-        default=False,
+        default=True,
         title="启用发送失败回退",
-        description="启用 Alconna 的发送失败回退机制, 可能会导致刷屏BUG",
+        description="是否启用 Alconna 的发送失败回退机制",
         json_schema_extra={"ui:options": {"disabled": True}},
     )
     enable_self: bool = Field(
