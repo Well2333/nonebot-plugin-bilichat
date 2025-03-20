@@ -110,10 +110,19 @@ async def content_info(origin_msg: UniMsg, state: T_State):
     try:
         raw_cont: Content = state["_raw_cont_"]
         if raw_cont.type == "video":
+            if not ConfigCTX.get().analyze.video:
+                logger.info("内容为视频格式, 跳过解析, 如需解析请开启 analyze.video")
+                await bilichat.finish()
             content = await get_request_api().content_video(raw_cont.id, ConfigCTX.get().api.browser_shot_quality)
         elif raw_cont.type == "column":
+            if not ConfigCTX.get().analyze.column:
+                logger.info("内容为专栏格式, 跳过解析, 如需解析请开启 analyze.column")
+                await bilichat.finish()
             content = await get_request_api().content_column(raw_cont.id, ConfigCTX.get().api.browser_shot_quality)
         elif raw_cont.type == "dynamic":
+            if not ConfigCTX.get().analyze.dynamic:
+                logger.info("内容为动态格式, 跳过解析, 如需解析请开启 analyze.dynamic")
+                await bilichat.finish()
             content = await get_request_api().content_dynamic(raw_cont.id, ConfigCTX.get().api.browser_shot_quality)
         else:
             raise ValueError(f"未知的内容类型: {raw_cont.type}")
