@@ -48,9 +48,9 @@ if BilichatConfigCTX.get().api.local_api_config is not None and BilichatConfigCT
     if not isinstance(driver, ReverseDriver) or not isinstance(driver.server_app, FastAPI):
         raise NotImplementedError("Only FastAPI reverse driver is supported.")
 
-    driver.server_app.mount("/", app, name="bilichat_api")
+    driver.server_app.mount("/bilichat_local_request_api", app, name="bilichat_api")
 
-    LOCAL_REQUEST_API_PATH = f"http://127.0.0.1:{nonebot_config.port}/{bilichat_request_config.api_path}"
+    LOCAL_REQUEST_API_PATH = f"http://127.0.0.1:{nonebot_config.port}/bilichat_local_request_api/{bilichat_request_config.api_path}"
     LOCAL_REQUEST_API_TOKEN = bilichat_request_config.api_access_token
 
     cfg = bilichat_request_config.model_dump_json(exclude={"api_host", "api_port", "api_path"})
