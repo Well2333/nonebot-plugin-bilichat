@@ -203,7 +203,7 @@ class RequestApiInfo(BaseModel):
     api: str = Field(default=..., title="API 地址", description="API 地址")
     token: str = Field(default=..., title="API Token", description="API Token, 服务端未设置则留空")
     weight: int = Field(default=1, title="权重", description="权重, 用于负载均衡, 越大越优先")
-    enabled: bool = Field(default=True, title="是否启用", description="是否启用")
+    enable: bool = Field(default=True, title="是否启用", description="是否启用")
     note: str = Field(default="", title="备注", description="备注")
 
 
