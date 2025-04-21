@@ -23,7 +23,7 @@ def init_request_apis():
         request_apis.append(local_api)
         logger.info(f"本地 API 初始化成功, Token: {LOCAL_REQUEST_API_TOKEN}")
     for api in ConfigCTX.get().api.request_api:
-        if api.enabled:
+        if api.enable:
             try:
                 request_api = RequestAPI(URL(api.api), api.token, api.weight, api.note)
                 request_apis.append(request_api)
