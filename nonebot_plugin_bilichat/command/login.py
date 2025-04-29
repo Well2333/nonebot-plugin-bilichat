@@ -87,7 +87,7 @@ async def bili_qrcode_login(target: MsgTarget):
         logger.debug(f"qrcode login key {qrcode_key}; url {qr_url}")
 
         # 生成并发送二维码
-        qr = qrcode.QRCode(
+        qr = qrcode.QRCode( # type: ignore
             version=1,
             box_size=10,
             border=4,
