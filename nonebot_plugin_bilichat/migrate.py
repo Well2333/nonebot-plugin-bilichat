@@ -24,8 +24,9 @@ def v6_2_5(raw_config: dict) -> dict:
     logger.info("Migrating 6.2.0 --> 6.2.5")
     raw_config["version"] = "6.2.5"
     for api in raw_config["api"]["request_api"]:
+        api: dict
         api["enable"] = api["enabled"]
-        del api["enabled"]
+        api.pop("enabled", None)
     return raw_config
 
 
