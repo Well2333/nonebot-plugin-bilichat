@@ -25,8 +25,11 @@ def v6_2_5(raw_config: dict) -> dict:
     raw_config["version"] = "6.2.5"
     for api in raw_config["api"]["request_api"]:
         api: dict
-        api["enable"] = api.get("enable", False)
-        api.pop("enabled", None)
+        # if has key "enabled", change to "enable"
+        if "enabled" in api:
+            api["enable"] = api.pop("enabled")
+        else:
+            api["enable"] = False
     return raw_config
 
 
