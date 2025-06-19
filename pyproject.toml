@@ -1,7 +1,7 @@
 [project]
 name = "nonebot-plugin-bilichat"
 
-version = "6.2.7"
+version = "6.3.0"
 
 description = "全功能的 bilibili 内容解析器及订阅器"
 authors = [

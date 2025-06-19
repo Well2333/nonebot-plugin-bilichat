@@ -35,6 +35,7 @@ class APIManager:
         from .local import LOCAL_REQUEST_API_PATH, LOCAL_REQUEST_API_TOKEN
 
         self.local_api = RequestAPI(URL(LOCAL_REQUEST_API_PATH), LOCAL_REQUEST_API_TOKEN, 1, "本地 API", local_api=True)
+        self.local_api._available = True
         self.apis.append(self.local_api)
         logger.info(f"本地 API 初始化成功, Token: {LOCAL_REQUEST_API_TOKEN}")
 
@@ -52,13 +53,11 @@ class APIManager:
             if api.enable:
                 request_api = RequestAPI(URL(api.api), api.token, api.weight, api.note)
                 self.apis.append(request_api)
-                logger.info(f"API {api.api} 初始化成功, 权重: {api.weight}, 备注: {api.note}")
+                logger.info(f"API {api.api} 已初始化, 权重: {api.weight}, 备注: {api.note}")
             else:
                 logger.warning(f"API {api.api} 未启用")
-        
-        await self.check_unavailable_apis()
 
-        logger.info(f"初始化 {len(self.available_apis)} 个可用API服务, {len(self.unavailable_apis)} 个不可用API服务")
+        await self.check_unavailable_apis()
 
         scheduler.add_job(
             self.check_unavailable_apis,
@@ -92,10 +91,17 @@ class APIManager:
         apis_to_check = self.unavailable_apis.copy()
 
         for api in apis_to_check:
-            with suppress(APIError):
+            try:
                 await api.check_api_availability()
+            except APIError as e:
+                logger.debug(f"API {api.base_url} 检查失败: {e}")
+                continue
+
         logger.debug(
-            f"检查 {len(apis_to_check)} 个不可用API完成, 当前可用API: {len(self.available_apis)} 个, 不可用API: {len(self.unavailable_apis)} 个"
+            f"检查 {len(apis_to_check)} 个API完成, \
+            可用 {len(self.available_apis)} 个, \
+            不可用 {len(self.unavailable_apis)} 个\n"
+            + "\n".join([f"{'⭕️' if api.is_available else '❌'} {api.base_url}" for api in self.apis])
         )
 
 
