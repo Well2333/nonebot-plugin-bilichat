@@ -59,6 +59,9 @@ class APIManager:
 
         await self.check_unavailable_apis()
 
+        if scheduler.get_job("bilichat_api_health_check"):
+            scheduler.remove_job("bilichat_api_health_check")
+
         scheduler.add_job(
             self.check_unavailable_apis,
             "interval",

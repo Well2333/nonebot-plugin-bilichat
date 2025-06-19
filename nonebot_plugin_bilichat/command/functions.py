@@ -20,8 +20,6 @@ async def check_dynamic_v11(target: MsgTarget, uid: Message = CommandArg(),api:R
     # 获取 UP 对象
     if not uid:
         await bili_check_dyn.finish("请输入UP主的昵称或uid")
-    if not api:
-        await bili_check_dyn.finish("无API可用, 请检查API配置")
     up = await api.tools_search_up(uid.extract_plain_text())
     if not up:
         await bili_check_dyn.finish(f"未找到 UP {uid.extract_plain_text()}")

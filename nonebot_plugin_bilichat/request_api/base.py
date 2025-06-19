@@ -109,8 +109,8 @@ class RequestAPI:
         logger.debug(f"Request {method} {url} {kwargs}")
         try:
             resp = await self._client.request(method, url, **kwargs)
-            if not 199 < resp.status_code < 300:
-                await self.mark_error(f"Request {method} {url} failed: {resp.status_code} {resp.json()}")
+            if not 200 <= resp.status_code < 300:
+                await self.mark_error(f"Request {method} {url} failed: {resp.status_code} {resp.text}")
                 raise RequestError(resp.status_code, resp.json()["detail"])
             try:
                 logger.trace(f"Response {resp.status_code} {shorten_long_items(resp.json().copy())}")
