@@ -2,25 +2,26 @@ from typing import NoReturn
 
 from nonebot.adapters import Message
 from nonebot.log import logger
-from nonebot.params import CommandArg
+from nonebot.params import CommandArg, Depends
 from nonebot.typing import T_State
 from nonebot_plugin_alconna.uniseg import Image, MsgTarget, UniMessage, UniMsg
 
 from nonebot_plugin_bilichat.config import ConfigCTX
 from nonebot_plugin_bilichat.lib.content_cd import BilichatCD
-from nonebot_plugin_bilichat.request_api import get_request_api
+from nonebot_plugin_bilichat.request_api import RequestAPI
 
-from .base import bilichat
+from .base import bilichat, get_api
 
 bili_check_dyn = bilichat.command("checkdynamic", aliases=set(ConfigCTX.get().nonebot.cmd_checkdynamic))
 
 
 @bili_check_dyn.handle()
-async def check_dynamic_v11(target: MsgTarget, uid: Message = CommandArg()):
+async def check_dynamic_v11(target: MsgTarget, uid: Message = CommandArg(),api:RequestAPI=Depends(get_api)):
     # 获取 UP 对象
     if not uid:
         await bili_check_dyn.finish("请输入UP主的昵称或uid")
-    api = get_request_api()
+    if not api:
+        await bili_check_dyn.finish("无API可用, 请检查API配置")
     up = await api.tools_search_up(uid.extract_plain_text())
     if not up:
         await bili_check_dyn.finish(f"未找到 UP {uid.extract_plain_text()}")

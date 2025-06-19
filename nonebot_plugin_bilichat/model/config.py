@@ -225,6 +225,9 @@ class ApiConfig(BaseModel):
     browser_shot_quality: int = Field(
         default=75, title="浏览器截图质量", description="浏览器截图质量, 范围为 10-100", ge=10, le=100
     )
+    api_health_check_interval: int = Field(
+        default=120, title="API 健康检查间隔", description="API 健康检查间隔, 单位为秒", ge=15
+    )
 
 
 class SubscribeConfig(BaseModel):

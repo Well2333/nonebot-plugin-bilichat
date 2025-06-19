@@ -13,7 +13,7 @@ from nonebot_plugin_alconna.uniseg import Hyper, Image, MsgTarget, Reply, Text, 
 from .config import ConfigCTX
 from .lib.content_cd import BilichatCD
 from .model.arguments import Options, parser
-from .model.exception import AbortError, RequestError
+from .model.exception import AbortError, APIError, RequestError
 from .model.request_api import Content
 from .request_api import get_request_api
 
@@ -40,7 +40,11 @@ async def _permission_check(bot: Bot, event: Event, target: MsgTarget, state: T_
 
 
 async def _bili_check(state: T_State, event: Event, bot: Bot, msg: UniMsg) -> bool:
-    api = get_request_api()
+    try:
+        api = get_request_api()
+    except APIError:
+        logger.error("无API可用, 跳过解析")
+        raise FinishedException from None
     _msgs = msg.copy()
     if Reply in msg and (
         (ConfigCTX.get().nonebot.enable_self and str(event.get_user_id()) == str(bot.self_id)) or event.is_tome()

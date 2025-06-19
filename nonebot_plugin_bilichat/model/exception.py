@@ -32,6 +32,13 @@ class RequestError(AbortError):
             self.message = json
 
 
+class APIError(RuntimeError):
+    """API的异常, 通常由于API版本不兼容或API无法访问时抛出"""
+
+    def __init__(self, message) -> None:  # noqa: ANN001
+        self.message = message
+
+
 class ProssesError(Exception):
     """处理时的异常, 通常由于环境错误导致"""
 

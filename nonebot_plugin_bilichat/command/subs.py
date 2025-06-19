@@ -7,11 +7,11 @@ from nonebot.permission import SUPERUSER
 from nonebot_plugin_uninfo.permission import ADMIN
 
 from nonebot_plugin_bilichat.model.subscribe import UserInfo
-from nonebot_plugin_bilichat.request_api import get_request_api
+from nonebot_plugin_bilichat.request_api import RequestAPI
 from nonebot_plugin_bilichat.subscribe.status import SubsStatus, UPStatus
 
 from ..config import ConfigCTX
-from .base import bilichat, check_lock, get_user
+from .base import bilichat, check_lock, get_api, get_user
 
 bili_add_sub = bilichat.command("sub", permission=ADMIN() | SUPERUSER, aliases=set(ConfigCTX.get().nonebot.cmd_add_sub))
 bili_remove_sub = bilichat.command(
@@ -21,12 +21,16 @@ bili_check_sub = bilichat.command("check", aliases=set(ConfigCTX.get().nonebot.c
 
 
 @bili_add_sub.handle()
-async def add_sub(user: UserInfo = Depends(get_user), msg: Message = CommandArg(), lock: Lock = Depends(check_lock)):
+async def add_sub(
+    user: UserInfo = Depends(get_user),
+    msg: Message = CommandArg(),
+    lock: Lock = Depends(check_lock),
+    api: RequestAPI = Depends(get_api),
+):
     async with lock:
         # 获取 UP 对象
         if not msg:
             await bili_add_sub.finish("请输入UP主的昵称")
-        api = get_request_api()
         up = await api.tools_search_up(msg.extract_plain_text())
         if not up:
             await bili_add_sub.finish(f"未找到 UP {msg.extract_plain_text()}")
