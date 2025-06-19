@@ -5,7 +5,7 @@ from pydantic import ValidationError
 from nonebot_plugin_bilichat.config import ConfigCTX
 from nonebot_plugin_bilichat.model.config import Config
 from nonebot_plugin_bilichat.model.subscribe import UserInfo
-from nonebot_plugin_bilichat.request_api import init_request_apis
+from nonebot_plugin_bilichat.request_api import api_manager
 from nonebot_plugin_bilichat.subscribe.fetch_and_push import reset_subs_job
 
 router = APIRouter()
@@ -47,7 +47,7 @@ async def set_config(data: Config) -> Config:
         ConfigCTX.set(new_cfg)
         # 重新加载一些配置
         reset_subs_job()
-        init_request_apis()
+        await api_manager.init_apis()
     except Exception as e:
         logger.exception("应用配置失败, 回滚配置")
         ConfigCTX.set(old_cfg)

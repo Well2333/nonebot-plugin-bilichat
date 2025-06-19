@@ -6,10 +6,11 @@ from yarl import URL
 
 from nonebot_plugin_bilichat.config import __version__
 from nonebot_plugin_bilichat.lib.tools import shorten_long_items
-from nonebot_plugin_bilichat.model.exception import RequestError
+from nonebot_plugin_bilichat.model.exception import APIError, RequestError
 from nonebot_plugin_bilichat.model.request_api import Account, Content, Dynamic, LiveRoom, Note, SearchUp, VersionInfo
 
 MINIMUM_API_VERSION = Version("0.2.4")
+MAX_CONSECUTIVE_ERRORS = 10  # 连续错误阈值
 
 
 class RequestAPI:
@@ -21,34 +22,105 @@ class RequestAPI:
         self._weight = weight
         self._note = note
         self._local_api = local_api
-        headers = {"Authorization": f"Bearer {api_token}"} if api_token else {}
-        self._client = AsyncClient(base_url=str(api_base), headers=headers, timeout=60)
+        self._error_count = 0  # 连续错误计数
+        self._available = False  # API可用状态
+        self._headers = {"Authorization": f"Bearer {api_token}"} if api_token else {}
+        self._client = AsyncClient(base_url=str(api_base), headers=self._headers, timeout=60)
 
-        if not local_api:
-            # Check API version
-            req = httpx.get(
-                str(api_base.joinpath("version")),
-                headers=headers,
-            )
-            req.raise_for_status()
-            version = req.json()
-            if not (
-                (Version(version["version"]) >= MINIMUM_API_VERSION)  # API version check
-                and (version["package"] == "bilichat-request")  # API package check
-                and (Version(version["bilichat_min_version"]) <= Version(__version__))  # Bilichat version check
-            ):
-                raise RuntimeError(f"API 版本不兼容, {version}")
+    @property
+    def is_available(self) -> bool:
+        """API是否可用"""
+        return self._available
+
+    @property
+    def base_url(self) -> URL:
+        """API基础URL"""
+        return self._api_base
+
+    async def mark_error(self, error: Exception | str | None = None) -> None:
+        """标记API的错误"""
+        if isinstance(error, Exception):
+            logger.exception(error)
+        logger.error(f"请求错误: [{error}], 错误计数: {self._error_count}/{MAX_CONSECUTIVE_ERRORS}")
+
+        self._error_count += 1
+        if self._error_count >= MAX_CONSECUTIVE_ERRORS:
+            try:
+                await self.check_api_availability()
+            except APIError as e:
+                self._available = False
+                logger.error(f"API可用性检查失败, 已被标记为不可用 : {self._api_base}, {e}")
+
+    async def check_api_availability(self) -> None:
+        """检查API可用性和版本兼容性
+
+        Raises:
+            APIError: API版本不兼容或API无法访问时抛出 (仅在初始化时)
+        """
+
+        try:
+            # 检查API版本
+            logger.debug(f"正在检查API可用性: {self._api_base}")
+            if not self._local_api:
+                async with httpx.AsyncClient() as client:
+                    req = await client.get(
+                        str(self._api_base.joinpath("version")),
+                        headers=self._headers,
+                        timeout=10.0,
+                    )
+                    req.raise_for_status()
+                    version = req.json()
+
+                if not (
+                    (Version(version["version"]) >= MINIMUM_API_VERSION)  # API version check
+                    and (version["package"] == "bilichat-request")  # API package check
+                    and (Version(version["bilichat_min_version"]) <= Version(__version__))  # Bilichat version check
+                ):
+                    raise APIError(f"API 版本不兼容, {version}")
+
+            # API功能测试
+            await self.subs_dynamic(uid=33138220, offset=0)
+
+            # 所有检查通过, 标记API为可用
+            logger.debug(f"API检查通过: {self._api_base}")
+            self._error_count = 0
+            self._available = True
+
+        except Exception as e:
+            self._available = False
+            if isinstance(e, APIError):
+                raise
+            raise APIError(f"API可用性检查失败: {self._api_base}, {e}") from e
 
     async def _request(self, method: str, url: str, **kwargs) -> httpx.Response:
+        """发送HTTP请求并处理结果
+
+        Args:
+            method: HTTP方法
+            url: 请求URL
+            **kwargs: 其他请求参数
+
+        Returns:
+            httpx.Response: HTTP响应
+
+        Raises:
+            RequestError: 请求错误
+        """
         logger.debug(f"Request {method} {url} {kwargs}")
-        resp = await self._client.request(method, url, **kwargs)
-        if not 199 < resp.status_code < 300:
-            logger.error(f"Request {method} {url} failed: {resp.status_code} {resp.json()}")
-            raise RequestError(resp.status_code, resp.json()["detail"])
         try:
-            logger.trace(f"Response {resp.status_code} {shorten_long_items(resp.json().copy())}")
-        except AttributeError:
-            logger.trace(f"Response {resp.status_code} {resp.text}")
+            resp = await self._client.request(method, url, **kwargs)
+            if not 199 < resp.status_code < 300:
+                await self.mark_error(f"Request {method} {url} failed: {resp.status_code} {resp.json()}")
+                raise RequestError(resp.status_code, resp.json()["detail"])
+            try:
+                logger.trace(f"Response {resp.status_code} {shorten_long_items(resp.json().copy())}")
+            except AttributeError:
+                logger.trace(f"Response {resp.status_code} {resp.text}")
+            # 请求成功, 重置错误计数
+            self._error_count = 0
+        except Exception as e:
+            await self.mark_error(e)
+            raise
         return resp
 
     async def _get(self, url: str, **kwargs) -> httpx.Response:

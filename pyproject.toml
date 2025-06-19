@@ -148,6 +148,7 @@ ignore = [
     "COM812", # 更一致的换行方式
     "E501",   # 行过长
     "N815",   # 变量名应为小写
+    "RUF003", # 注释中包含模棱两可的全角逗号（，）
 
     # Refactoring and Code Quality
     "F841",    # 局部变量赋值后未使用
@@ -161,6 +162,7 @@ ignore = [
 
     # Performance
     "PERF401", # 检查可以用列表推导式替换的 for 循环
+    "PERF203", # try-except 在循环中会导致性能开销
 
     # Security
     "S101", # 检测到 assert 的使用

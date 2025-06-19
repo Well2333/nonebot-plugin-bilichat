@@ -16,7 +16,7 @@ from qrcode.image.pure import PyPNGImage
 
 from nonebot_plugin_bilichat.config import ConfigCTX
 from nonebot_plugin_bilichat.model.request_api import Account, Note
-from nonebot_plugin_bilichat.request_api import request_apis
+from nonebot_plugin_bilichat.request_api import api_manager
 
 from .base import bilichat
 
@@ -42,7 +42,7 @@ bili_logout = bilichat.command(
 @bili_check_login.handle()
 async def bili_login_handle():
     texts = []
-    for api in request_apis:
+    for api in api_manager.apis:
         auths: list[Account] = await api.account_web_all()
         note = f" ({api._note})" if api._note else ""
         texts.append(f">>> {api._api_base}{note}")
@@ -87,7 +87,7 @@ async def bili_qrcode_login(target: MsgTarget):
         logger.debug(f"qrcode login key {qrcode_key}; url {qr_url}")
 
         # 生成并发送二维码
-        qr = qrcode.QRCode( # type: ignore
+        qr = qrcode.QRCode(  # type: ignore
             version=1,
             box_size=10,
             border=4,
@@ -132,7 +132,7 @@ async def bili_qrcode_login(target: MsgTarget):
                     logger.info("登录成功")
                     # 保存 Cookies
                     cookies = dict(client.cookies)
-                    api = request_apis[0]
+                    api = api_manager.apis[0]
                     await api.account_web_creat(
                         cookies,
                         Note(
@@ -152,7 +152,7 @@ async def bili_qrcode_login(target: MsgTarget):
 
 @bili_logout.handle()
 async def bili_logout_handle(uid: Message = CommandArg()):
-    api = request_apis[0]
+    api = api_manager.apis[0]
     auths: list[Account] = await api.account_web_all()
     for auth in auths:
         if str(auth.uid) == uid.extract_plain_text():

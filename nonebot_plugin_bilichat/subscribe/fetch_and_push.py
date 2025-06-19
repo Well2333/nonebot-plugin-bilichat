@@ -10,7 +10,7 @@ from sentry_sdk import capture_exception
 
 from nonebot_plugin_bilichat.config import ConfigCTX
 from nonebot_plugin_bilichat.lib.tools import calc_time_total
-from nonebot_plugin_bilichat.model.exception import AbortError
+from nonebot_plugin_bilichat.model.exception import AbortError, APIError
 from nonebot_plugin_bilichat.request_api import get_request_api
 from nonebot_plugin_bilichat.subscribe.status import PushType, UPStatus, UserInfo
 
@@ -71,6 +71,8 @@ async def dynamic():
                     target = user.target
                     logger.debug(f"target: {target}")
                     await push_msg(user, msg)
+        except APIError:
+            logger.error("无API可用, 跳过检查")
         except Exception as e:
             capture_exception(e)
             logger.exception(e)
@@ -84,7 +86,11 @@ async def live():
     except AbortError:
         logger.debug("[Live] 没有需要推送的用户, 跳过")
         return
-    api = get_request_api()
+    try:
+        api = get_request_api()
+    except APIError:
+        logger.error("无API可用, 跳过检查")
+        return
     try:
         lives = {lv.uid: lv for lv in await api.sub_lives([up.uid for up in ups])}
     except Exception as e:
