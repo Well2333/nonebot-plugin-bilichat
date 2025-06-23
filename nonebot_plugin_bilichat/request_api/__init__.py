@@ -1,5 +1,4 @@
 import random
-from contextlib import suppress
 
 from nonebot import get_driver
 from nonebot.log import logger
