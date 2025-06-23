@@ -1,7 +1,7 @@
 [project]
 name = "nonebot-plugin-bilichat"
 
-version = "6.3.0"
+version = "6.3.1"
 
 description = "全功能的 bilibili 内容解析器及订阅器"
 authors = [
@@ -30,7 +30,7 @@ readme = "README.md"
 license = { text = "AGPL3.0" }
 [project.optional-dependencies]
 api = [
-    "bilichat-request>=0.3.4",
+    "bilichat-request>=0.4.0",
 ]
 
 [build-system]

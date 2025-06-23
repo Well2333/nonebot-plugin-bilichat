@@ -1,7 +1,7 @@
 import base64
 from datetime import datetime
 from enum import Enum
-from typing import Any, Literal
+from typing import Literal
 
 from pydantic import BaseModel
 
@@ -18,16 +18,16 @@ class VersionInfo(BaseModel):
 
 
 class Note(BaseModel):
-    create_time: str
+    create_time: str | None = None
     """Create Time"""
     source: str
     """Source"""
 
 
 class Account(BaseModel):
-    cookies: dict[str, Any]
-    note: Note
     uid: int
+    type: str
+    note: Note
 
     def __str__(self) -> str:
         return f"{self.uid}({self.note.source})"

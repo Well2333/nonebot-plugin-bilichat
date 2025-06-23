@@ -9,7 +9,7 @@ from nonebot_plugin_bilichat.lib.tools import shorten_long_items
 from nonebot_plugin_bilichat.model.exception import APIError, RequestError
 from nonebot_plugin_bilichat.model.request_api import Account, Content, Dynamic, LiveRoom, Note, SearchUp, VersionInfo
 
-MINIMUM_API_VERSION = Version("0.2.4")
+MINIMUM_API_VERSION = Version("0.4.0")
 MAX_CONSECUTIVE_ERRORS = 10  # 连续错误阈值
 
 
@@ -151,7 +151,7 @@ class RequestAPI:
         )
 
     async def account_web_all(self) -> list[Account]:
-        return [Account(cookies={}, **acc) for acc in (await self._get("/account/web_account")).json()]
+        return [Account(**acc) for acc in (await self._get("/account/web_account")).json()]
 
     async def account_web_creat(self, cookies: list[dict] | dict, note: Note) -> Account:
         return Account.model_validate(
