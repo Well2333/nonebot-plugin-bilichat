@@ -45,11 +45,8 @@ class RequestAPI:
 
         self._error_count += 1
         if self._error_count >= MAX_CONSECUTIVE_ERRORS:
-            try:
-                await self.check_api_availability()
-            except APIError as e:
-                self._available = False
-                logger.error(f"API可用性检查失败, 已被标记为不可用 : {self._api_base}, {e}")
+            self._available = False
+            logger.error(f"API可用性检查失败, 已被标记为不可用 : {self._api_base}")
 
     async def check_api_availability(self) -> None:
         """检查API可用性和版本兼容性
@@ -77,9 +74,6 @@ class RequestAPI:
                     and (Version(version["bilichat_min_version"]) <= Version(__version__))  # Bilichat version check
                 ):
                     raise APIError(f"API 版本不兼容, {version}")
-
-            # API功能测试
-            await self.subs_dynamic(uid=33138220, offset=0)
 
             # 所有检查通过, 标记API为可用
             logger.debug(f"API检查通过: {self._api_base}")
