@@ -1,7 +1,7 @@
 [project]
 name = "nonebot-plugin-bilichat"
 
-version = "6.3.2"
+version = "6.3.3"
 
 description = "全功能的 bilibili 内容解析器及订阅器"
 authors = [
@@ -14,7 +14,7 @@ dependencies = [
     "httpx>=0.28.1",
     "nonebot-plugin-apscheduler>=0.5.0",
     "python-multipart>=0.0.20",
-    "nonebot-plugin-alconna>=0.57.2",
+    "nonebot-plugin-alconna>=0.59.0",
     "nonebot-plugin-sentry>=2.0.0",
     "packaging>=25.0",
     "pydantic>=2.11.3",
