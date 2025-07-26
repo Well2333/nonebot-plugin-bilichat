@@ -107,10 +107,8 @@ bilichat = on_message(
 
 
 @bilichat.handle()
-async def content_info(origin_msg: UniMsg, state: T_State):
+async def content_info(state: T_State):
     msgs = UniMessage()
-    reply = Reply(id=origin_msg.get_message_id())
-    msgs.append(reply)
     try:
         raw_cont: Content = state["_raw_cont_"]
         if raw_cont.type == "video":
@@ -136,4 +134,4 @@ async def content_info(origin_msg: UniMsg, state: T_State):
         logger.error(e)
         msgs.append(Text(f"{e.type}: {e.message}"))
 
-    receipt = await msgs.send(fallback=ConfigCTX.get().nonebot.fallback)
+    receipt = await msgs.send(fallback=ConfigCTX.get().nonebot.fallback, reply_to=True)
