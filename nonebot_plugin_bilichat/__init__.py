@@ -4,6 +4,7 @@ from nonebot.plugin import PluginMetadata
 require("nonebot_plugin_apscheduler")
 require("nonebot_plugin_alconna")
 require("nonebot_plugin_waiter")
+require("nonebot_plugin_uninfo")
 
 from .config import ConfigCTX, __version__, nonebot_config  # noqa: E402
 
