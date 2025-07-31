@@ -8,13 +8,531 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
-import { Save, Settings, Globe, Bot, Database, Bell, Plus, Trash2, Code, AlertCircle, Loader2 } from "lucide-react"
+import { Save, Settings, Globe, Bot, Database, Bell, Plus, Trash2, Code, AlertCircle, Loader2, Edit3, User, Users } from "lucide-react"
 import { useI18n } from "@/lib/i18n"
 import { ConfigField } from "./config-field"
 import { useConfig } from "@/hooks/use-config"
+import { useState } from "react"
 
 interface ConfigEditorProps {
   showSourceCode: boolean
+}
+
+interface UserConfig {
+  info?: {
+    self_id?: string
+    adapter?: string
+    scope?: string
+    scene?: {
+      id?: string
+      type?: number
+      name?: string
+      avatar?: string | null
+      parent?: unknown
+    }
+    user?: {
+      id?: string
+      name?: string | null
+      nick?: string | null
+      avatar?: string
+      gender?: string
+    }
+    member?: unknown
+    operator?: unknown
+    platform?: unknown
+  }
+  id?: string
+  subscribes?: Array<{
+    uid: number
+    uname: string
+    nickname: string
+    note: string
+    dynamic: Record<string, "PUSH" | "IGNORE">
+    live: "PUSH" | "IGNORE"
+  }>
+}
+
+interface SubscribeConfig {
+  uid: number
+  uname: string
+  nickname: string
+  note: string
+  dynamic: Record<string, "PUSH" | "IGNORE">
+  live: "PUSH" | "IGNORE"
+}
+
+// 动态类型配置选项
+const DYNAMIC_TYPES = [
+  "DYNAMIC_TYPE_AD",
+  "DYNAMIC_TYPE_APPLET", 
+  "DYNAMIC_TYPE_ARTICLE",
+  "DYNAMIC_TYPE_AV",
+  "DYNAMIC_TYPE_BANNER",
+  "DYNAMIC_TYPE_COMMON_SQUARE",
+  "DYNAMIC_TYPE_COMMON_VERTICAL",
+  "DYNAMIC_TYPE_COURSES",
+  "DYNAMIC_TYPE_COURSES_BATCH",
+  "DYNAMIC_TYPE_COURSES_SEASON",
+  "DYNAMIC_TYPE_DRAW",
+  "DYNAMIC_TYPE_FORWARD",
+  "DYNAMIC_TYPE_LIVE",
+  "DYNAMIC_TYPE_LIVE_RCMD",
+  "DYNAMIC_TYPE_MEDIALIST",
+  "DYNAMIC_TYPE_MUSIC",
+  "DYNAMIC_TYPE_NONE",
+  "DYNAMIC_TYPE_PGC",
+  "DYNAMIC_TYPE_SUBSCRIPTION",
+  "DYNAMIC_TYPE_SUBSCRIPTION_NEW",
+  "DYNAMIC_TYPE_UGC_SEASON",
+  "DYNAMIC_TYPE_WORD"
+] as const
+
+interface UserConfigEditorProps {
+  userId: string
+  userConfig: UserConfig
+  onConfigChange: (newConfig: UserConfig) => void
+  onDeleteUser: (userId: string) => void
+}
+
+interface EnhancedSubscribeEditorProps {
+  subscribe: SubscribeConfig
+  onSubscribeChange: (newSubscribe: SubscribeConfig) => void
+  onDeleteSubscribe: () => void
+  onSetAllDynamicTypes: (value: "PUSH" | "IGNORE") => void
+  onSetDefaultDynamicTypes: () => void
+}
+
+
+
+function EnhancedSubscribeEditor({ 
+  subscribe, 
+  onSubscribeChange, 
+  onDeleteSubscribe, 
+  onSetAllDynamicTypes, 
+  onSetDefaultDynamicTypes 
+}: EnhancedSubscribeEditorProps) {
+  const { t } = useI18n()
+  const [isDynamicTypesExpanded, setIsDynamicTypesExpanded] = useState(false)
+
+  const updateField = (field: keyof SubscribeConfig, value: unknown) => {
+    onSubscribeChange({
+      ...subscribe,
+      [field]: value
+    })
+  }
+
+  const updateDynamicType = (type: string, value: "PUSH" | "IGNORE") => {
+    onSubscribeChange({
+      ...subscribe,
+      dynamic: {
+        ...subscribe.dynamic,
+        [type]: value
+      }
+    })
+  }
+
+  // 计算动态推送的统计信息
+  const dynamicStats = DYNAMIC_TYPES.reduce((stats, type) => {
+    const value = subscribe.dynamic[type]
+    if (value === "PUSH") stats.push++
+    else if (value === "IGNORE") stats.ignore++
+    return stats
+  }, { push: 0, ignore: 0 })
+
+  return (
+    <div className="border rounded-lg p-4 bg-white dark:bg-gray-900 space-y-4">
+      {/* 订阅基本信息 */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <User className="h-4 w-4 text-blue-600" />
+            <span className="font-medium">{subscribe.uname || t("ui.unknown_user")}</span>
+            <Badge variant="outline" className="text-xs">UID: {subscribe.uid}</Badge>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onDeleteSubscribe}
+            className="flex items-center gap-1 text-xs text-red-600 hover:text-red-700"
+          >
+            <Trash2 className="h-3 w-3" />
+            {t("ui.delete")}
+          </Button>
+        </div>
+      </div>
+
+      {/* 基本配置 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor={`uid-${subscribe.uid}`} className="text-sm font-medium">
+            {t("ui.subscribe.uid")}
+          </Label>
+          <Input
+            id={`uid-${subscribe.uid}`}
+            type="number"
+            value={subscribe.uid}
+            onChange={(e) => updateField("uid", Number(e.target.value))}
+            className="mt-1"
+          />
+        </div>
+        <div>
+          <Label htmlFor={`uname-${subscribe.uid}`} className="text-sm font-medium">
+            {t("ui.subscribe.uname")}
+          </Label>
+          <Input
+            id={`uname-${subscribe.uid}`}
+            value={subscribe.uname}
+            onChange={(e) => updateField("uname", e.target.value)}
+            className="mt-1"
+          />
+        </div>
+        <div>
+          <Label htmlFor={`nickname-${subscribe.uid}`} className="text-sm font-medium">
+            {t("ui.subscribe.nickname")}
+          </Label>
+          <Input
+            id={`nickname-${subscribe.uid}`}
+            value={subscribe.nickname}
+            onChange={(e) => updateField("nickname", e.target.value)}
+            placeholder={t("ui.optional")}
+            className="mt-1"
+          />
+        </div>
+        <div>
+          <Label htmlFor={`note-${subscribe.uid}`} className="text-sm font-medium">
+            {t("ui.subscribe.note")}
+          </Label>
+          <Input
+            id={`note-${subscribe.uid}`}
+            value={subscribe.note}
+            onChange={(e) => updateField("note", e.target.value)}
+            placeholder={t("ui.optional")}
+            className="mt-1"
+          />
+        </div>
+      </div>
+
+      {/* 直播配置 */}
+      <div>
+        <Label className="text-sm font-medium">{t("ui.subscribe.live")}</Label>
+        <div className="flex items-center justify-between text-sm border rounded p-3 mt-2 bg-gray-50 dark:bg-gray-800">
+          <span className="text-gray-700 dark:text-gray-300">{t("ui.subscribe.live_notification")}</span>
+          <div className="flex gap-2">
+            <Button
+              variant={subscribe.live === "PUSH" ? "default" : "outline"}
+              size="sm"
+              onClick={() => updateField("live", "PUSH")}
+              className="h-7 px-3 text-xs"
+            >
+              {t("ui.push")}
+            </Button>
+            <Button
+              variant={subscribe.live === "IGNORE" ? "default" : "outline"}
+              size="sm"
+              onClick={() => updateField("live", "IGNORE")}
+              className="h-7 px-3 text-xs"
+            >
+              {t("ui.ignore")}
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* 动态配置 */}
+      <div>
+        <Label className="text-sm font-medium">{t("ui.subscribe.dynamic")}</Label>
+        <div className="border rounded p-3 mt-2 bg-gray-50 dark:bg-gray-800 space-y-3">
+          {/* 动态推送总览和控制按钮 */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                {t("ui.subscribe.dynamic_notification")}
+              </span>
+              <Badge variant="secondary" className="text-xs">
+                {dynamicStats.push} {t("ui.push")} / {dynamicStats.ignore} {t("ui.ignore")}
+              </Badge>
+            </div>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onSetAllDynamicTypes("PUSH")}
+                className="h-7 px-2 text-xs"
+              >
+                {t("ui.enable_all")}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onSetAllDynamicTypes("IGNORE")}
+                className="h-7 px-2 text-xs"
+              >
+                {t("ui.disable_all")}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onSetDefaultDynamicTypes}
+                className="h-7 px-2 text-xs"
+              >
+                {t("ui.default")}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsDynamicTypesExpanded(!isDynamicTypesExpanded)}
+                className="h-7 px-2 text-xs"
+              >
+                <Edit3 className="h-3 w-3 mr-1" />
+                {isDynamicTypesExpanded ? t("ui.collapse") : t("ui.expand")}
+              </Button>
+            </div>
+          </div>
+
+          {/* 详细动态类型配置 */}
+          {isDynamicTypesExpanded && (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 pt-2 border-t">
+              {DYNAMIC_TYPES.map((type) => (
+                <div key={type} className="flex items-center justify-between text-xs border rounded p-2 bg-white dark:bg-gray-900">
+                  <span className="text-gray-600 dark:text-gray-300 truncate mr-2">
+                    {type.replace("DYNAMIC_TYPE_", "")}
+                  </span>
+                  <div className="flex gap-1">
+                    <Button
+                      variant={subscribe.dynamic[type] === "PUSH" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => updateDynamicType(type, "PUSH")}
+                      className="h-5 px-1 text-xs"
+                    >
+                      {t("ui.push")}
+                    </Button>
+                    <Button
+                      variant={subscribe.dynamic[type] === "IGNORE" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => updateDynamicType(type, "IGNORE")}
+                      className="h-5 px-1 text-xs"
+                    >
+                      {t("ui.ignore")}
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function UserConfigEditor({ userId, userConfig, onConfigChange, onDeleteUser }: UserConfigEditorProps) {
+  const { t } = useI18n()
+
+  const addNewSubscribe = () => {
+    const defaultDynamic: Record<string, "PUSH" | "IGNORE"> = {
+      "DYNAMIC_TYPE_AD": "IGNORE",
+      "DYNAMIC_TYPE_APPLET": "PUSH",
+      "DYNAMIC_TYPE_ARTICLE": "PUSH",
+      "DYNAMIC_TYPE_AV": "PUSH",
+      "DYNAMIC_TYPE_BANNER": "IGNORE",
+      "DYNAMIC_TYPE_COMMON_SQUARE": "PUSH",
+      "DYNAMIC_TYPE_COMMON_VERTICAL": "PUSH",
+      "DYNAMIC_TYPE_COURSES": "PUSH",
+      "DYNAMIC_TYPE_COURSES_BATCH": "PUSH",
+      "DYNAMIC_TYPE_COURSES_SEASON": "PUSH",
+      "DYNAMIC_TYPE_DRAW": "PUSH",
+      "DYNAMIC_TYPE_FORWARD": "PUSH",
+      "DYNAMIC_TYPE_LIVE": "IGNORE",
+      "DYNAMIC_TYPE_LIVE_RCMD": "IGNORE",
+      "DYNAMIC_TYPE_MEDIALIST": "PUSH",
+      "DYNAMIC_TYPE_MUSIC": "PUSH",
+      "DYNAMIC_TYPE_NONE": "PUSH",
+      "DYNAMIC_TYPE_PGC": "PUSH",
+      "DYNAMIC_TYPE_SUBSCRIPTION": "PUSH",
+      "DYNAMIC_TYPE_SUBSCRIPTION_NEW": "PUSH",
+      "DYNAMIC_TYPE_UGC_SEASON": "PUSH",
+      "DYNAMIC_TYPE_WORD": "PUSH"
+    }
+
+    const newSubscribe: SubscribeConfig = {
+      uid: 0,
+      uname: "",
+      nickname: "",
+      note: "",
+      dynamic: defaultDynamic,
+      live: "PUSH"
+    }
+
+    const newConfig = {
+      ...userConfig,
+      subscribes: [...(userConfig.subscribes || []), newSubscribe]
+    }
+    onConfigChange(newConfig)
+  }
+
+  const updateSubscribe = (index: number, newSubscribe: SubscribeConfig) => {
+    const newSubscribes = [...(userConfig.subscribes || [])]
+    newSubscribes[index] = newSubscribe
+    onConfigChange({
+      ...userConfig,
+      subscribes: newSubscribes
+    })
+  }
+
+  const deleteSubscribe = (index: number) => {
+    const newSubscribes = (userConfig.subscribes || []).filter((_, i) => i !== index)
+    onConfigChange({
+      ...userConfig,
+      subscribes: newSubscribes
+    })
+  }
+
+  // 批量操作函数
+  const setAllDynamicTypes = (subscribeIndex: number, value: "PUSH" | "IGNORE") => {
+    const newSubscribes = [...(userConfig.subscribes || [])]
+    const newDynamic: Record<string, "PUSH" | "IGNORE"> = {}
+    DYNAMIC_TYPES.forEach(type => {
+      newDynamic[type] = value
+    })
+    newSubscribes[subscribeIndex] = {
+      ...newSubscribes[subscribeIndex],
+      dynamic: newDynamic
+    }
+    onConfigChange({
+      ...userConfig,
+      subscribes: newSubscribes
+    })
+  }
+
+  const setDefaultDynamicTypes = (subscribeIndex: number) => {
+    const newSubscribes = [...(userConfig.subscribes || [])]
+    const defaultDynamic: Record<string, "PUSH" | "IGNORE"> = {
+      "DYNAMIC_TYPE_AD": "IGNORE",
+      "DYNAMIC_TYPE_APPLET": "PUSH",
+      "DYNAMIC_TYPE_ARTICLE": "PUSH",
+      "DYNAMIC_TYPE_AV": "PUSH",
+      "DYNAMIC_TYPE_BANNER": "IGNORE",
+      "DYNAMIC_TYPE_COMMON_SQUARE": "PUSH",
+      "DYNAMIC_TYPE_COMMON_VERTICAL": "PUSH",
+      "DYNAMIC_TYPE_COURSES": "PUSH",
+      "DYNAMIC_TYPE_COURSES_BATCH": "PUSH",
+      "DYNAMIC_TYPE_COURSES_SEASON": "PUSH",
+      "DYNAMIC_TYPE_DRAW": "PUSH",
+      "DYNAMIC_TYPE_FORWARD": "PUSH",
+      "DYNAMIC_TYPE_LIVE": "IGNORE",
+      "DYNAMIC_TYPE_LIVE_RCMD": "IGNORE",
+      "DYNAMIC_TYPE_MEDIALIST": "PUSH",
+      "DYNAMIC_TYPE_MUSIC": "PUSH",
+      "DYNAMIC_TYPE_NONE": "PUSH",
+      "DYNAMIC_TYPE_PGC": "PUSH",
+      "DYNAMIC_TYPE_SUBSCRIPTION": "PUSH",
+      "DYNAMIC_TYPE_SUBSCRIPTION_NEW": "PUSH",
+      "DYNAMIC_TYPE_UGC_SEASON": "PUSH",
+      "DYNAMIC_TYPE_WORD": "PUSH"
+    }
+    newSubscribes[subscribeIndex] = {
+      ...newSubscribes[subscribeIndex],
+      dynamic: defaultDynamic
+    }
+    onConfigChange({
+      ...userConfig,
+      subscribes: newSubscribes
+    })
+  }
+
+  return (
+    <div className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 space-y-4">
+      {/* 用户头部信息 */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <Users className="h-4 w-4 text-blue-600" />
+            <Label className="font-medium text-sm">{t("ui.user")} {userId}</Label>
+            <Badge variant="outline" className="text-xs">
+              {userConfig?.info?.adapter || t("ui.unknown_adapter")}
+            </Badge>
+            <Badge variant="secondary" className="text-xs">
+              {userConfig.subscribes?.length || 0} {t("ui.subscriptions")}
+            </Badge>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onDeleteUser(userId)}
+            className="flex items-center gap-1 text-xs text-red-600 hover:text-red-700"
+          >
+            <Trash2 className="h-3 w-3" />
+            {t("ui.delete_user")}
+          </Button>
+        </div>
+      </div>
+
+      {/* 用户基本信息显示 */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        {userConfig?.info && (
+          <>
+            <div>
+              <span className="text-gray-500">{t("ui.adapter")}:</span>
+              <div className="font-medium">{userConfig.info.adapter}</div>
+            </div>
+            <div>
+              <span className="text-gray-500">{t("ui.scene")}:</span>
+              <div className="font-medium">{userConfig.info.scene?.name || userConfig.info.scene?.id}</div>
+            </div>
+            <div>
+              <span className="text-gray-500">{t("ui.user")}:</span>
+              <div className="font-medium">{userConfig.info.user?.name || userConfig.info.user?.id}</div>
+            </div>
+            <div>
+              <span className="text-gray-500">Self ID:</span>
+              <div className="font-medium">{userConfig.info.self_id}</div>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* 订阅管理 */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <Label className="text-sm font-medium">{t("ui.subscriptions")}</Label>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={addNewSubscribe}
+            className="flex items-center gap-1 text-xs"
+          >
+            <Plus className="h-3 w-3" />
+            {t("ui.add_subscription")}
+          </Button>
+        </div>
+
+        {/* 订阅列表 */}
+        <div className="space-y-3">
+          {userConfig.subscribes?.length === 0 || !userConfig.subscribes ? (
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p className="text-sm">{t("ui.no_subscriptions")}</p>
+            </div>
+          ) : (
+            userConfig.subscribes.map((subscribe, index) => (
+              <EnhancedSubscribeEditor
+                key={`${subscribe.uid}-${index}`}
+                subscribe={subscribe}
+                onSubscribeChange={(newSubscribe) => updateSubscribe(index, newSubscribe)}
+                onDeleteSubscribe={() => deleteSubscribe(index)}
+                onSetAllDynamicTypes={(value) => setAllDynamicTypes(index, value)}
+                onSetDefaultDynamicTypes={() => setDefaultDynamicTypes(index)}
+              />
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export function ConfigEditor({ showSourceCode }: ConfigEditorProps) {
@@ -42,7 +560,7 @@ export function ConfigEditor({ showSourceCode }: ConfigEditorProps) {
     updateConfig(["api", "request_api"], newApis)
   }
 
-  const updateApiEndpoint = (index: number, field: string, value: any) => {
+  const updateApiEndpoint = (index: number, field: string, value: string | number | boolean) => {
     if (!config) return
 
     const newApis = [...config.api.request_api]
@@ -454,7 +972,7 @@ export function ConfigEditor({ showSourceCode }: ConfigEditorProps) {
                 <p className="text-gray-500 text-center py-4">{t("ui.no_endpoints")}</p>
               ) : (
                 <div className="space-y-4">
-                  {config.api.request_api.map((endpoint: any, index: number) => (
+                  {config.api.request_api.map((endpoint, index: number) => (
                     <div key={index} className="border rounded-lg p-4 space-y-3">
                       <div className="flex items-center justify-between">
                         <Label className="font-medium">
@@ -601,18 +1119,33 @@ export function ConfigEditor({ showSourceCode }: ConfigEditorProps) {
               </ConfigField>
 
               <div>
-                <Label>{t("config.subs.users")}</Label>
-                <div className="mt-2">
+                <div className="mb-4">
+                  <Label>{t("config.subs.users")}</Label>
+                </div>
+                <div className="space-y-4">
                   {Object.keys(config.subs.users).length === 0 ? (
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{t("ui.no_users")}</p>
-                  ) : (
-                    <div className="space-y-2">
-                      {Object.keys(config.subs.users).map((userId, index) => (
-                        <Badge key={index} variant="secondary">
-                          User {userId}
-                        </Badge>
-                      ))}
+                    <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                      <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p className="text-sm">{t("ui.no_users")}</p>
                     </div>
+                  ) : (
+                    Object.keys(config.subs.users).map((userId) => (
+                      <UserConfigEditor
+                        key={userId}
+                        userId={userId}
+                        userConfig={config.subs.users[userId]}
+                        onConfigChange={(newConfig) => {
+                          const newUsers = { ...config.subs.users }
+                          newUsers[userId] = newConfig
+                          updateConfig(["subs", "users"], newUsers)
+                        }}
+                        onDeleteUser={(userIdToDelete) => {
+                          const newUsers = { ...config.subs.users }
+                          delete newUsers[userIdToDelete]
+                          updateConfig(["subs", "users"], newUsers)
+                        }}
+                      />
+                    ))
                   )}
                 </div>
               </div>

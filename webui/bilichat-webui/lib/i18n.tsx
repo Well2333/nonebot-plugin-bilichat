@@ -45,6 +45,50 @@ const translations = {
     "ui.logout": "登出",
     "ui.auth.logging_in": "登录中...",
     "ui.auth.login_failed": "登录失败",
+    
+    // User Config Editor
+    "ui.invalid_json_format": "无效的 JSON 格式",
+    "ui.user": "用户",
+    "ui.unknown_adapter": "未知适配器",
+    "ui.collapse_edit": "收起编辑",
+    "ui.expand_edit": "展开编辑",
+    "ui.adapter": "适配器",
+    "ui.scene": "场景",
+    "ui.subscription_count": "订阅数量",
+    "ui.raw_config_data": "原始配置数据",
+    "ui.reset": "重置",
+    "ui.enter_json_config": "请输入 JSON 格式的用户配置...",
+    "ui.json_parse_error": "JSON 解析错误",
+    "ui.json_edit_hint": "提示: 请确保 JSON 格式正确。修改后的配置将实时生效。",
+    
+    // User and Subscription Management
+    "ui.subscriptions": "订阅",
+    "ui.add_subscription": "添加订阅",
+    "ui.no_subscriptions": "暂无订阅",
+    "ui.delete_user": "删除用户",
+    "ui.delete": "删除",
+    "ui.optional": "可选",
+    "ui.unknown_user": "未知用户",
+    "ui.push": "推送",
+    "ui.ignore": "忽略",
+    
+    // Subscription Fields
+    "ui.subscribe.uid": "UID",
+    "ui.subscribe.uname": "用户名",
+    "ui.subscribe.nickname": "昵称",
+    "ui.subscribe.note": "备注",
+    "ui.subscribe.live": "直播推送",
+    "ui.subscribe.live_notification": "直播通知",
+    "ui.subscribe.dynamic": "动态推送",
+    "ui.subscribe.dynamic_notification": "动态通知",
+    "ui.subscribe.dynamic_types": "动态类型配置",
+    
+    // Batch Operations
+    "ui.enable_all": "全部开启",
+    "ui.disable_all": "全部关闭",
+    "ui.default": "默认",
+    "ui.expand": "展开",
+    "ui.collapse": "收起",
 
     // Tab Names
     "tab.general": "通用",
@@ -166,6 +210,50 @@ const translations = {
     "ui.logout": "Logout",
     "ui.auth.logging_in": "Logging in...",
     "ui.auth.login_failed": "Login failed",
+    
+    // User Config Editor
+    "ui.invalid_json_format": "Invalid JSON format",
+    "ui.user": "User",
+    "ui.unknown_adapter": "Unknown Adapter",
+    "ui.collapse_edit": "Collapse Edit",
+    "ui.expand_edit": "Expand Edit",
+    "ui.adapter": "Adapter",
+    "ui.scene": "Scene",
+    "ui.subscription_count": "Subscription Count",
+    "ui.raw_config_data": "Raw Config Data",
+    "ui.reset": "Reset",
+    "ui.enter_json_config": "Please enter JSON format user config...",
+    "ui.json_parse_error": "JSON Parse Error",
+    "ui.json_edit_hint": "Tip: Please ensure JSON format is correct. Changes will take effect immediately.",
+    
+    // User and Subscription Management
+    "ui.subscriptions": "Subscriptions",
+    "ui.add_subscription": "Add Subscription",
+    "ui.no_subscriptions": "No subscriptions",
+    "ui.delete_user": "Delete User",
+    "ui.delete": "Delete",
+    "ui.optional": "Optional",
+    "ui.unknown_user": "Unknown User",
+    "ui.push": "Push",
+    "ui.ignore": "Ignore",
+    
+    // Subscription Fields
+    "ui.subscribe.uid": "UID",
+    "ui.subscribe.uname": "Username",
+    "ui.subscribe.nickname": "Nickname",
+    "ui.subscribe.note": "Note",
+    "ui.subscribe.live": "Live Push",
+    "ui.subscribe.live_notification": "Live Notification",
+    "ui.subscribe.dynamic": "Dynamic Push",
+    "ui.subscribe.dynamic_notification": "Dynamic Notification",
+    "ui.subscribe.dynamic_types": "Dynamic Type Config",
+    
+    // Batch Operations
+    "ui.enable_all": "Enable All",
+    "ui.disable_all": "Disable All",
+    "ui.default": "Default",
+    "ui.expand": "Expand",
+    "ui.collapse": "Collapse",
 
     // Tab Names
     "tab.general": "General",

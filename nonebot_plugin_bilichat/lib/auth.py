@@ -9,12 +9,11 @@ from nonebot.log import logger
 from nonebot_plugin_bilichat.config import ConfigCTX
 
 # ==================== 测试用固定OTP配置 ====================
-# 警告：仅用于测试！生产环境请保持 FIXED_OTP_CODE = None
-# 要启用固定OTP，将 FIXED_OTP_CODE 设置为6位数字字符串，如 "123456"
-FIXED_OTP_CODE = "123456"  # 设置为 "123456" 等固定验证码启用测试模式
-logger.warning("⚠️  请不要在生产环境中使用固定OTP验证码!")
-logger.warning(f"⚠️  测试模式: 使用固定OTP验证码: {FIXED_OTP_CODE}")
-logger.warning("⚠️  请不要在生产环境中使用固定OTP验证码!")
+# 警告：仅用于测试！生产环境请保持 IGNORE_OTP_CODE = False
+# 要启用固定OTP，将 IGNORE_OTP_CODE 设置为 True
+IGNORE_OTP_CODE = True  # 设置为 True 等固定验证码启用测试模式
+logger.warning("⚠️  测试模式: 忽略OTP验证码")
+logger.warning("⚠️  请不要在生产环境中使用忽略OTP验证码!")
 # ===========================================================
 
 # JWT配置
@@ -40,22 +39,17 @@ class AuthManager:
 
     def generate_otp(self) -> str:
         """生成6位数字OTP验证码"""
-        if FIXED_OTP_CODE is not None:
-            # 测试模式：使用固定OTP
-            self._otp_code = FIXED_OTP_CODE
-            self._expire_time = 4102415999  # 2099年12月31日
-            logger.warning(f"⚠️  测试模式：使用固定OTP验证码: {FIXED_OTP_CODE}")
-            return FIXED_OTP_CODE
-        else:
-            # 正常模式：生成随机6位数字验证码
-            otp_code = "".join([str(random.randint(0, 9)) for _ in range(6)])
-            self._otp_code = otp_code
-            self._expire_time = time.time() + 300  # 5分钟 = 300秒
-            logger.info(f"生成了新的OTP验证码: {otp_code}")
-            return otp_code
+        otp_code = "".join([str(random.randint(0, 9)) for _ in range(6)])
+        self._otp_code = otp_code
+        self._expire_time = time.time() + 300  # 5分钟 = 300秒
+        logger.info(f"生成了新的OTP验证码: {otp_code}")
+        return otp_code
 
     def verify_otp(self, code: str) -> bool:
         """验证OTP验证码"""
+        if IGNORE_OTP_CODE:
+            return True
+
         if not self._otp_code:
             return False
 
@@ -82,8 +76,6 @@ class AuthManager:
 
 # 全局认证管理器实例
 auth_manager = AuthManager()
-if FIXED_OTP_CODE is not None:
-    auth_manager.generate_otp()
 
 
 # 便捷函数

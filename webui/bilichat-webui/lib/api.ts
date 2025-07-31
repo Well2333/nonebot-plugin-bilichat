@@ -53,7 +53,7 @@ export interface Config {
     cmd_add_sub: string[]
     cmd_remove_sub: string[]
     cmd_check_sub: string[]
-    [key: string]: any
+    [key: string]: unknown
   }
   api: {
     request_api: Array<{
@@ -83,7 +83,39 @@ export interface Config {
     dynamic_interval: number
     live_interval: number
     push_delay: number
-    users: Record<string, any>
+    users: Record<string, {
+      info?: {
+        self_id?: string
+        adapter?: string
+        scope?: string
+        scene?: {
+          id?: string
+          type?: number
+          name?: string
+          avatar?: string | null
+          parent?: unknown
+        }
+        user?: {
+          id?: string
+          name?: string | null
+          nick?: string | null
+          avatar?: string
+          gender?: string
+        }
+        member?: unknown
+        operator?: unknown
+        platform?: unknown
+      }
+      id?: string
+      subscribes?: Array<{
+        uid: number
+        uname: string
+        nickname: string
+        note: string
+        dynamic: Record<string, "PUSH" | "IGNORE">
+        live: "PUSH" | "IGNORE"
+      }>
+    }>
   }
 }
 
@@ -143,7 +175,7 @@ export const loginWithOTP = async (code: string): Promise<OTPLoginResponse> => {
   return response.json()
 }
 
-export const getCurrentUser = async (): Promise<any> => {
+export const getCurrentUser = async (): Promise<{ id: string; username: string; [key: string]: unknown }> => {
   const response = await apiClient("/auth/me")
 
   if (!response.ok) {
@@ -176,7 +208,7 @@ export const setConfig = async (config: Config): Promise<Config> => {
   return response.json()
 }
 
-export const getConfigSchema = async (): Promise<any> => {
+export const getConfigSchema = async (): Promise<Record<string, unknown>> => {
   const response = await apiClient("/config/schema")
 
   if (!response.ok) {

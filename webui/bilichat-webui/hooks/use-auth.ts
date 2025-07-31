@@ -6,7 +6,7 @@ import { getToken, removeToken, getCurrentUser } from "@/lib/api"
 export function useAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState<{ id: string; username: string; [key: string]: unknown } | null>(null)
 
   useEffect(() => {
     const checkAuth = async () => {
