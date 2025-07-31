@@ -1,30 +1,29 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi import APIRouter, Depends
 from fastapi.staticfiles import StaticFiles
 from nonebot.log import logger
 
 from nonebot_plugin_bilichat.config import STATIC_DIR, ConfigCTX, nonebot_config
+from nonebot_plugin_bilichat.lib.auth import get_current_user
 
+from .auth import router as auth_router
 from .base import app
 from .config import router as config_router
 
-security = HTTPBearer()
-router = APIRouter()
-router.include_router(config_router)
+public_router = APIRouter()
+public_router.include_router(auth_router)
+protected_router = APIRouter()
+protected_router.include_router(config_router)
 
-
-async def verify_token(cred: HTTPAuthorizationCredentials = Depends(security)):
-    if cred.credentials != ConfigCTX.get().webui.api_access_token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or missing token",
-        )
-
+# 注册路由
+app.include_router(
+    public_router,
+    prefix=f"/{ConfigCTX.get().webui.api_path}",
+)
 
 app.include_router(
-    router,
+    protected_router,
     prefix=f"/{ConfigCTX.get().webui.api_path}",
-    dependencies=[Depends(verify_token)] if ConfigCTX.get().webui.api_access_token else [],
+    dependencies=[Depends(get_current_user)],
 )
 app.mount(
     f"/{ConfigCTX.get().webui.api_path}",
