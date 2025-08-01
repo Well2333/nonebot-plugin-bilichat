@@ -1,7 +1,7 @@
 [project]
 name = "nonebot-plugin-bilichat"
 
-version = "6.3.4"
+version = "6.4.0"
 
 description = "全功能的 bilibili 内容解析器及订阅器"
 authors = [
@@ -24,6 +24,7 @@ dependencies = [
     "qrcode>=8.1",
     "pytz>=2025.2",
     "deepdiff>=8.4.2",
+    "python-jose[cryptography]>=3.3.0",
 ]
 requires-python = ">=3.10,<4.0"
 readme = "README.md"

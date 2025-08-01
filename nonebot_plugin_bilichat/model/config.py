@@ -1,5 +1,6 @@
 from importlib.metadata import version
 
+from nonebot.log import logger
 from pydantic import BaseModel, Field, computed_field, field_validator
 
 from .subscribe import UserInfo
@@ -20,9 +21,22 @@ class WebUIConfig(BaseModel):
         description="WebUI 挂载路径",
         json_schema_extra={"ui:options": {"disabled": True}},
     )
-    api_access_token: str = Field(
-        default="", title="WebUI Token", description="WebUI Token", json_schema_extra={"ui:options": {"disabled": True}}
+    jwt_secret_key: str = Field(
+        default="change-me-in-production",
+        title="JWT密钥",
+        description="用于JWT签名的密钥, 生产环境请务必修改",
+        json_schema_extra={"ui:options": {"disabled": True}}
     )
+
+    @field_validator("jwt_secret_key", mode="before")
+    @classmethod
+    def check_jwt_secret_key(cls, v: str) -> str:
+        if not v or v == "change-me-in-production":
+            import secrets
+            new_key = secrets.token_urlsafe(32)
+            logger.warning("[BiliChat] 未配置JWT密钥, 已自动生成随机密钥。请在生产环境中手动配置webui.jwt_secret_key!")
+            return new_key
+        return v
 
 
 class NoneBotConfig(BaseModel):

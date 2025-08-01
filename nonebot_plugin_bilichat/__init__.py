@@ -64,6 +64,13 @@ __plugin_meta__ = PluginMetadata(
                 "brief_des": "无",
                 "detail_des": "无",
             },
+            {
+                "func": "生成WebUI验证码",
+                "trigger_method": "私聊 + 超级用户",
+                "trigger_condition": f"{cmd_perfix}webuiotp",
+                "brief_des": "生成WebUI访问验证码",
+                "detail_des": "无",
+            },
         ],
     },
 )
