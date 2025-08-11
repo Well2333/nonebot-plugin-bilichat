@@ -1,9 +1,13 @@
 from importlib.metadata import version
+from secrets import token_urlsafe
 
-from nonebot.log import logger
 from pydantic import BaseModel, Field, computed_field, field_validator
+from pyotp import random_base32
 
 from .subscribe import UserInfo
+
+RANDOM_JWT = token_urlsafe(32)
+RANDOM_OTP = random_base32()
 
 
 class WebUIConfig(BaseModel):
@@ -22,21 +26,17 @@ class WebUIConfig(BaseModel):
         json_schema_extra={"ui:options": {"disabled": True}},
     )
     jwt_secret_key: str = Field(
-        default="change-me-in-production",
+        default=RANDOM_JWT,
         title="JWT密钥",
         description="用于JWT签名的密钥, 生产环境请务必修改",
-        json_schema_extra={"ui:options": {"disabled": True}}
+        json_schema_extra={"ui:options": {"disabled": True}},
     )
-
-    @field_validator("jwt_secret_key", mode="before")
-    @classmethod
-    def check_jwt_secret_key(cls, v: str) -> str:
-        if not v or v == "change-me-in-production":
-            import secrets
-            new_key = secrets.token_urlsafe(32)
-            logger.warning("[BiliChat] 未配置JWT密钥, 已自动生成随机密钥。请在生产环境中手动配置webui.jwt_secret_key!")
-            return new_key
-        return v
+    otp_secret_key: str = Field(
+        default=RANDOM_OTP,
+        title="OTP密钥",
+        description="用于生成OTP验证码的密钥, 生产环境请务必修改",
+        json_schema_extra={"ui:options": {"disabled": True}},
+    )
 
 
 class NoneBotConfig(BaseModel):
@@ -281,7 +281,7 @@ class Config(BaseModel):
         json_schema_extra={"ui:options": {"disabled": True}},
     )
     webui: WebUIConfig = Field(
-        default=WebUIConfig(), title="WebUI 配置", description="WebUI 相关配置", json_schema_extra={"ui:hidden": True}
+        default=WebUIConfig(), title="WebUI 配置", description="WebUI 相关配置"
     )
     nonebot: NoneBotConfig = Field(default=NoneBotConfig(), title="nonebot 配置", description="nonebot 相关配置")
     api: ApiConfig = Field(default=ApiConfig(), title="API 配置", description="API 相关配置")

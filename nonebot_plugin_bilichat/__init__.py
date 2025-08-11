@@ -6,9 +6,7 @@ require("nonebot_plugin_alconna")
 require("nonebot_plugin_waiter")
 require("nonebot_plugin_uninfo")
 
-from .config import ConfigCTX, __version__, nonebot_config  # noqa: E402
-
-cmd_perfix = f"{nonebot_config.command_start}{ConfigCTX.get().nonebot.cmd_start}{nonebot_config.command_sep}"
+from .config import __version__, cmd_perfix  # noqa: E402
 
 __plugin_meta__ = PluginMetadata(
     name="nonebot-plugin-bilichat",

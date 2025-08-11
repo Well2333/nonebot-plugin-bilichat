@@ -41,6 +41,7 @@ export interface Config {
     enable: boolean
     api_path: string
     jwt_secret_key: string
+    otp_secret_key: string
   }
   nonebot: {
     block: boolean
