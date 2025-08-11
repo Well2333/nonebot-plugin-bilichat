@@ -25,11 +25,11 @@ async def push_msg(user: UserInfo, msg: str | UniMessage[Any]):
         logger.exception(e)
 
 async def dynamic():
-    logger.debug("[Dynamic] 检查新动态")
+    logger.trace("[Dynamic] 检查新动态")
     try:
         ups = await SubsStatus.get_online_ups("dynamic")
     except AbortError:
-        logger.debug("[Dynamic] 没有需要推送的用户, 跳过")
+        logger.trace("[Dynamic] 没有需要推送的用户, 跳过")
         return
     for up in ups:
         try:
@@ -80,11 +80,11 @@ async def dynamic():
 
 
 async def live():
-    logger.debug("[Live] 检查直播状态")
+    logger.trace("[Live] 检查直播状态")
     try:
         ups: list[UPStatus] = await SubsStatus.get_online_ups("live")
     except AbortError:
-        logger.debug("[Live] 没有需要推送的用户, 跳过")
+        logger.trace("[Live] 没有需要推送的用户, 跳过")
         return
     try:
         api = get_request_api()

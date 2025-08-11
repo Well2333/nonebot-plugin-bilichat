@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
-import { Save, Settings, Globe, Bot, Database, Bell, Plus, Trash2, Code, AlertCircle, Loader2, Edit3, User, Users } from "lucide-react"
+import { Save, Settings, Bot, Database, Bell, Plus, Trash2, Code, AlertCircle, Loader2, Edit3, User, Users } from "lucide-react"
 import { useI18n } from "@/lib/i18n"
 import { ConfigField } from "./config-field"
 import { useConfig } from "@/hooks/use-config"
@@ -641,14 +641,10 @@ export function ConfigEditor({ showSourceCode }: ConfigEditorProps) {
       )}
 
       <Tabs defaultValue="general" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="general" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
             {t("tab.general")}
-          </TabsTrigger>
-          <TabsTrigger value="webui" className="flex items-center gap-2">
-            <Globe className="h-4 w-4" />
-            {t("tab.webui")}
           </TabsTrigger>
           <TabsTrigger value="nonebot" className="flex items-center gap-2">
             <Bot className="h-4 w-4" />
@@ -734,64 +730,7 @@ export function ConfigEditor({ showSourceCode }: ConfigEditorProps) {
           </Card>
         </TabsContent>
 
-        {/* WebUI Tab */}
-        <TabsContent value="webui" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("config.webui.title")}</CardTitle>
-              <CardDescription>{t("config.webui.desc")}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <ConfigField
-                fieldKey="webui.enable"
-                label={t("config.webui.enable")}
-                description={t("config.webui.enable.desc")}
-                disabled
-              >
-                <div className="flex items-center justify-between">
-                  <div></div>
-                  <Switch
-                    id="webui-enable"
-                    checked={config.webui.enable}
-                    onCheckedChange={(checked) => updateConfig(["webui", "enable"], checked)}
-                    disabled
-                  />
-                </div>
-              </ConfigField>
-
-              <ConfigField
-                fieldKey="webui.api_path"
-                label={t("config.webui.api_path")}
-                description={t("config.webui.api_path.desc")}
-                disabled
-              >
-                <Input
-                  id="webui-path"
-                  value={config.webui.api_path}
-                  onChange={(e) => updateConfig(["webui", "api_path"], e.target.value)}
-                  disabled
-                  className="bg-gray-50 dark:bg-gray-800"
-                />
-              </ConfigField>
-
-              <ConfigField
-                fieldKey="webui.jwt_secret_key"
-                label={t("config.webui.jwt_secret_key")}
-                description={t("config.webui.jwt_secret_key.desc")}
-                disabled
-              >
-                <Input
-                  id="webui-jwt-key"
-                  type="password"
-                  value={config.webui.jwt_secret_key}
-                  onChange={(e) => updateConfig(["webui", "jwt_secret_key"], e.target.value)}
-                  disabled
-                  className="bg-gray-50 dark:bg-gray-800"
-                />
-              </ConfigField>
-            </CardContent>
-          </Card>
-        </TabsContent>
+        {/* WebUI Tab has been hidden as requested */}
 
         {/* NoneBot Tab */}
         <TabsContent value="nonebot" className="space-y-6">

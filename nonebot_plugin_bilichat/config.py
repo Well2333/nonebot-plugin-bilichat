@@ -47,6 +47,14 @@ class ConfigCTX:
         return cls._config
 
     @classmethod
+    def _write(cls, cfg: Config | None = None) -> None:
+        """写入配置文件"""
+        cls._config = cfg or cls._config
+        config_path.write_text(
+            yaml.dump(cls._config.model_dump(mode="json"), indent=4, allow_unicode=True), encoding="utf-8"
+        )
+
+    @classmethod
     def set(cls, cfg: Config | None = None, *, diff_msg: bool = True) -> None:
         cls._config = cfg or cls._config
         old_cfg = cls._load_config_file()
@@ -62,9 +70,7 @@ class ConfigCTX:
                 for diff_path in cfg_diff["dictionary_item_removed"]:
                     logger.info(f"[♻️] 移除配置项: {diff_path}")
             logger.info("配置已更新, 保存配置文件")
-            config_path.write_text(
-                yaml.dump(cls._config.model_dump(mode="json"), indent=4, allow_unicode=True), encoding="utf-8"
-            )
+            cls._write(cls._config)
         else:
             logger.info("配置未发生变化")
 
@@ -73,4 +79,5 @@ class ConfigCTX:
         return Config.model_validate(migrate(yaml.safe_load(config_path.read_text(encoding="utf-8"))))
 
 
-ConfigCTX.set(ConfigCTX._load_config_file(), diff_msg=False)
+ConfigCTX._write(ConfigCTX._load_config_file())
+cmd_perfix = f"{next(iter(nonebot_config.command_start))}{ConfigCTX.get().nonebot.cmd_start}{next(iter(nonebot_config.command_sep))}"

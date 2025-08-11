@@ -43,7 +43,7 @@ class SubsStatus:
 
     @classmethod
     async def refresh_online_users(cls) -> None:
-        logger.debug("重新检查可推送的用户")
+        logger.trace("重新检查可推送的用户")
         async with cls.modify_lock:
             cls.online_users.clear()
             config = ConfigCTX.get()
@@ -57,10 +57,10 @@ class SubsStatus:
                 target = to_target(user.info)
                 try:
                     bot = await target.select()
-                    logger.debug(f"用户 [{user.id}] 在线, 可用的bot: {bot}")
+                    logger.trace(f"用户 [{user.id}] 在线, 可用的bot: {bot}")
                     cls.online_users[user.id] = user
                 except Exception as e:
-                    logger.debug(f"用户 [{user.id}] 未在线: {e}")
+                    logger.trace(f"用户 [{user.id}] 未在线: {e}")
             logger.debug(f"当前可推送的用户: {list(cls.online_users.keys()) or '无'}")
 
     @classmethod

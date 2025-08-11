@@ -25,6 +25,7 @@ dependencies = [
     "pytz>=2025.2",
     "deepdiff>=8.4.2",
     "python-jose[cryptography]>=3.3.0",
+    "pyotp>=2.9.0",
 ]
 requires-python = ">=3.10,<4.0"
 readme = "README.md"
