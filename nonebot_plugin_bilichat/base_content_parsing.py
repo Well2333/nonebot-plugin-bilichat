@@ -44,7 +44,7 @@ async def _bili_check(state: T_State, event: Event, bot: Bot, msg: UniMsg) -> bo
         api = get_request_api()
     except APIError:
         logger.error("无API可用, 跳过解析")
-        raise FinishedException from None
+        return False
     _msgs = msg.copy()
     if Reply in msg and (
         (ConfigCTX.get().nonebot.enable_self and str(event.get_user_id()) == str(bot.self_id)) or event.is_tome()
