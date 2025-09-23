@@ -1,5 +1,10 @@
+import contextlib
 import datetime
+import re
 from typing import Any
+
+from httpx import AsyncClient
+from nonebot.log import logger
 
 
 def calc_time_total(t: float):
@@ -88,3 +93,27 @@ def shorten_long_items(
         return type(obj)(processed)
     else:
         return obj
+
+
+async def b23_extract(raw_b23: str) -> str:
+    if "b23" in raw_b23 and (b23_ := re.search(r"b23.(tv|wtf)[\\/]+(\w+)", raw_b23)):
+        b23 = list(b23_.groups())[1]
+    else:
+        b23 = raw_b23
+
+    return await url_extract(f"https://b23.tv/{b23}")
+
+
+async def url_extract(url: str) -> str:
+    async with AsyncClient(
+        headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:135.0) Gecko/20100101 Firefox/135.0",
+        },
+        follow_redirects=True,
+    ) as client:
+        for _ in range(3):
+            with contextlib.suppress(Exception):
+                resp = await client.head(url, follow_redirects=True)
+                return str(resp.url).split("?")[0]
+        logger.error(f"无法访问此链接的HEAD, 跳过: {url}")
+        return ""

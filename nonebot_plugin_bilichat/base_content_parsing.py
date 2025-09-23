@@ -1,5 +1,6 @@
 import asyncio
 import base64
+import re
 import shlex
 
 from nonebot.adapters import Bot, Event
@@ -12,6 +13,7 @@ from nonebot_plugin_alconna.uniseg import Hyper, Image, MsgTarget, Reply, Text, 
 
 from .config import ConfigCTX
 from .lib.content_cd import BilichatCD
+from .lib.tools import b23_extract, url_extract
 from .model.arguments import Options, parser
 from .model.exception import AbortError, APIError, RequestError
 from .model.request_api import Content
@@ -55,17 +57,29 @@ async def _bili_check(state: T_State, event: Event, bot: Bot, msg: UniMsg) -> bo
         # 满足上述任一条件, 则将被回复的消息的内容添加到待解析的内容中
         _msgs.append(Text(str(msg[Reply, 0].msg)))
 
-    bililink = None
-    for _msg in _msgs[Text] + _msgs[Hyper]:
+    bililink = None  # 初始化变量
+
+    # 文本消息
+    for _msg in _msgs[Text]:
         # b23 格式的链接
         _msg_str = str(_msg.data)
         if "b23" in _msg_str:
-            bililink = await api.tools_b23_extract(_msg_str)
+            bililink = await b23_extract(_msg_str)
         # av bv cv 格式和动态的链接
         for seg in ("av", "bv", "cv", "dynamic", "opus", "t.bilibili.com"):
             if seg in _msg_str.lower():
                 bililink = _msg_str
                 break
+
+    # Hyper 消息
+    for _msg in _msgs[Hyper]:
+        links: list[str] = re.findall(r"https?://[^\s\"']+", str(_msg.data))
+        for link_raw in links:
+            if "b23" in link_raw or "bilibili" in link_raw:
+                link_extracted = await url_extract(link_raw)
+                if "bilibili" in link_extracted:
+                    bililink = link_extracted
+                    break
 
     if not bililink:
         return False
