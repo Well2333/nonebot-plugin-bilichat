@@ -67,7 +67,10 @@ async def dynamic():
                         if user.subscribes_dict[up.uid].dynamic.get(dyn.dyn_type) == PushType.AT_ALL
                         else Text("")
                     )
-                    msg = UniMessage([at_all, Text(f"{up_name} 发布了新动态\n"), dyn_img, Text(f"\n{content.b23}")])
+                    if ConfigCTX.get().subs.use_rich_media:
+                        msg = UniMessage([at_all, Text(f"{up_name} 发布了新动态\n"), dyn_img, Text(f"\n{content.b23}")])
+                    else:
+                        msg = UniMessage([at_all, Text(f"{up_name} 发布了新动态\n{content.b23}")])
                     target = user.target
                     logger.debug(f"target: {target}")
                     await push_msg(user, msg)
@@ -124,14 +127,22 @@ async def live():
                         up_info.uname = up.name  # 更新up名字
                         up_name = up_info.nickname or up_info.uname
                         at_all = AtAll() if user.subscribes_dict[up.uid].live == PushType.AT_ALL else Text("")
-                        msg = UniMessage(
-                            [
-                                at_all,
-                                Text(f"{up_name} 开播了: {live.title}\n"),
-                                live_cover,
-                                Text(f"\nhttps://live.bilibili.com/{live.room_id}"),
-                            ]
-                        )
+                        if ConfigCTX.get().subs.use_rich_media:
+                            msg = UniMessage(
+                                [
+                                    at_all,
+                                    Text(f"{up_name} 开播了: {live.title}\n"),
+                                    live_cover,
+                                    Text(f"\nhttps://live.bilibili.com/{live.room_id}"),
+                                ]
+                            )
+                        else:
+                            msg = UniMessage(
+                                [
+                                    at_all,
+                                    Text(f"{up_name} 开播了: {live.title}\nhttps://live.bilibili.com/{live.room_id}"),
+                                ]
+                            )
                         await push_msg(user, msg)
             # 下播通知, up.live_status == 1 且 live.live_status != 1
             elif up.live_status == 1:

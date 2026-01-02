@@ -35,9 +35,9 @@ def v6_2_5(raw_config: dict) -> dict:
 
 def migrate(raw_config: dict):
     version = Version(raw_config.get("version", "0.0.0"))
-    if version <= Version("6.1.2"):
+    if version < Version("6.1.2"):
         raw_config = v6_1_2(raw_config)
-    if version <= Version("6.2.5"):
+    if version < Version("6.2.5"):
         raw_config = v6_2_5(raw_config)
 
     return raw_config

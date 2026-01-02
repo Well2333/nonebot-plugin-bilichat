@@ -250,6 +250,7 @@ class SubscribeConfig(BaseModel):
     dynamic_interval: int = Field(default=300, title="动态轮询间隔", description="动态轮询间隔, 单位为秒", ge=15)
     live_interval: int = Field(default=60, title="直播轮询间隔", description="直播轮询间隔, 单位为秒", ge=10)
     push_delay: int = Field(default=3, title="推送延迟", description="每条推送的延迟, 单位为秒", ge=0)
+    use_rich_media: bool = Field(default=True, title="使用富文本消息", description="推送时是否发送富文本消息(包含图片等多媒体内容), 若关闭则只发送纯文本")
     # users: list[UserInfo] = Field(default=[], title="已订阅用户", description="已添加订阅的用户")
     users_dict: dict[str, UserInfo] = Field(default={}, alias="users", exclude=True)
 
